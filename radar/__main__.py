@@ -26,6 +26,7 @@ from .sources.aggregators import adzuna, manual
 from .sources import boards
 from .sources.ats import FETCHERS
 from .store import Store, dump_json, offer_from_row
+from .text import fold
 
 ROOT = Path(__file__).resolve().parent.parent
 log = logging.getLogger("radar")
@@ -108,7 +109,9 @@ def export(store: Store, today: date) -> None:
             "id": row["key"], "company": o.company, "title": o.title, "url": o.url, "location": o.location,
             "sector": o.sector, "size": o.size, "region": region(o.location), "source": o.source, "posted_at": o.posted_at[:10],
             "first_seen": row["first_seen"], "new": row["first_seen"] == today.isoformat(),
-            "excerpt": o.description[:600], **sc,
+            "excerpt": o.description[:600],
+            # texte de recherche du tableau de bord : annonce complète, repliée (minuscules, sans accents)
+            "text": fold(o.description)[:6000], **sc,
         })
     order = {"A": 0, "B": 1, "C": 2, "D": 3, "X": 4}
     items.sort(key=lambda x: (order[x["grade"]], -x["score"], -x["data"]))

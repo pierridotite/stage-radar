@@ -41,6 +41,7 @@
   --g-c: #f0b95a; --g-c-bg: #3a2c12; --g-d: #f08a7a; --g-d-bg: #3d1d18; --pos: #6fd497; --neg: #f08a7a;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { background: var(--ground); color: var(--ink); font: 15px/1.5 var(--body); margin: 0; }
 .wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
 a { color: inherit; }
@@ -158,7 +159,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
 
   <div class="controls">
     <div class="row">
-      <input id="q" class="search" type="search" placeholder="Rechercher : entreprise, intitulé, ville, compétence…" aria-label="Rechercher">
+      <input id="q" class="search" type="search" placeholder="Rechercher : entreprise, intitulé, ville, région, compétence… (plusieurs mots possibles)" aria-label="Rechercher">
       <select id="profile" aria-label="Classer pour">
         <option value="">Classer par accessibilité</option>
       </select>
@@ -243,22 +244,28 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   function myMatch(o) {
     const kws = state.mykw.split(",").map((k) => fold(k.trim())).filter(Boolean);
     if (!kws.length) return 0;
-    const t = fold(o.title + " " + o.company), d = fold(o.excerpt);
+    const t = fold(o.title + " " + o.company), d = o.text || fold(o.excerpt);
     let s = 0;
     for (const k of kws) s += t.includes(k) ? 30 : d.includes(k) ? 12 : 0;
     return Math.min(100, s);
   }
+  // Recherche par mots : chaque mot tapé doit apparaître quelque part (intitulé, entreprise, lieu, région,
+  // secteur, taille, texte complet de l'annonce), sans tenir compte des accents ni des majuscules.
+  function haystack(o) {
+    return o._hay ??= fold([o.title, o.company, o.location, o.region, SECTORS[o.sector], o.sector, SIZES[o.size], o.size,
+      o.text || o.excerpt].join(" "));
+  }
   const matchOf = (o) => state.profile === "_me" ? myMatch(o) : state.profile ? (o.match?.[state.profile] ?? 0) : null;
 
   function filtered() {
-    const q = fold(state.q);
+    const words = fold(state.q).split(/[\s,;]+/).filter(Boolean);
     let items = data.offers.filter((o) =>
       (!state.sectors.size || state.sectors.has(o.sector)) &&
       (!state.sizes.size || state.sizes.has(o.size)) &&
       (!state.grades.size || state.grades.has(o.grade)) &&
       (!state.region || o.region === state.region) &&
       (!state.onlyNew || o.new) && (!state.onlyFav || favs.has(o.id)) &&
-      (!q || fold(`${o.title} ${o.company} ${o.location} ${o.excerpt}`).includes(q)));
+      words.every((w) => haystack(o).includes(w)));
     if (state.sort === "recent") items.sort((a, b) => (b.first_seen + b.posted_at).localeCompare(a.first_seen + a.posted_at));
     else if (state.profile) items.sort((a, b) => (a.grade === "X") - (b.grade === "X") ||
       (matchOf(b) * 0.6 + b.score * 0.4) - (matchOf(a) * 0.6 + a.score * 0.4));
