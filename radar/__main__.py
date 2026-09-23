@@ -110,7 +110,8 @@ def export(store: Store, today: date) -> None:
             "first_seen": row["first_seen"], "new": row["first_seen"] == today.isoformat(),
             "excerpt": o.description[:600], **sc,
         })
-    items.sort(key=lambda x: (-x["accessibility"], -x["relevance"]))
+    order = {"A": 0, "B": 1, "C": 2, "D": 3, "X": 4}
+    items.sort(key=lambda x: (order[x["grade"]], -x["score"], -x["data"]))
 
     runs = store.db.execute("SELECT source, company, found, error FROM runs WHERE day=?", (today.isoformat(),))
     runs = [dict(r) for r in runs]
@@ -124,6 +125,7 @@ def export(store: Store, today: date) -> None:
             "by_sector": Counter(i["sector"] for i in items), "by_size": Counter(i["size"] or "?" for i in items),
             "by_region": Counter(i["region"] or "?" for i in items),
             "by_grade": Counter(i["grade"] for i in items),
+            "by_calendar": Counter(i["calendar"] for i in items),
             "companies_ok": sum(1 for r in runs if not r["error"]),
             "companies_error": [r["company"] for r in runs if r["error"]],
         },
@@ -138,10 +140,11 @@ def export(store: Store, today: date) -> None:
 
     with (ROOT / "docs" / "data" / "offres_du_jour.csv").open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f, delimiter=";")
-        w.writerow(["note", "accessibilite", "pertinence", "nouveau", "entreprise", "intitule", "lieu", "secteur",
-                    "taille", "publie_le", "lien", "raisons"])
+        w.writerow(["note", "score", "data", "profil", "concurrence", "calendrier", "nouveau", "entreprise",
+                    "intitule", "lieu", "secteur", "taille", "publie_le", "lien", "raisons"])
         for i in items:
-            w.writerow([i["grade"], i["accessibility"], i["relevance"], "oui" if i["new"] else "", i["company"],
+            w.writerow([{"X": "hors calendrier"}.get(i["grade"], i["grade"]), i["score"], i["data"], i["profile"],
+                        i["competition"], i["calendar"].replace("_", " "), "oui" if i["new"] else "", i["company"],
                         i["title"], i["location"], i["sector"], i["size"], i["posted_at"], i["url"],
                         " | ".join(f"{r[0]:+d} {r[1]}" for r in i["reasons"])])
     log.info("export : %d stages data (%d nouveaux) -> docs/data/offers.json", len(items), payload["stats"]["new"])

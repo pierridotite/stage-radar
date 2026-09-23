@@ -1,7 +1,12 @@
-"""Scores : pertinence data, accessibilité Institut Agro, et match avec chaque profil de la promo.
+"""Notation des offres selon trois axes indépendants, plus un filtre calendrier (voir config/scoring.yaml).
 
-Chaque score renvoie aussi ses raisons, affichées telles quelles dans le tableau de bord :
-un score qu'on ne peut pas expliquer ne sert à rien pour décider où candidater.
+    DATA        (0-100)  est-ce un vrai poste data ?
+    PROFIL      (0-100)  un·e élève data science de l'Institut Agro correspond-il à ce qui est demandé ?
+    CONCURRENCE          faible / moyenne / forte
+    CALENDRIER           compatible / à vérifier / hors calendrier (début février 2027, 6 mois)
+
+Chaque point attribué est accompagné de sa raison et de son axe, affichés tels quels dans le tableau de bord :
+une note qu'on ne peut pas expliquer ne sert à rien pour décider où candidater.
 """
 from __future__ import annotations
 
@@ -24,78 +29,157 @@ def _days_since(iso: str, today: date) -> int | None:
             return None
 
 
-class Scorer:
-    def __init__(self, scoring_cfg: dict, profiles_cfg: dict, today: date | None = None):
-        self.today = today or date.today()
-        rel = scoring_cfg["relevance"]
-        self.rel_min = rel["min_score"]
-        self.rel_title = compile_terms(rel["title_terms"])
-        self.rel_desc = compile_terms(rel["description_terms"])
-        self.rel_exclude = compile_terms(rel.get("title_exclude") or ["__none__"])
+def _rx(terms: list[str] | None):
+    return compile_terms(terms or ["__none__"])
 
-        acc = scoring_cfg["accessibility"]
-        self.acc = acc
-        self.rules = [dict(r, rx=compile_terms(r["terms"])) for r in acc["rules"]]
-        self.network_rx = compile_terms(acc["network_companies"]["names"])
-        self.demand_rx = compile_terms(acc["high_demand_companies"]["names"])
+
+def _capped(found: set, per_match: int, cap: int) -> int:
+    pts = per_match * len(found)
+    return max(pts, cap) if cap < 0 else min(pts, cap)
+
+
+class Scorer:
+    def __init__(self, cfg: dict, profiles_cfg: dict, today: date | None = None):
+        self.today = today or date.today()
+        self.cfg = cfg
+        d, p, c, k = cfg["data"], cfg["profile"], cfg["competition"], cfg["calendar"]
+
+        self.d_keep = d["min_to_keep"]
+        self.d_strong, self.d_weak = _rx(d["title_strong"]["terms"]), _rx(d["title_weak"]["terms"])
+        self.d_skills, self.d_not = _rx(d["skills"]["terms"]), _rx(d["not_data"]["terms"])
+        self.d_exclude = _rx(d.get("title_exclude"))
+
+        self.p_rules = [dict(r, rx=_rx(r["terms"])) for r in p["rules"]]
+        self.p_known, self.p_missing = _rx(p["skills_known"]["terms"]), _rx(p["skills_missing"]["terms"])
+        bs = p["business_school"]
+        self.bs_rx, self.bs_alt = _rx(bs["terms"]), _rx(bs["alternatives"])
+
+        self.c_network, self.c_demand = _rx(c["network_companies"]), _rx(c["high_demand_companies"])
+        self.c_elite = _rx(c["elite_targeting"]["terms"])
+
+        self.k_ok, self.k_early = _rx(k["compatible"]), _rx(k["too_early"])
+        self.k_short, self.k_long = _rx(k["short"]), _rx(k["long_ok"])
+        self.k_ctx, self.k_dur = _rx(k["start_context"]), _rx(k["duration_context"])
 
         self.profiles = {"promo": profiles_cfg["promo"], **profiles_cfg.get("students", {})}
-        for p in self.profiles.values():
-            p["_kw"] = compile_terms(p.get("keywords") or ["__none__"])
-            p["_strong"] = compile_terms(p.get("strong") or ["__none__"])
+        for prof in self.profiles.values():
+            prof["_kw"], prof["_strong"] = _rx(prof.get("keywords")), _rx(prof.get("strong"))
 
-    # ------------------------------------------------------------ pertinence
-    def relevance(self, title: str, text: str) -> int:
-        if self.rel_exclude.search(title):
-            return 0
-        t_hits = set(self.rel_title.findall(title))
-        d_hits = set(self.rel_desc.findall(text))
-        score = (60 if t_hits else 0) + min(10 * len(d_hits), 40)
-        return min(score, 100)
+    # ------------------------------------------------------------ DATA
+    def data_axis(self, title: str, text: str) -> tuple[int, list]:
+        d, reasons = self.cfg["data"], []
+        if self.d_exclude.search(title):
+            return 0, [[0, "Intitulé hors data (juridique, RH, vente, contenu...)", [], "data"]]
+        strong, weak = set(self.d_strong.findall(title)), set(self.d_weak.findall(title))
+        if strong:
+            reasons.append([d["title_strong"]["points"], "Intitulé de poste data", sorted(strong)[:3], "data"])
+        elif weak:
+            reasons.append([d["title_weak"]["points"], "Intitulé d'analyse, data à confirmer", sorted(weak)[:3], "data"])
+        skills = set(self.d_skills.findall(f"{title} {text}"))
+        if skills:
+            reasons.append([_capped(skills, d["skills"]["per_match"], d["skills"]["cap"]),
+                            f"{len(skills)} compétence(s) data demandée(s)", sorted(skills)[:5], "data"])
+        lab_title, lab_text = set(self.d_not.findall(title)), set(self.d_not.findall(text))
+        if lab_title or len(lab_text) >= 2:
+            reasons.append([d["not_data"]["points"], "Travail de paillasse, de terrain ou de vente",
+                            sorted(lab_title | lab_text)[:3], "data"])
+        return max(0, min(100, sum(r[0] for r in reasons))), reasons
 
-    # ------------------------------------------------------------ accessibilité
-    def accessibility(self, o: Offer, title: str, text: str, zone_: str) -> tuple[int, list[list]]:
-        acc, full = self.acc, f"{title} {text}"
-        reasons: list[list] = []
+    # ------------------------------------------------------------ PROFIL
+    def _business_only(self, text: str) -> bool:
+        """Vrai si l'annonce ne cite QUE l'école de commerce (aucune alternative à proximité)."""
+        hits = list(self.bs_rx.finditer(text))
+        if not hits:
+            return False
+        w = self.cfg["profile"]["business_school"]["window"]
+        return not any(self.bs_alt.search(text[max(0, m.start() - w):m.end() + w]) for m in hits)
 
-        for r in self.rules:
+    def profile_axis(self, o: Offer, title: str, text: str) -> tuple[int, list]:
+        p, full, reasons = self.cfg["profile"], f"{title} {text}", []
+        for r in self.p_rules:
             found = set(r["rx"].findall(full))
-            if not found:
-                continue
-            if "per_match" in r:
-                pts = r["per_match"] * len(found)
-                pts = max(pts, r["cap"]) if r["cap"] < 0 else min(pts, r["cap"])
-            else:
-                pts = r["points"]
-            reasons.append([pts, r["label"], sorted(found)[:4]])
+            if not found and r["label"].startswith("Domaine") and o.sector == "agro":
+                found = {"secteur agro"}
+            if found:
+                reasons.append([r["points"], r["label"], sorted(found)[:4], "profil"])
+        known, missing = set(self.p_known.findall(full)), set(self.p_missing.findall(full))
+        if known:
+            sk = p["skills_known"]
+            reasons.append([_capped(known, sk["per_match"], sk["cap"]), "Outils que la promo maîtrise",
+                            sorted(known)[:5], "profil"])
+        if missing:
+            sm = p["skills_missing"]
+            reasons.append([_capped(missing, sm["per_match"], sm["cap"]), "Outils hors cursus demandés",
+                            sorted(missing)[:5], "profil"])
+        if self._business_only(text):
+            bs = p["business_school"]
+            reasons.append([bs["only_points"], bs["label_only"], [], "profil"])
+        return max(0, min(100, p["base"] + sum(r[0] for r in reasons))), reasons
 
-        sp = acc["sector_points"].get(o.sector, 0)
-        if sp:
-            reasons.append([sp, f"Secteur {o.sector} : réseau de l'école", []])
+    # ------------------------------------------------------------ CONCURRENCE
+    def competition_axis(self, o: Offer, text: str) -> tuple[str, list]:
+        c, company = self.cfg["competition"], fold(o.company)
+        elite = set(self.c_elite.findall(text))
+        if self.c_demand.search(company):
+            level, why, terms = "forte", "Marque très convoitée", []
+        elif elite:
+            level, why, terms = "forte", "Annonce qui cible les écoles les plus sélectives", sorted(elite)[:3]
+        elif self.c_network.search(company):
+            level, why, terms = "faible", "Entreprise qui recrute déjà à l'Institut Agro", []
+        elif o.size in c["small_sizes"]:
+            label = {"pme": "PME", "startup": "Startup", "public": "Structure publique ou de recherche"}[o.size]
+            level, why, terms = "faible", f"{label} : moins de candidats", []
+        else:
+            level, why, terms = "moyenne", "Concurrence habituelle", []
+        return level, [[c["points"][level], why, terms, "concurrence"]]
 
-        company = fold(o.company)
-        if self.network_rx.search(company):
-            reasons.append([acc["network_companies"]["points"], "Entreprise qui recrute déjà dans l'école", []])
-        if self.demand_rx.search(company):
-            reasons.append([acc["high_demand_companies"]["points"], "Marque très convoitée : forte concurrence", []])
+    # ------------------------------------------------------------ CALENDRIER
+    def _in_context(self, rx, ctx, title: str, text: str) -> set:
+        """Termes trouvés dans l'intitulé, ou dans l'annonce juste après un mot de contexte (début, durée...)."""
+        w = self.cfg["calendar"]["context_window"]
+        found = set(rx.findall(title))
+        for m in rx.finditer(text):
+            if "2027" in m.group(0) or ctx.search(text[max(0, m.start() - w):m.start()]):
+                found.add(m.group(0))
+        return found
 
+    def calendar_axis(self, o: Offer, title: str, text: str) -> tuple[str, list]:
+        k, full = self.cfg["calendar"], f"{title} {text}"
+        ok = self._in_context(self.k_ok, self.k_ctx, title, text)
+        early = self._in_context(self.k_early, self.k_ctx, title, text)
+        short = self._in_context(self.k_short, self.k_dur, title, text)
+        long_ = set(self.k_long.findall(full))
+        if early and not ok:
+            status = "hors_calendrier"
+            reason = [0, "Début en 2026 : avant la fin des cours", sorted(early)[:2], "calendrier"]
+        elif short and not long_:
+            status = "hors_calendrier"
+            reason = [0, "Stage court, pas un stage de fin d'études", sorted(short)[:2], "calendrier"]
+        elif ok:
+            status = "compatible"
+            reason = [k["points"]["compatible"], "Début compatible avec février 2027", sorted(ok)[:2], "calendrier"]
+        else:
+            status = "a_verifier"
+            reason = [k["points"]["a_verifier"], "Date de début non précisée : à vérifier", [], "calendrier"]
+        reasons = [reason]
         age = _days_since(o.posted_at, self.today)
-        fr = acc["freshness"]
-        if age is not None and age <= fr["new_days"]:
-            reasons.append([fr["new_points"], f"Publiée il y a {max(age, 0)} j", []])
-        elif age is not None and age >= fr["stale_days"]:
-            reasons.append([fr["stale_points"], f"Publiée il y a {age} j : peut-être pourvue", []])
+        if age is not None and age >= k["stale_days"]:
+            reasons.append([k["stale_points"], f"Annonce publiée il y a {age} jours : peut-être pourvue", [],
+                            "calendrier"])
+        return status, reasons
 
-        score = max(5, min(98, acc["base"] + sum(r[0] for r in reasons)))
-        reasons.sort(key=lambda r: -abs(r[0]))
-        return score, reasons
+    # ------------------------------------------------------------ note finale
+    def grade(self, score: int, data: int, profile: int, calendar: str) -> str:
+        if calendar == "hors_calendrier":
+            return "X"
+        g = self.cfg["grades"]
+        if score >= g["A"]["score"] and data >= g["A"]["min_data"] and profile >= g["A"]["min_profile"]:
+            return "A"
+        if score >= g["B"]["score"] and data >= g["B"]["min_data"]:
+            return "B"
+        return "C" if score >= g["C"] else "D"
 
-    def grade(self, score: int) -> str:
-        g = self.acc["grades"]
-        return "A" if score >= g["A"] else "B" if score >= g["B"] else "C" if score >= g["C"] else "D"
-
-    # ------------------------------------------------------------ match profil
-    def matches(self, o: Offer, title: str, text: str, zone_: str) -> dict[str, int]:
+    def matches(self, o: Offer, title: str, text: str) -> dict[str, int]:
         out = {}
         for pid, p in self.profiles.items():
             if pid == "promo":
@@ -108,18 +192,19 @@ class Scorer:
             out[pid] = max(0, min(100, s))
         return out
 
-    # ------------------------------------------------------------ tout
     def score(self, o: Offer) -> dict | None:
-        """Renvoie None si l'offre n'est pas un stage data (écartée)."""
-        title = prepare(o.title)
-        text = prepare(o.description)
-        rel = self.relevance(title, text)
-        if rel < self.rel_min:
+        """Renvoie None si l'offre n'est pas un stage data (écartée du tableau de bord)."""
+        title, text = prepare(o.title), prepare(o.description)
+        data, r_data = self.data_axis(title, text)
+        if data < self.d_keep:
             return None
-        z = zone(o.country, o.location)
-        acc, reasons = self.accessibility(o, title, text, z)
+        profile, r_prof = self.profile_axis(o, title, text)
+        comp, r_comp = self.competition_axis(o, text)
+        cal, r_cal = self.calendar_axis(o, title, text)
+        score = max(0, min(100, round((data + profile) / 2 + sum(r[0] for r in r_comp + r_cal))))
         return {
-            "relevance": rel, "zone": z, "accessibility": acc, "grade": self.grade(acc),
-            "reasons": reasons, "match": self.matches(o, title, text, z),
-            "age_days": _days_since(o.posted_at, self.today),
+            "score": score, "grade": self.grade(score, data, profile, cal),
+            "data": data, "profile": profile, "competition": comp, "calendar": cal,
+            "zone": zone(o.country, o.location), "reasons": r_data + r_prof + r_comp + r_cal,
+            "match": self.matches(o, title, text), "age_days": _days_since(o.posted_at, self.today),
         }

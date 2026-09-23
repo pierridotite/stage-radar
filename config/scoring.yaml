@@ -1,7 +1,18 @@
 # =====================================================================
-# Grille de score, modifiable sans toucher au code.
-# Les mots-clés s'écrivent en minuscules SANS accents ; un '*' final = préfixe
-# ("statisti*" couvre statistique, statistician, statistiques...).
+# Grille de notation, modifiable sans toucher au code.
+# Mots-clés en minuscules SANS accents ; un '*' final = préfixe ("statisti*" couvre statistique, statistician...).
+#
+# La note répond à une question : "un·e élève data science de l'Institut Agro a-t-il de vraies chances
+# sur ce stage, et est-ce un vrai stage data ?". Elle combine trois axes indépendants, chacun expliqué :
+#   DATA        (0-100) : est-ce un poste data ?
+#   PROFIL      (0-100) : notre profil correspond-il à ce qui est demandé ?
+#   CONCURRENCE (faible / moyenne / forte) : combien de candidats en face ?
+# plus un filtre CALENDRIER (compatible / à vérifier / hors calendrier) pour un début en février 2027.
+#
+#   score = (DATA + PROFIL) / 2 + ajustement concurrence + ajustement calendrier
+#   A : score >= 72, avec DATA >= 60 et PROFIL >= 60      B : score >= 60, avec DATA >= 50
+#   C : score >= 48                                       D : en dessous
+#   Hors calendrier : début en 2026 ou stage court, quelle que soit la note (affiché à part)
 # =====================================================================
 
 school:
@@ -10,128 +21,148 @@ school:
   internship: Stage de fin d'études, 6 mois, début février 2027
 
 # ---------------------------------------------------------------------
-# 1. PERTINENCE : l'offre est-elle un stage data ? (sinon elle est écartée)
+# DATA : est-ce un poste data ?
 # ---------------------------------------------------------------------
-relevance:
-  min_score: 30
-  title_terms: [data, donnee*, "machine learning", ml, ia, ai, "intelligence artificielle", statisti*, biostat*,
-                analyst, analysts, analyste*, analytics, analytique*, modelisation, modeling, modelling,
-                "deep learning", nlp, llm*, genai, "gen ai", bi, "business intelligence", "power bi", quantitati*,
-                forecast*, prevision*, datascien*, algorithm*, "computer vision", "vision par ordinateur", mlops,
-                dataviz, "data viz", biometri*, chimiometri*, sensometri*, "science des donnees",
-                "sciences des donnees", "data-driven", "predicti*", "optimisation", "recherche operationnelle"]
-  # Intitulés qui contiennent "data" sans être des postes data (juridique, RH, contenu, vente...)
+data:
+  min_to_keep: 35            # en dessous, l'offre n'est pas un stage data : écartée du tableau de bord
+  title_strong:              # intitulé clairement data : +55
+    points: 55
+    terms: [data, donnee*, "machine learning", ml, ia, ai, "intelligence artificielle", statisti*, biostat*,
+            datascien*, "deep learning", nlp, llm*, genai, "gen ai", "computer vision", "vision par ordinateur",
+            mlops, "business intelligence", bi, "power bi", dataviz, biometri*, chimiometri*, sensometri*,
+            bioinformati*, "science des donnees", "sciences des donnees", modelisation, modeling, modelling,
+            "recherche operationnelle", forecast*, prevision*, quantitati*, analytics, analytique*, "data-driven",
+            predicti*, algorithm*, "modele statistique*", "modeles statistiques", "estimation de parametres",
+            genomique, "genetique quantitative", "parametres genetiques", econometri*, actuari*]
+  title_weak:                # intitulé "analyse" plus vague : +30
+    points: 30
+    terms: [analyst, analysts, analyste*, insight*, performance, "controle de gestion", pricing, "supply chain planner",
+            "demand planner", digital, numerique, automatisation, automation, crm, modele*, analyse, estimation,
+            simulation, "aide a la decision", optimisation]
+  skills:                    # compétences data citées dans l'annonce : +8 par compétence distincte, max +45
+    per_match: 8
+    cap: 45
+    terms: [python, r, rstudio, tidyverse, shiny, sql, "machine learning", statisti*, modelisation, "power bi", tableau,
+            pandas, "scikit-learn", sklearn, tensorflow, pytorch, "data science", "analyse de donnees",
+            "analyses de donnees", "data analysis", "big data", dataiku, databricks, spark, knime, sas, spss, jmp,
+            minitab, "plan d'experience*", "design of experiment*", anova, regression, "series temporelles",
+            "time series", "deep learning", "apprentissage automatique", "modeles mixtes", "mixed model*", glm,
+            dataviz, "visualisation de donnees", "data visualization", qgis, sig, "bases de donnees", etl]
+  not_data:                  # paillasse / terrain / vente : -25 si dans l'intitulé ou 2 termes distincts dans l'annonce
+    points: -25
+    terms: [paillasse, pcr, qpcr, "culture cellulaire", "cultures cellulaires", microscopie, "biologie moleculaire",
+            sequencage, prelevement*, echantillonnage, "suivi d'essais", "essais au champ", "experimentation au champ",
+            "sondes fluorescentes", "conseiller de vente", "conseillere de vente", "vente en magasin", "manipulations"]
+  # Intitulés qui contiennent "data" sans être des postes data (juridique, RH, contenu, vente...) : écartés
   title_exclude: [legal, juriste, juridique, counsel, avocat*, lawyer, "data protection", "protection des donnees", rgpd,
                   gdpr, dpo, compliance, conformite, "ressources humaines", rh, hr, recrutement, recruit*, talent,
-                  communication, "content creation", "creation de contenu", contenu, content, "social media", journalis*,
-                  sales, commercial, vente, "business develop*", achats, purchasing, comptab*, accounting, audit,
-                  "account manager", "office manager", "event*", evenementiel, design, designer, graphi*, artist]
-  description_terms: [python, r, rstudio, tidyverse, shiny, sql, "machine learning", statisti*, modelisation,
-                      "power bi", pandas, "scikit-learn", sklearn, tensorflow, pytorch, "data science",
-                      "analyse de donnees", "analyses de donnees", "data analysis", "big data", dataiku, databricks,
-                      spark, knime, sas, spss, jmp, minitab, "plan d'experience*", "design of experiment*",
-                      anova, regression, "series temporelles", "time series", "deep learning", "apprentissage automatique"]
+                  communication, "content creation", "creation de contenu", contenu, content, "social media",
+                  journalis*, sales, commercial, vente, "business develop*", achats, purchasing, comptab*, accounting,
+                  audit, "account manager", "office manager", "event*", evenementiel, design, designer, graphi*, artist]
 
 # ---------------------------------------------------------------------
-# 2. ACCESSIBILITÉ pour un·e élève de l'Institut Agro (0-100)
-#    score = base + somme des règles déclenchées, borné entre 5 et 98
+# PROFIL : un·e élève Institut Agro data science correspond-il à ce qui est demandé ?
 # ---------------------------------------------------------------------
-accessibility:
-  base: 55
-
-  # Règles "mots-clés" : déclenchées si un terme apparaît dans le titre ou la description.
-  # per_match + cap : points par terme distinct trouvé, plafonnés.
+profile:
+  base: 50
   rules:
-    - label: "Cible école d'ingénieur / Bac+5"
-      points: 6
-      terms: ["ecole d'ingenieur*", "ecole d'ingenieurs", "bac+5", "bac +5", "bac + 5", "master 2", m2,
-              "engineering school", "engineering degree", "master's degree", "msc", "grande ecole"]
-    - label: "Profil agro / sciences du vivant recherché"
-      points: 12
-      terms: [agronom*, "ingenieur agro*", "ecole d'agro*", "sciences du vivant", "life science*", "food science*",
-              "sciences des aliments", biologi*, biotech*, "sciences de l'environnement", ecolog*, "agroparistech",
-              "institut agro", "agrocampus"]
-    - label: "Statistique appliquée au cœur du poste"
-      points: 8
-      terms: [biostat*, "plan d'experience*", "plans d'experience*", "design of experiment*", doe, anova,
-              "modeles mixtes", "mixed model*", chimiometri*, sensometri*, "analyse sensorielle", "essais terrain",
-              "statistique appliquee", "applied statistics", "analyse multivariee", "multivariate"]
-    - label: "Outils maîtrisés par la promo (Python, R, SQL...)"
-      per_match: 2
-      cap: 8
-      terms: [python, r, rstudio, tidyverse, shiny, sql, pandas, "scikit-learn", sklearn, "power bi", excel, vba, git]
-    - label: "Stage de fin d'études / 6 mois"
-      points: 6
-      terms: ["fin d'etudes", "end of studies", "end-of-studies", "6 mois", "six mois", "6 months", "six months",
-              pfe, "final year", "derniere annee", "final-year"]
-    - label: "Début janvier-avril 2027"
+    - label: "Formation ingénieur / M2 / statistique visée"
       points: 10
-      terms: ["janvier 2027", "fevrier 2027", "mars 2027", "avril 2027", "january 2027", "february 2027",
-              "march 2027", "april 2027", "debut 2027", "early 2027", "printemps 2027", "spring 2027",
-              "1er semestre 2027", "janvier/fevrier 2027", "jan 2027", "feb 2027", "fev 2027", "01/2027", "02/2027", "03/2027"]
-    - label: "Début en 2026 : trop tôt"
-      points: -15
-      terms: ["septembre 2026", "octobre 2026", "novembre 2026", "decembre 2026", "september 2026", "october 2026",
-              "november 2026", "december 2026", "asap", "des que possible", "as soon as possible", "immediatement"]
-    - label: "Stage court (2 à 4 mois)"
-      points: -10
-      terms: ["2 mois", "3 mois", "4 mois", "2 months", "3 months", "4 months", "stage de 2 mois", "summer internship",
-              "stage d'ete", "stage ete"]
-    - label: "Profil école de commerce attendu"
-      points: -15
-      terms: ["ecole de commerce", "business school", "ecole de management", "grande ecole de commerce", "iae",
-              "master marketing", "master en marketing", "master in management", "mim"]
-    - label: "Écoles très ciblées (X, Centrale, Mines, ENSAE...)"
-      points: -8
-      terms: [polytechnique, centrale*, "ecole des mines", "mines paris*", ensae, ensimag, "telecom paris", "ens ulm",
-              "top-tier", "top tier", "top engineering school*", "premier rang", "hec", essec, escp]
+      terms: ["ecole d'ingenieur*", "ecole d'ingenieurs", "ingenieur agro*", "bac+5", "bac +5", "bac + 5", "master 2",
+              m2, "engineering school", "engineering degree", "master's degree", msc, "master en statistique*",
+              "master of science", "grande ecole"]
+    - label: "Domaine agro, bio ou environnement : notre spécialité"
+      points: 15
+      terms: [agronom*, "ingenieur agro*", "ecole d'agro*", "sciences du vivant", "life science*", "food science*",
+              "sciences des aliments", agroalimentaire, agriculture, agricole*, elevage, "sante animale", "genetique animale",
+              "genetique vegetale", semence*, vegetal*, "productions vegetales", biologi*, ecolog*, biodiversite,
+              "sciences de l'environnement", "environmental science*", environnemental*, "qualite de l'eau", hydrolog*,
+              "changement climatique", "institut agro", agroparistech, agrocampus, nutrition, "analyse sensorielle",
+              "qualite des aliments", genetique, genomique, phenotyp*, microbiote]
+    - label: "Statistique appliquée au cœur du poste (notre point fort)"
+      points: 10
+      terms: [biostat*, "plan d'experience*", "plans d'experience*", "design of experiment*", doe, anova, "modeles mixtes",
+              "mixed model*", glm, chimiometri*, sensometri*, "statistique appliquee", "applied statistics",
+              "analyse multivariee", multivariate, "modelisation statistique", "statistical model*", inference]
     - label: "Doctorat ou profil recherche avancé demandé"
-      points: -15
+      points: -25
       terms: [phd, "ph.d", doctorat, doctoral, doctorant*, "these cifre"]
-    - label: "Stack informatique pointue (hors cursus)"
-      per_match: -4
-      cap: -12
-      terms: ["c++", scala, kubernetes, rust, cuda, java, golang, kotlin, react, typescript, terraform, devops,
-              "embedded systems", "embedded c", "systemes embarques", "logiciel embarque", fpga, "c#"]
     - label: "Autre langue que l'anglais exigée"
-      points: -8
+      points: -15
       terms: ["allemand courant", "fluent german", "german fluent", "fluent in german", deutsch, "italien courant",
               "fluent italian", "fluent in italian", japonais, japanese, mandarin, "fluent spanish", "espagnol courant",
-              "fluent dutch", neerlandais, "dutch speaking"]
+              "spanish speaker", "fluent dutch", neerlandais, "dutch speaking", "portugais courant"]
+  skills_known:              # compétences de la promo citées : +4 chacune, max +16
+    per_match: 4
+    cap: 16
+    terms: [python, r, rstudio, tidyverse, shiny, sql, pandas, "scikit-learn", sklearn, "machine learning", statisti*,
+            "power bi", excel, vba, git, qgis, anova, regression]
+  skills_missing:            # compétences hors cursus exigées : -6 chacune, max -18
+    per_match: -6
+    cap: -18
+    terms: ["c++", scala, kubernetes, rust, cuda, java, golang, kotlin, react, typescript, javascript, terraform, devops,
+            "embedded systems", "embedded c", "systemes embarques", "logiciel embarque", fpga, "c#", ".net", angular,
+            "full stack", fullstack, backend, frontend, "ci/cd", aws, azure, gcp]
+  # "École de commerce" : pénalisé seulement si c'est le SEUL profil cité (pas "commerce ou ingénieur")
+  business_school:
+    terms: ["ecole de commerce", "business school", "ecole de management", "master in management", mim, iae,
+            "master marketing", "master en marketing"]
+    alternatives: [ingenieur*, engineering, universit*, scientifique*, equivalent, "master en statistique*", sciences]
+    window: 90               # caractères autour de la mention où chercher une alternative
+    only_points: -25
+    label_only: "Profil école de commerce attendu"
 
-  # Réseau de l'école : secteurs et entreprises où les élèves Institut Agro sont attendus.
-  sector_points:
-    agro: 10
-    sport: 3
-    industrie: 2
-    data: 0
-    conseil: 0
-    luxe: 0
+# ---------------------------------------------------------------------
+# CONCURRENCE : combien de candidats en face ?
+# ---------------------------------------------------------------------
+competition:
+  points: {faible: 6, moyenne: 0, forte: -10}
+  # Entreprises qui recrutent déjà des stagiaires Institut Agro / AgroParisTech : concurrence faible pour nous
+  network_companies: [danone, lactalis, bonduelle, limagrain, vilmorin, invivo, avril, sodiaal, savencia, roquette, tereos,
+                      puratos, "groupe rocher", "yves rocher", agrial, eureden, terrena, cooperl, "groupe even", even,
+                      arvalis, inrae, "groupe bel", bel, nestle, syngenta, lesaffre, soufflet, mccain, bayer, corteva,
+                      lallemand, "pierre fabre", "l'oreal", loreal, cameca, "atelier du chocolat", sodebo,
+                      "fleury michon", "d'aucy", triballat, biocodex, euralis, maisadour, vivescia, axereal, hectar,
+                      ragt, laita, ldc, "le duff", andros, cavac, "systeme u", ingredia, idele, ifip, "terres inovia",
+                      itavi, ctifl, anses, cirad, ifremer]
+  # Marques très convoitées : beaucoup plus de candidatures par offre
+  high_demand_companies: [lvmh, "louis vuitton", dior, chanel, hermes, cartier, richemont, kering, gucci, "saint laurent",
+                          "moet hennessy", sephora, google, meta, apple, amazon, microsoft, bcg, mckinsey, bain, nike,
+                          adidas, "on running", mistral, datadog, dataiku, doctolib, alan, qonto, "back market", spotify,
+                          netflix, "paris saint-germain", psg, criteo, "hugging face"]
+  elite_targeting:           # l'annonce cible explicitement les écoles les plus sélectives
+    terms: [polytechnique, centrale*, "ecole des mines", "mines paris*", ensae, ensimag, "telecom paris", "ens ulm",
+            "top-tier", "top tier", "top engineering school*", "premier rang", hec, essec, escp]
+  small_sizes: [pme, startup, public]   # structures moins exposées : concurrence faible par défaut
 
-  # Entreprises qui recrutent déjà des stagiaires Institut Agro / AgroParisTech (à enrichir avec les
-  # retours de la promo et du service stages).
-  network_companies:
-    points: 10
-    names: [danone, lactalis, bonduelle, limagrain, vilmorin, invivo, avril, sodiaal, savencia, roquette, tereos,
-            puratos, "groupe rocher", "yves rocher", agrial, eureden, terrena, cooperl, "groupe even", arvalis, inrae,
-            "groupe bel", bel, nestle, syngenta, lesaffre, soufflet, mccain, bayer, corteva, lallemand, "pierre fabre",
-            "l'oreal", loreal, cameca, "atelier du chocolat", "sodebo", "fleury michon", "d'aucy", "triballat",
-            "biocodex", "euralis", "maisadour", "vivescia", "axereal", "hectar", "ynsect"]
+# ---------------------------------------------------------------------
+# CALENDRIER : peut-on commencer en février 2027 pour 6 mois ?
+# ---------------------------------------------------------------------
+calendar:
+  points: {compatible: 5, a_verifier: 0}
+  # Une date ne compte que si elle suit une formule de début ("début", "à partir de", "start"...) ou figure
+  # dans l'intitulé : "renforcée depuis septembre 2026" (actualité de l'entreprise) ne doit pas compter.
+  # (les dates explicites en 2027, ex. "février 2027", comptent partout : peu ambigu dans une offre de stage)
+  start_context: [debut, demarrage, demarrer, commencer, "a partir de", "a partir du", "des le", start, starting,
+                  "start date", from, "prise de poste", disponible, disponibilite, "date d'entree", "entree en poste",
+                  "a pourvoir", "au plus tot", ideally, "pour une duree", "stage de", "stage en", "stage a", "internship of",
+                  "internship in", "internship starting", "periode de stage", "duree du stage"]
+  context_window: 45
+  compatible: ["janvier 2027", "fevrier 2027", "mars 2027", "avril 2027", "january 2027", "february 2027", "march 2027",
+               "april 2027", "debut 2027", "early 2027", "printemps 2027", "spring 2027", "1er semestre 2027",
+               "janvier/fevrier 2027", "jan 2027", "feb 2027", "fev 2027", "01/2027", "02/2027", "03/2027",
+               "janvier", "fevrier", "january", "february"]
+  too_early: ["septembre 2026", "octobre 2026", "novembre 2026", "decembre 2026", "september 2026", "october 2026",
+              "november 2026", "december 2026", "sept 2026", "oct 2026", "nov 2026"]
+  duration_context: [stage, internship, stagiaire, duree, pendant, "for a", "for", mission, contrat, "periode de"]
+  short: ["stage de 2 mois", "stage de 3 mois", "stage de 4 mois", "2 mois", "3 mois", "4 mois", "2 months", "3 months",
+          "4 months", "summer internship", "stage d'ete", "stage ete", "stage d'observation"]
+  long_ok: ["6 mois", "six mois", "6 months", "six months", "fin d'etudes", "end of studies", "end-of-studies", pfe,
+            "5 a 6 mois", "4 a 6 mois", "5-6 mois", "4-6 mois"]
+  stale_days: 90             # annonce plus vieille : probablement pourvue (-6, signalée)
+  stale_points: -6
 
-  # Marques très convoitées : beaucoup plus de candidatures par offre.
-  high_demand_companies:
-    points: -8
-    names: [lvmh, "louis vuitton", dior, chanel, hermes, cartier, richemont, kering, gucci, "saint laurent",
-            "moet hennessy", sephora, google, meta, apple, amazon, microsoft, bcg, mckinsey, bain, nike, adidas,
-            "on running", mistral, datadog, dataiku, doctolib, alan, qonto, "back market", spotify, netflix]
-
-  freshness:            # jours depuis la publication
-    new_days: 7
-    new_points: 3
-    stale_days: 60
-    stale_points: -8
-
-  grades:               # seuils des lettres affichées
-    A: 75
-    B: 60
-    C: 45
+grades:
+  A: {score: 72, min_data: 60, min_profile: 60}
+  B: {score: 60, min_data: 50}
+  C: 48

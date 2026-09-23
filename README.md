@@ -43,28 +43,32 @@ qui ne publient que sur Welcome to the Jungle sont listées dans `companies.yaml
 
 ## Comment la note est calculée
 
-Base 55, puis des règles lisibles dans `config/scoring.yaml` (chaque offre affiche les siennes sous « pourquoi ») :
+La note répond à : « un·e élève data science de l'Institut Agro a-t-il de vraies chances sur ce stage, et est-ce
+un vrai stage data ? ». Elle combine trois axes indépendants, chacun détaillé sous « pourquoi » dans le tableau de bord
+(grille complète et modifiable dans `config/scoring.yaml`) :
 
-| Signal | Points |
+| Axe | Question | Ce qui compte |
+|---|---|---|
+| **Data** (0-100) | Est-ce un vrai poste data ? | intitulé data (+55) ou d'analyse (+30), compétences data demandées (+8 chacune, max +45), paillasse / terrain / vente (−25). Sous 35, l'offre est écartée. |
+| **Profil** (0-100, base 50) | Notre profil correspond-il ? | domaine agro / bio / environnement (+15), statistique appliquée (+10), formation ingénieur / M2 visée (+10), outils de la promo (+4 chacun, max +16), outils hors cursus (−6 chacun, max −18), école de commerce comme **seul** profil cité (−25), doctorat (−25), autre langue exigée (−15) |
+| **Concurrence** | Combien de candidats en face ? | forte (−10) : marque très convoitée ou annonce ciblant X/Centrale/HEC ; faible (+6) : entreprise qui recrute déjà à l'Institut Agro, PME, startup, public ; sinon moyenne |
+| **Calendrier** | Peut-on commencer en février 2027 ? | début janvier-avril 2027 (+5) ; hors calendrier si début annoncé en 2026 ou stage de 2 à 4 mois ; annonce de plus de 90 jours (−6) |
+
+`score = (Data + Profil) / 2 + concurrence + calendrier`
+
+| Note | Condition |
 |---|---|
-| Profil agro / sciences du vivant demandé | +12 |
-| Début janvier-avril 2027 | +10 |
-| Entreprise qui recrute déjà dans l'école | +10 |
-| Secteur agro | +10 |
-| Statistique appliquée (plans d'expériences, modèles mixtes, sensométrie…) | +8 |
-| Outils de la promo (Python, R, SQL…) | +2 par outil, max +8 |
-| École d'ingénieur / Bac+5 visé ; stage de fin d'études 6 mois | +6 chacun |
-| Publiée depuis moins de 7 jours | +3 |
-| Stack hors cursus (C++, Scala, Kubernetes…) | −4 par outil, max −12 |
-| Autre langue que l'anglais exigée ; écoles très ciblées (X, Centrale, ENSAE…) ; marque très convoitée ; publiée il y a plus de 60 jours | −8 chacun |
-| Stage court (2 à 4 mois) | −10 |
-| Début en 2026 ; profil école de commerce ; doctorat demandé | −15 chacun |
+| **A** | score ≥ 72, **et** Data ≥ 60, **et** Profil ≥ 60 : vrai poste data où notre profil colle |
+| **B** | score ≥ 60 et Data ≥ 50 |
+| **C** | score ≥ 48 |
+| **D** | en dessous |
+| **— hors calendrier** | début en 2026 ou stage court, quelle que soit la note |
 
-A ≥ 75, B ≥ 60, C ≥ 45, D en dessous. La grille est un point de départ : enrichir `network_companies`
-avec les entreprises où la promo a déjà fait des stages est ce qui améliorera le plus la note.
-
-Une offre n'est gardée que si elle ressemble à un poste data (intitulé data/stat/ML/analyste, ou au moins
-3 compétences data dans la description) ; les intitulés juridiques, RH, contenu ou vente sont écartés.
+Les dates ne comptent que si elles suivent une formule de début (« début », « à partir de », « start »...) ou figurent
+dans l'intitulé, pour qu'une actualité (« renforcée depuis septembre 2026 ») ne soit pas prise pour une date de stage.
+« École de commerce, d'ingénieur ou équivalent » n'est pas pénalisé : seules les annonces qui ne citent que l'école de
+commerce le sont. Enrichir `network_companies` avec les entreprises où la promo a déjà fait des stages est ce qui
+améliorera le plus la note.
 
 ## Ajouter un profil ou une entreprise
 

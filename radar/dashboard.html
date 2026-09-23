@@ -84,6 +84,15 @@ select { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; b
 .grade span { font: 500 12px/1 var(--mono); opacity: .85; }
 .grade.A { background: var(--g-a-bg); color: var(--g-a); } .grade.B { background: var(--g-b-bg); color: var(--g-b); }
 .grade.C { background: var(--g-c-bg); color: var(--g-c); } .grade.D { background: var(--g-d-bg); color: var(--g-d); }
+.grade.X { background: var(--sunken); color: var(--ink-3); }
+.grade.X b { font-size: 20px; }
+.axes { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: 12.5px; color: var(--ink-3); }
+.axes .ax { display: inline-flex; align-items: center; gap: 6px; }
+.axes .ax b { font: 500 12.5px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.meter { width: 46px; height: 5px; background: var(--sunken); border-radius: 3px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--ink-2); }
+.lvl-faible, .cal-compatible { color: var(--pos); } .lvl-forte, .cal-hors_calendrier { color: var(--neg); }
+.reasons h4 { font: 600 11px/1 var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); margin: 8px 0 2px; }
 .o-head { display: flex; gap: 10px; align-items: start; justify-content: space-between; }
 .o-title { font: 600 16px/1.3 var(--body); margin: 0; text-wrap: pretty; }
 .o-title a { text-decoration: none; }
@@ -169,6 +178,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       <button class="chip grade-chip" data-g="B" aria-pressed="false">B</button>
       <button class="chip grade-chip" data-g="C" aria-pressed="false">C</button>
       <button class="chip grade-chip" data-g="D" aria-pressed="false">D</button>
+      <button class="chip grade-chip" data-g="X" aria-pressed="false">Hors calendrier</button>
       <button class="chip" id="only-new" aria-pressed="false" style="margin-left:10px">Nouveaux</button>
       <button class="chip" id="only-fav" aria-pressed="false">★ Ma liste</button>
     </div>
@@ -195,14 +205,15 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       <section>
         <h2>Lire la note</h2>
         <div class="legend">
-          <p><span class="g" style="color:var(--g-a)">A</span>Profil agro/data attendu, bon calendrier : à envoyer en priorité.</p>
-          <p><span class="g" style="color:var(--g-b)">B</span>Accessible, un point à vérifier.</p>
-          <p><span class="g" style="color:var(--g-c)">C</span>Possible, mais concurrence ou écart de profil.</p>
-          <p><span class="g" style="color:var(--g-d)">D</span>Pari : école de commerce, doctorat, dates ou stack hors cursus.</p>
+          <p><span class="g" style="color:var(--g-a)">A</span>Vrai poste data et profil qui colle : à envoyer en priorité.</p>
+          <p><span class="g" style="color:var(--g-b)">B</span>Poste data accessible, un point à vérifier (dates, outils, concurrence).</p>
+          <p><span class="g" style="color:var(--g-c)">C</span>Possible, mais peu data ou écart de profil.</p>
+          <p><span class="g" style="color:var(--g-d)">D</span>Pari : très concurrentiel, profil commerce, doctorat ou stack hors cursus.</p>
+          <p><span class="g" style="color:var(--ink-3)">—</span>Hors calendrier : début en 2026 ou stage court.</p>
         </div>
       </section>
       <section class="note">
-        Chaque note part de 55 et additionne des règles lisibles (dépliez « pourquoi ») : formation visée, calendrier février 2027, compétences Python/R/SQL, réseau de l'école, concurrence, fraîcheur de l'annonce. Seules les offres situées en France sont gardées. La grille se règle dans <code>config/scoring.yaml</code>.
+        La note combine trois axes : <b>Data</b> (est-ce un vrai poste data ?), <b>Profil</b> (un·e élève data science de l'Institut Agro correspond-il à la demande ?) et <b>Concurrence</b> (marque convoitée, ou entreprise qui recrute déjà chez nous). Un A exige Data et Profil tous deux au-dessus de 60. Dépliez « pourquoi » pour voir chaque point. Seules les offres situées en France sont gardées ; la grille se règle dans <code>config/scoring.yaml</code>.
       </section>
     </aside>
   </div>
@@ -213,6 +224,9 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   const SECTORS = { data: "Data / tech", agro: "Agro", luxe: "Luxe & cosmétique", sport: "Sport", conseil: "Conseil", industrie: "Industrie" };
   const SIZES = { startup: "Startup", pme: "PME", eti: "ETI", grande: "Grand groupe", public: "Public & recherche" };
   const PAGE = 40;
+  const GRADE_ORDER = { A: 0, B: 1, C: 2, D: 3, X: 4 };
+  const AXES = { data: "Data", profil: "Profil", concurrence: "Concurrence", calendrier: "Calendrier" };
+  const CAL = { compatible: "début compatible", a_verifier: "début à vérifier", hors_calendrier: "hors calendrier" };
   const $ = (id) => document.getElementById(id);
   const store = {
     get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
@@ -246,32 +260,44 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       (!state.onlyNew || o.new) && (!state.onlyFav || favs.has(o.id)) &&
       (!q || fold(`${o.title} ${o.company} ${o.location} ${o.excerpt}`).includes(q)));
     if (state.sort === "recent") items.sort((a, b) => (b.first_seen + b.posted_at).localeCompare(a.first_seen + a.posted_at));
-    else if (state.profile) items.sort((a, b) => (matchOf(b) * 0.6 + b.accessibility * 0.4) - (matchOf(a) * 0.6 + a.accessibility * 0.4));
-    else items.sort((a, b) => b.accessibility - a.accessibility || b.relevance - a.relevance);
+    else if (state.profile) items.sort((a, b) => (a.grade === "X") - (b.grade === "X") ||
+      (matchOf(b) * 0.6 + b.score * 0.4) - (matchOf(a) * 0.6 + a.score * 0.4));
+    else items.sort((a, b) => GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade] || b.score - a.score || b.data - a.data);
     return items;
   }
 
   function offerHTML(o) {
     const m = matchOf(o);
-    const reasons = o.reasons.map(([pts, label, terms]) =>
-      `<li><span class="pt ${pts >= 0 ? "p" : "n"}">${pts > 0 ? "+" : ""}${pts}</span><span>${esc(label)}${terms.length ? ` <em>(${esc(terms.join(", "))})</em>` : ""}</span></li>`).join("");
+    const reasons = Object.keys(AXES).map((axis) => {
+      const rows = o.reasons.filter((r) => r[3] === axis).map(([pts, label, terms]) =>
+        `<li><span class="pt ${pts >= 0 ? "p" : "n"}">${pts > 0 ? "+" : ""}${pts}</span><span>${esc(label)}${terms.length ? ` <em>(${esc(terms.join(", "))})</em>` : ""}</span></li>`).join("");
+      const head = axis === "data" ? ` : ${o.data}/100` : axis === "profil" ? ` : ${o.profile}/100 (base 50)` : "";
+      return rows ? `<h4>${AXES[axis]}${head}</h4>${rows}` : "";
+    }).join("");
+    const meter = (v) => `<span class="meter"><i style="width:${v}%"></i></span>`;
+    const axes = `<div class="axes">
+      <span class="ax">Data ${meter(o.data)}<b>${o.data}</b></span>
+      <span class="ax">Profil ${meter(o.profile)}<b>${o.profile}</b></span>
+      <span class="ax">Concurrence <b class="lvl-${o.competition}">${o.competition}</b></span>
+      <span class="ax"><b class="cal-${o.calendar}">${CAL[o.calendar]}</b></span></div>`;
     const posted = o.posted_at ? new Date(o.posted_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : "";
     return `<article class="offer">
-      <div class="grade ${o.grade}" title="Accessibilité ${o.accessibility}/100"><b>${o.grade}</b><span>${o.accessibility}</span></div>
+      <div class="grade ${o.grade}" title="${o.grade === "X" ? "Hors calendrier" : "Note " + o.grade}, score ${o.score}/100"><b>${o.grade === "X" ? "—" : o.grade}</b><span>${o.score}</span></div>
       <div>
         <div class="o-head">
           <div>
             <h3 class="o-title"><a href="${esc(o.url)}" target="_blank" rel="noopener">${esc(o.title)}</a></h3>
-            <div class="meta"><span class="co">${esc(o.company)}</span>${o.region ? `<span>${esc(o.region)}</span>` : ""}${o.location ? `<span>${esc(o.location)}</span>` : ""}${posted ? `<span>publiée le ${posted}</span>` : ""}</div>
+            <div class="meta"><span class="co">${esc(o.company)}</span>${o.location ? `<span>${esc(o.location)}</span>` : ""}${o.region && !fold(o.location).includes(fold(o.region)) ? `<span>${esc(o.region)}</span>` : ""}${posted ? `<span>publiée le ${posted}</span>` : ""}</div>
           </div>
           <button class="star" data-fav="${o.id}" aria-pressed="${favs.has(o.id)}" aria-label="Ajouter à ma liste">★</button>
         </div>
+        ${axes}
         <div class="o-foot">
           ${o.new ? '<span class="tag new">Nouveau</span>' : ""}
           <span class="tag">${esc(SECTORS[o.sector] || o.sector)}</span>
           ${SIZES[o.size] ? `<span class="tag size">${SIZES[o.size]}</span>` : ""}
           ${m !== null ? `<span class="match">Match<span class="bar"><i style="width:${m}%"></i></span><b>${m}</b></span>` : ""}
-          <details class="why"><summary>pourquoi ${o.grade} ?</summary>
+          <details class="why"><summary>pourquoi ${o.grade === "X" ? "hors calendrier" : o.grade} ?</summary>
             <ul class="reasons">${reasons || "<li><span></span><span>Aucun signal particulier : note de base.</span></li>"}</ul>
             ${o.excerpt ? `<p class="excerpt">${esc(o.excerpt.slice(0, 420))}…</p>` : ""}
           </details>
