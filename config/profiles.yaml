@@ -1,0 +1,45 @@
+# =====================================================================
+# Profils de la promo : servent au score "match" personnalisé.
+# Profils types (thèmes de recherche), sans nom ni donnée personnelle.
+# Chacun·e peut ajouter son bloc (ou utiliser le champ "Mon profil" du tableau de bord).
+#   sectors  : secteurs visés (data, agro, luxe, sport, conseil, industrie)
+#   keywords : thèmes recherchés (poids 1) ; strong : thèmes prioritaires (poids 2)
+# =====================================================================
+
+promo:
+  label: Toute la promo
+  sectors: [data, agro, luxe, sport, conseil, industrie]
+  keywords: [python, r, sql, statisti*, "machine learning", modelisation, "data science", "analyse de donnees"]
+  strong: []
+
+students:
+  ml_agro_luxe:
+    label: ML appliqué, agroalimentaire & luxe
+    sectors: [agro, luxe, data]
+    strong: ["machine learning", "modelisation predictive", predicti*, "data scien*"]
+    keywords: [rnd, innovation, agroalimentaire, food, horlog*, luxe, e-commerce, "plan d'experience*", anova,
+               sensometri*, "analyse sensorielle", python, "scikit-learn", sql, automatisation, vba, "tableau de bord"]
+
+  ml_industrie:
+    label: ML industriel & maintenance prédictive
+    sectors: [industrie, data, agro]
+    strong: ["maintenance predictive", "predictive maintenance", "remaining useful life", capteur*, sensor*,
+             "series temporelles", "time series", mlops, automobile*, automotive]
+    keywords: [aeronauti*, aerospace, industri*, "machine learning", "deep learning", pytorch, docker, fastapi,
+               "computer vision", "anomaly detection", "detection d'anomalies", "quantile*", python, r,
+               "yield prediction", agronomi*]
+
+  sport_sante:
+    label: Sport, santé & biostatistique
+    sectors: [sport, data, agro]
+    strong: ["performance sportive", "sports performance", sport*, sante, health, biostat*]
+    keywords: ["modeles mixtes", "mixed model*", glm, r, shiny, "analyse de donnees", athlet*, "data analyst",
+               physiologi*, nutrition, "donnees de sante", "health data", clinique, clinical, cosmeti*]
+
+  outdoor_rnd:
+    label: R&D outdoor, capteurs & tests produits
+    sectors: [sport, data, agro]
+    strong: [outdoor, escalade, climbing, trek*, montagne, "tests produits", "product testing", capteur*, sensor*]
+    keywords: [rnd, "conception", "plan d'experience*", anova, "modeles mixtes", spatial*, sig, gis, qgis, rag, llm*,
+               "machine learning", environnement, ecolog*, python, r]
+

@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+# Généré à chaque collecte (publié par GitHub Pages, pas commité)
+docs/
+data/radar.db
+data/*.log
+data/*.csv
+!data/manual_offers.csv
+data/*.backup.yaml

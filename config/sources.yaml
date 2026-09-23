@@ -1,0 +1,32 @@
+# Requêtes envoyées à l'API Adzuna (France), si ADZUNA_APP_ID / ADZUNA_APP_KEY sont définis.
+# Adzuna agrège une grande partie des jobboards français : c'est le filet qui attrape
+# les entreprises absentes de companies.yaml.
+adzuna_queries:
+  - stage data scientist
+  - stage data analyst
+  - stage machine learning
+  - stage statisticien
+  - stage biostatistique
+  - stage data agroalimentaire
+  - stage data agriculture
+  - stage data cosmetique
+  - stage data luxe
+  - stage data sport
+  - stage consultant data
+  - stage fin d'etudes data
+  - stage maintenance predictive
+
+# Jobboards de niche (radar/sources/boards.py) : canaux officiels ou autorisés, statut vérifié le 23/09/2026.
+# Mettre enabled: false pour en couper un.
+boards:
+  - {name: PASS (stages fonction publique), fetch: pass_fonction_publique, size: public, enabled: true}
+  - {name: INRAE, fetch: inrae, sector: agro, size: public, enabled: true}
+  # Apecita : robots.txt autorise tout, CGU sans clause anti-robot, mais mentions légales avec clause
+  # classique "extraction de base de données" : un mail à Apecita pour confirmer lèverait le doute.
+  - {name: Apecita, fetch: apecita, sector: agro, enabled: true}
+  - {name: iQuesta, fetch: iquesta, enabled: true}
+  - {name: Sport Jobs Hunter, fetch: wp_job_feed, url: "https://www.sportjobshunter.com/", job_types: stage,
+     sector: sport, source: sportjobshunter, enabled: true}
+  - {name: Vitijob, fetch: jobagri_family, site: "https://www.vitijob.com", sector: agro, enabled: true}
+  - {name: Jobagri, fetch: jobagri_family, site: "https://www.jobagri.com", sector: agro, enabled: true}
+  - {name: Emploi-Environnement, fetch: emploi_environnement, enabled: true}

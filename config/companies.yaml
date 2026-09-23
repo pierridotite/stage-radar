@@ -1,0 +1,700 @@
+# =====================================================================
+# Entreprises suivies. Chaque ligne = un flux d'offres public vérifié.
+#   sector : data, agro, luxe, sport, conseil, industrie
+#   size   : startup, pme, eti, grande, public (vide = déterminée automatiquement via l'annuaire des entreprises)
+#   ats    : smartrecruiters, lever, greenhouse, workday, ashby, teamtailor, workable, recruitee, personio,
+#            breezy, rss / sf_rss / talentsoft, eightfold, jibe, algolia, capgemini
+#   ats wttj / unsupported : repérées mais non collectées (voir README), gardées pour mémoire.
+# Ajouter une entreprise : python -m radar.discover liste.csv (voir README).
+# =====================================================================
+companies:
+  # ------------------------------------------------------------------ data / tech
+  - {name: Datadog, sector: data, size: grande, ats: greenhouse, id: datadog}
+  - {name: Dataiku, sector: data, size: eti, ats: greenhouse, id: dataiku}
+  - {name: Mirakl, sector: data, size: eti, ats: greenhouse, id: mirakl}
+  - {name: Doctolib, sector: data, size: eti, ats: greenhouse, id: doctolib}
+  - {name: BlaBlaCar, sector: data, size: eti, ats: lever, id: blablacar}
+  - {name: Contentsquare, sector: data, size: eti, ats: lever, id: contentsquare}
+  - {name: Qonto, sector: data, size: eti, ats: lever, id: qonto}
+  - {name: Alan, sector: data, size: eti, ats: ashby, id: alan}
+  - {name: Back Market, sector: data, size: eti, ats: ashby, id: backmarket}
+  - {name: ManoMano, sector: data, size: eti, ats: rss, url: "https://careers.manomano.jobs/jobs.rss"}
+  - {name: Criteo, sector: data, size: eti, ats: workday, host: criteo.wd3.myworkdayjobs.com, site: criteo_career_site}
+
+  # ------------------------------------------------------------------ conseil
+  - {name: Ekimetrics, sector: conseil, size: eti, ats: lever, id: ekimetrics}
+  - {name: Artefact, sector: conseil, size: eti, ats: greenhouse, id: artefact}
+  - {name: Margo, sector: conseil, size: eti, ats: lever, id: margo-group}
+  - {name: Wavestone, sector: conseil, size: eti, ats: smartrecruiters, id: Wavestone1}
+  - {name: Sopra Steria, sector: conseil, size: grande, ats: smartrecruiters, id: soprasteria1}
+  - {name: Keyrus, sector: conseil, size: eti, ats: teamtailor, id: keyrusfrance}
+  - {name: Converteo, sector: conseil, size: pme, ats: teamtailor, id: converteo}
+  - {name: Aqsone, sector: conseil, size: pme, ats: recruitee, id: aqsone}
+  - {name: Accenture, sector: conseil, size: grande, ats: workday, host: accenture.wd103.myworkdayjobs.com, site: AccentureCareers}
+  - {name: PwC, sector: conseil, size: grande, ats: workday, host: pwc.wd3.myworkdayjobs.com, site: Global_Campus_Careers}
+  - {name: Capgemini, sector: conseil, size: grande, ats: capgemini, url: "https://cg-job-search-microservices.azurewebsites.net/api/job-search"}
+  - {name: BCG, sector: conseil, size: grande, ats: eightfold, flavor: v2, base: "https://bcg.eightfold.ai", id: bcg.com}
+  - {name: Deloitte, sector: conseil, size: grande, ats: wttj, id: deloitte}
+  - {name: EY, sector: conseil, size: grande, ats: wttj, id: ey}
+  - {name: KPMG, sector: conseil, size: grande, ats: wttj, id: kpmg-france}
+
+  # ------------------------------------------------------------------ agro
+  - {name: Syngenta, sector: agro, size: grande, ats: smartrecruiters, id: syngentagroup}
+  - {name: Lesaffre, sector: agro, size: grande, ats: smartrecruiters, id: lesaffre}
+  - {name: Mars, sector: agro, size: grande, ats: workday, host: mars.wd3.myworkdayjobs.com, site: External}
+  - {name: Pernod Ricard, sector: agro, size: grande, ats: workday, host: pernodricard.wd3.myworkdayjobs.com, site: pernod-ricard}
+  - {name: Danone, sector: agro, size: grande, ats: jibe, url: "https://talent.careers.danone.com/api/jobs", country: France}
+  - {name: Corteva, sector: agro, size: grande, ats: eightfold, base: "https://corteva.eightfold.ai", id: corteva.com}
+  - {name: Nestlé, sector: agro, size: grande, ats: sf_rss, url: "https://jobdetails.nestle.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Lactalis, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.lactalisexperience.fr/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Bonduelle, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.bonduelle.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Limagrain, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.limagrain.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Ferrero, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.ferrero.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Puratos, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.puratos.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Groupe Bel, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.groupe-bel.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Bayer, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.bayer.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: InVivo, sector: agro, size: grande, ats: talentsoft, url: "https://invivo-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036"}
+  - {name: Tereos, sector: agro, size: grande, ats: recruitee, id: tereos}
+  - {name: Avril, sector: agro, size: grande, ats: wttj, id: avril-fr}
+  - {name: Eureden, sector: agro, size: grande, ats: wttj, id: eureden}
+  - {name: Terrena (Evoriel), sector: agro, size: grande, ats: wttj, id: evoriel}
+  - {name: McCain, sector: agro, size: grande, ats: unsupported, platform: phenom, url: "https://careers.mccain.com/widgets"}
+
+  # ------------------------------------------------------------------ luxe & cosmétique
+  - {name: LVMH, sector: luxe, size: grande, ats: algolia, app_id: SDMQTD2J9T, api_key: a5c6f4c87dea9aac0732631cd87583b2,
+     index: PRD-fr-fr-timestamp-desc, referer: "https://www.lvmh.com/",
+     facet_filters: '[["contractFilter:Stage"],["countryRegionFilter:France"]]'}
+  - {name: Chanel, sector: luxe, size: grande, ats: workday, host: cc.wd3.myworkdayjobs.com, site: ChanelCareers}
+  - {name: Richemont, sector: luxe, size: grande, ats: workday, host: richemont.wd3.myworkdayjobs.com, site: Richemont}
+  - {name: Pierre Fabre, sector: luxe, size: grande, ats: workday, host: pierrefabre.wd3.myworkdayjobs.com, site: External_Career_Site}
+  - {name: Kering, sector: luxe, size: grande, ats: eightfold, base: "https://careers.kering.com", id: kering.com}
+  - {name: Estée Lauder, sector: luxe, size: grande, ats: eightfold, base: "https://careers.elcompanies.com", id: elcompanies.com}
+  - {name: Coty, sector: luxe, size: grande, ats: sf_rss, url: "https://careers.coty.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: L'Oréal, sector: luxe, size: grande, ats: wttj, id: l-oreal}
+
+  # ------------------------------------------------------------------ sport
+  - {name: Salomon, sector: sport, size: eti, ats: smartrecruiters, id: salomon}
+  - {name: Nike, sector: sport, size: grande, ats: workday, host: nike.wd1.myworkdayjobs.com, site: nke}
+  - {name: On Running, sector: sport, size: eti, ats: greenhouse, id: onrunning}
+  - {name: Adidas, sector: sport, size: grande, ats: sf_rss, url: "https://jobs.adidas-group.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Garmin, sector: sport, size: grande, ats: jibe, url: "https://careers.garmin.com/api/jobs"}
+  - {name: Strava, sector: sport, size: eti, ats: ashby, id: strava}
+  - {name: Whoop, sector: sport, size: eti, ats: ashby, id: whoop}
+  - {name: Zwift, sector: sport, size: eti, ats: greenhouse, id: zwift}
+  - {name: Stats Perform, sector: sport, size: eti, ats: teamtailor, id: statsperform}
+  - {name: Fitness Park, sector: sport, size: eti, ats: teamtailor, id: fitnesspark}
+  - {name: Basic-Fit, sector: sport, size: grande, ats: workday, host: basicfit.wd103.myworkdayjobs.com, site: BasicFit_Career_Site_france}
+
+  # ------------------------------------------------------------------ industrie
+  - {name: Airbus, sector: industrie, size: grande, ats: workday, host: ag.wd3.myworkdayjobs.com, site: Airbus}
+  - {name: Thales, sector: industrie, size: grande, ats: workday, host: thales.wd3.myworkdayjobs.com, site: Careers}
+  - {name: Michelin, sector: industrie, size: grande, ats: workday, host: michelinhr.wd3.myworkdayjobs.com, site: Michelin}
+  - {name: Renault Group, sector: industrie, size: grande, ats: workday, host: alliancewd.wd3.myworkdayjobs.com, site: renault-group-careers}
+  - {name: Valeo, sector: industrie, size: grande, ats: workday, host: valeo.wd3.myworkdayjobs.com, site: valeo_jobs}
+  - {name: Stellantis, sector: industrie, size: grande, ats: workday, host: stellantis.wd3.myworkdayjobs.com, site: External_Career_Site_ID01}
+  - {name: Forvia, sector: industrie, size: grande, ats: eightfold, flavor: v2, base: "https://jobs.faurecia.com", id: faurecia.com}
+  - {name: Alstom, sector: industrie, size: grande, ats: sf_rss, url: "https://jobsearch.alstom.com/services/rss/job/?locale=fr_FR&keywords={q}"}
+  - {name: Safran, sector: industrie, size: grande, ats: wttj, id: safran}
+  - {name: Schneider Electric, sector: industrie, size: grande, ats: wttj, id: schneider-electric}
+  - {name: TotalEnergies, sector: industrie, size: grande, ats: wttj, id: totalenergies}
+  - {name: EDF, sector: industrie, size: grande, ats: wttj, id: edf}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-23
+  - {name: Advancy, sector: conseil, size: pme, ats: recruitee, id: advancy}
+  - {name: Akkodis, sector: conseil, size: grande, ats: unsupported, url: 'https://akka-cand.talent-soft.com/job/list-of-jobs.aspx', platform: talentsoft}
+  - {name: Alcimed, sector: conseil, size: pme, ats: wttj, id: alcimed}
+  - {name: Alten, sector: conseil, size: grande, ats: smartrecruiters, id: alten}
+  - {name: Aneo, sector: conseil, size: pme, ats: recruitee, id: aneo}
+  - {name: Axionable, sector: conseil, size: pme, ats: wttj, id: axionable}
+  - {name: BCG X, sector: conseil, size: grande, ats: unsupported, url: 'https://careers.bcg.com/global/en/locations/france', platform: eightfold}
+  - {name: BVA Xsight, sector: conseil, size: pme, ats: wttj, id: bva}
+  - {name: Bain & Company, sector: conseil, size: grande, ats: unsupported, url: 'https://www.bain.com/careers/find-a-role/', platform: custom}
+  - {name: BearingPoint, sector: conseil, size: eti, ats: wttj, id: bearingpoint-france}
+  - {name: Biotope, sector: conseil, size: pme, ats: unsupported, url: 'https://www.biotope.fr/emplois-carrieres/offres-demploi/', platform: custom}
+  - {name: Business & Decision, sector: conseil, size: eti, ats: unsupported, url: 'https://rh.businessdecision.com/', platform: custom}
+  - {name: CGI, sector: conseil, size: grande, ats: unsupported, url: 'https://cgi.njoyn.com/corp/xweb/xweb.asp?CLID=21001&page=joblisting&CountryID=FR&lang=2', platform: njoyn}
+  - {name: Capgemini Invent, sector: conseil, size: grande, ats: unsupported, url: 'https://www.capgemini.com/fr-fr/carrieres/', platform: successfactors}
+  - {name: Carbone 4, sector: conseil, size: pme, ats: unsupported, url: 'https://carbone4.com/en/jobs', platform: custom}
+  - {name: Cellenza, sector: conseil, size: pme, ats: unsupported, url: 'https://carrieres.cellenza.com/', platform: custom}
+  - {name: Dataroots, sector: conseil, size: pme, ats: recruitee, id: dataroots}
+  - {name: Deloitte France, sector: conseil, size: grande, ats: workday, host: fina.wd103.myworkdayjobs.com, site: DeloitteRecrute}
+  - {name: Devoteam, sector: conseil, size: grande, ats: smartrecruiters, id: Devoteam}
+  - {name: EcoAct, sector: conseil, size: pme, ats: wttj, id: eco-act}
+  - {name: Eleven Strategy, sector: conseil, size: pme, ats: unsupported, url: 'https://eleven-strategy.com/nous-rejoindre/', platform: custom}
+  - {name: Emerton Data, sector: conseil, size: pme, ats: recruitee, id: emerton}
+  - {name: Eurofins, sector: conseil, size: grande, ats: smartrecruiters, id: Eurofins}
+  - {name: Eurogroup Consulting, sector: conseil, size: pme, ats: wttj, id: eurogroup-consulting}
+  - {name: Eviden, sector: conseil, size: grande, ats: unsupported, url: 'https://eviden.com/fr-fr/carrieres/', platform: custom}
+  - {name: Fabernovel, sector: conseil, size: pme, ats: wttj, id: fabernovel}
+  - {name: Forvis Mazars, sector: conseil, size: grande, ats: greenhouse, id: forvismazars}
+  - {name: Grant Thornton, sector: conseil, size: eti, ats: wttj, id: grant-thornton}
+  - {name: Greenflex, sector: conseil, size: pme, ats: unsupported, url: 'https://www.hellowork.com/fr-fr/entreprises/greenflex-220942.html', platform: hellowork}
+  - {name: Hardis Group, sector: conseil, size: eti, ats: unsupported, url: 'https://hardis.csod.com/ux/ats/careersite/4/home?c=hardis', platform: cornerstone}
+  - {name: Inetum, sector: conseil, size: grande, ats: unsupported, url: 'https://www.inetum.com/global/en/careers.html', platform: custom}
+  - {name: Ipsos, sector: conseil, size: grande, ats: wttj, id: ipsos}
+  - {name: Jems Group, sector: conseil, size: pme, ats: unsupported, url: 'https://jobs.jems-group.com/offres-emploi/', platform: custom}
+  - {name: Julhiet Sterwen, sector: conseil, size: pme, ats: smartrecruiters, id: JulhietSterwen}
+  - {name: KPMG France, sector: conseil, size: grande, ats: unsupported, url: 'https://emplois.kpmg.fr/', platform: custom}
+  - {name: Kantar, sector: conseil, size: grande, ats: workday, host: kantar.wd3.myworkdayjobs.com, site: KANTAR}
+  - {name: Kearney, sector: conseil, size: eti, ats: unsupported, url: 'https://www.kearney.com/careers/opportunities', platform: custom}
+  - {name: L.E.K. Consulting, sector: conseil, size: eti, ats: unsupported, url: 'https://www.lek.com/careers', platform: custom}
+  - {name: Lincoln, sector: conseil, size: pme, ats: unsupported, url: 'https://www.lincoln.fr/recrutement/', platform: custom}
+  - {name: Mc2i, sector: conseil, size: eti, ats: wttj, id: mc2i}
+  - {name: McKinsey QuantumBlack, sector: conseil, size: grande, ats: unsupported, url: 'https://www.mckinsey.com/careers/search-jobs', platform: custom}
+  - {name: Micropole (Talan), sector: conseil, size: eti, ats: unsupported, url: 'https://recrutement.micropole.com/', platform: digitalrecruiters}
+  - {name: Octo Technology, sector: conseil, size: pme, ats: smartrecruiters, id: octotechnology}
+  - {name: Oliver Wyman (Marsh McLennan), sector: conseil, size: eti, ats: workday, host: mmc.wd1.myworkdayjobs.com, site: MMC}
+  - {name: Onepoint, sector: conseil, size: eti, ats: workday, host: onepoint.wd3.myworkdayjobs.com, site: OnepointFR}
+  - {name: OpinionWay, sector: conseil, size: pme, ats: unsupported, url: 'https://www.opinion-way.com/en/career/job-offers/', platform: custom}
+  - {name: Positive Thinking Company, sector: conseil, size: eti, ats: unsupported, url: 'https://jobs-collaborationbetterstheworld.icims.com/jobs/search', platform: icims}
+  - {name: Publicis Sapient, sector: conseil, size: grande, ats: unsupported, url: 'https://careers.publicissapient.com', platform: icims}
+  - {name: Roland Berger, sector: conseil, size: eti, ats: smartrecruiters, id: rolandberger}
+  - {name: Saegus, sector: conseil, size: pme, ats: wttj, id: saegus}
+  - {name: Sia Partners (incl. Heka.ai), sector: conseil, size: eti, ats: smartrecruiters, id: sia}
+  - {name: Simon-Kucher, sector: conseil, size: eti, ats: unsupported, url: 'https://simon-kucher.csod.com/ux/ats/careersite/6/home?c=simon-kucher', platform: cornerstone}
+  - {name: Square Management, sector: conseil, size: pme, ats: unsupported, url: 'https://squaremanagement.flatchr.io/', platform: flatchr}
+  - {name: Strategir, sector: conseil, size: pme, ats: wttj, id: sas-strategir}
+  - {name: Theodo (incl. Sicara), sector: conseil, size: pme, ats: lever, id: theodo}
+  - {name: Ysance, sector: conseil, size: pme, ats: unsupported, url: 'https://www.ysance.com/data-services/fr/carriere/ysance-jobs/', platform: custom}
+  - {name: fifty-five, sector: conseil, size: eti, ats: workable, id: fifty-five}
+  - {name: ADEME, sector: data, size: eti, ats: unsupported, url: 'https://recrutement.ademe.fr/', platform: talentsoft}
+  - {name: AG2R La Mondiale, sector: data, size: grande, ats: workday, host: ag2rlamondiale.wd3.myworkdayjobs.com, site: Candidats}
+  - {name: AXA, sector: data, size: grande, ats: unsupported, url: 'https://careers.axa.com/careers-home/jobs', platform: icims}
+  - {name: Agicap, sector: data, size: eti, ats: lever, id: agicap}
+  - {name: Aircall, sector: data, size: eti, ats: greenhouse, id: aircallioinc}
+  - {name: Algolia, sector: data, size: eti, ats: greenhouse, id: algolia}
+  - {name: Alice & Bob, sector: data, size: startup, ats: lever, id: alice-bob}
+  - {name: Allianz France, sector: data, size: grande, ats: unsupported, url: 'https://careers.allianz.com/global/en/search-results', platform: successfactors}
+  - {name: Alma, sector: data, size: eti, ats: greenhouse, id: alma31}
+  - {name: Ankorstore, sector: data, size: eti, ats: ashby, id: ankorstore}
+  - {name: Aqemia, sector: data, size: startup, ats: lever, id: aqemia.com}
+  - {name: 'Aviv Group (SeLoger, Meilleurs Agents)', sector: data, size: eti, ats: ashby, id: aviv}
+  - {name: Axa Climate, sector: data, size: pme, ats: wttj, id: axa-climate}
+  - {name: BNP Paribas, sector: data, size: grande, ats: unsupported, url: 'https://group.bnpparibas/emploi-carriere/toutes-offres-emploi', platform: custom}
+  - {name: Banque de France (incl. ACPR), sector: data, size: grande, ats: workday, host: bdf.wd103.myworkdayjobs.com, site: recrutement-banque-de-France}
+  - {name: Believe, sector: data, size: eti, ats: smartrecruiters, id: Believe}
+  - {name: Bioptimus, sector: data, size: startup, ats: greenhouse, id: bioptimus-careers}
+  - {name: Botify, sector: data, size: pme, ats: teamtailor, id: botify}
+  - {name: Brevo, sector: data, size: eti, ats: lever, id: brevo}
+  - {name: CNP Assurances, sector: data, size: eti, ats: unsupported, url: 'https://cnp-recrute.talent-soft.com/', platform: talentsoft}
+  - {name: Carbon4 Finance, sector: data, size: startup, ats: wttj, id: carbon4-finance}
+  - {name: Carrefour, sector: data, size: grande, ats: unsupported, url: 'https://recrute.carrefour.fr/', platform: custom}
+  - {name: Circana, sector: data, size: grande, ats: unsupported, url: 'https://jobs.circana.com/careers', platform: eightfold}
+  - {name: Covéa, sector: data, size: grande, ats: smartrecruiters, id: COVEA1}
+  - {name: Craft AI, sector: data, size: startup, ats: wttj, id: craft-ai}
+  - {name: Crédit Agricole (incl. Pacifica/CA Assurances), sector: data, size: grande, ats: unsupported, url: 'https://groupecreditagricole.jobs/fr/nos-offres-emploi/', platform: talentsoft}
+  - {name: Dailymotion, sector: data, size: pme, ats: wttj, id: dailymotion}
+  - {name: Dassault Systèmes, sector: data, size: grande, ats: unsupported, url: 'https://careers.3ds.com/jobs', platform: custom}
+  - {name: Datadome, sector: data, size: pme, ats: greenhouse, id: ddome}
+  - {name: Datategy, sector: data, size: startup, ats: wttj, id: datategy}
+  - {name: Deepki, sector: data, size: startup, ats: teamtailor, id: deepki}
+  - {name: Deezer, sector: data, size: eti, ats: teamtailor, id: deezer}
+  - {name: Descartes Underwriting, sector: data, size: startup, ats: teamtailor, id: descartesunderwriting}
+  - {name: Dust, sector: data, size: startup, ats: ashby, id: dust}
+  - {name: Epiconcept, sector: data, size: pme, ats: unsupported, url: 'https://www.epiconcept.fr/en/carriere/', platform: custom}
+  - {name: Fnac Darty, sector: data, size: grande, ats: unsupported, url: 'https://carrieres.fnacdarty.com/', platform: cvcatcher}
+  - {name: Getaround, sector: data, size: pme, ats: unsupported, url: 'https://getaround.com/careers', platform: custom}
+  - {name: Giskard, sector: data, size: startup, ats: wttj, id: giskard}
+  - {name: Greenly, sector: data, size: startup, ats: teamtailor, url: 'https://careers.greenly.earth/jobs.rss'}
+  - {name: Groupama, sector: data, size: grande, ats: unsupported, url: 'https://offres.groupama-gan-recrute.com/', platform: talentsoft}
+  - {name: H Company, sector: data, size: startup, ats: ashby, id: hcompany}
+  - {name: Heetch, sector: data, size: startup, ats: lever, id: heetch}
+  - {name: Hivebrite, sector: data, size: startup, ats: teamtailor, id: hivebrite}
+  - {name: Hugging Face, sector: data, size: startup, ats: workable, id: huggingface}
+  - {name: INSEE, sector: data, size: grande, ats: unsupported, url: 'https://www.pass.fonction-publique.gouv.fr/', platform: pass-fonction-publique}
+  - {name: IQVIA, sector: data, size: grande, ats: workday, host: iqvia.wd1.myworkdayjobs.com, site: IQVIA}
+  - {name: Iktos, sector: data, size: startup, ats: unsupported, url: 'https://iktos.ai/careers/', platform: custom}
+  - {name: Implicity, sector: data, size: startup, ats: smartrecruiters, id: implicity}
+  - {name: Inato, sector: data, size: startup, ats: ashby, id: inato}
+  - {name: Kayrros, sector: data, size: startup, ats: recruitee, id: kayrros1}
+  - {name: Kyutai, sector: data, size: startup, ats: unsupported, url: 'https://kyutai.homerun.co', platform: homerun}
+  - {name: La Poste, sector: data, size: grande, ats: unsupported, url: 'https://www.laposterecrute.fr/', platform: custom}
+  - {name: Leboncoin, sector: data, size: eti, ats: wttj, id: leboncoin}
+  - {name: Ledger, sector: data, size: eti, ats: ashby, id: ledger}
+  - {name: Lemlist, sector: data, size: startup, ats: ashby, id: lemlist}
+  - {name: Leocare, sector: data, size: startup, ats: teamtailor, id: leocare}
+  - {name: Libeo, sector: data, size: startup, ats: wttj, id: libeo}
+  - {name: Lifen, sector: data, size: startup, ats: wttj, id: lifen}
+  - {name: LightOn, sector: data, size: startup, ats: wttj, id: lighton-1}
+  - {name: Livestorm, sector: data, size: startup, ats: recruitee, id: livestorm}
+  - {name: Lumapps, sector: data, size: pme, ats: teamtailor, url: 'https://job.lumapps.com/jobs.rss'}
+  - {name: Lydia (Sumeria), sector: data, size: startup, ats: teamtailor, url: 'https://jobs.lydia-app.com/jobs.rss'}
+  - {name: MSA, sector: data, size: grande, ats: unsupported, url: 'https://recrutement.msa.fr/nos-offres-demploi/', platform: custom}
+  - {name: Malakoff Humanis, sector: data, size: grande, ats: unsupported, url: 'https://carrieres.malakoffhumanis.com/', platform: talentsoft}
+  - {name: Malt, sector: data, size: eti, ats: lever, id: malt}
+  - {name: Mediarithmics, sector: data, size: startup, ats: wttj, id: mediarithmics}
+  - {name: Meero (Diffusely), sector: data, size: startup, ats: wttj, id: meero}
+  - {name: Metron, sector: data, size: startup, ats: wttj, id: metron}
+  - {name: Mistral AI, sector: data, size: startup, ats: ashby, id: mistral.ai}
+  - {name: Médiamétrie, sector: data, size: pme, ats: wttj, id: mediametrie}
+  - {name: Météo-France, sector: data, size: eti, ats: unsupported, url: 'https://meteofrance.fr/travailler-meteo-france/meteo-recrute/offres-demplois-de-contrats-dapprentissage-et-de-stages', platform: pass-fonction-publique}
+  - {name: Nabla, sector: data, size: startup, ats: ashby, id: nabla}
+  - {name: Natixis, sector: data, size: grande, ats: unsupported, url: 'https://recrutement.natixis.com/', platform: custom}
+  - {name: NielsenIQ (incl. GfK), sector: data, size: grande, ats: smartrecruiters, id: nielseniq}
+  - {name: Numberly, sector: data, size: pme, ats: smartrecruiters, id: numberly}
+  - {name: OVHcloud, sector: data, size: eti, ats: unsupported, url: 'https://careers.ovhcloud.com', platform: successfactors}
+  - {name: Ogury, sector: data, size: pme, ats: smartrecruiters, id: ogury}
+  - {name: Orange, sector: data, size: grande, ats: unsupported, url: 'https://orange.jobs/site/fr-stages/index.htm', platform: phenom}
+  - {name: Ornikar, sector: data, size: startup, ats: teamtailor, id: ornikar}
+  - {name: Owkin, sector: data, size: startup, ats: ashby, id: owkin}
+  - {name: Pasqal, sector: data, size: startup, ats: teamtailor, id: pasqal}
+  - {name: PayFit, sector: data, size: eti, ats: teamtailor, url: 'https://careers.payfit.com/jobs.rss'}
+  - {name: Payplug, sector: data, size: pme, ats: teamtailor, id: payplug}
+  - {name: Pennylane, sector: data, size: eti, ats: ashby, id: pennylane}
+  - {name: Photoroom, sector: data, size: startup, ats: ashby, id: photoroom}
+  - {name: Pigment, sector: data, size: startup, ats: lever, id: pigment}
+  - {name: Preligens (Safran.AI), sector: data, size: pme, ats: lever, id: safran-ai}
+  - {name: Qubit Pharmaceuticals, sector: data, size: startup, ats: teamtailor, id: qubitpharmaceuticals}
+  - {name: Quinten Health, sector: data, size: pme, ats: wttj, id: quinten}
+  - {name: SNCF, sector: data, size: grande, ats: unsupported, url: 'https://www.emploi.sncf.com/nos-offres-emploi/', platform: custom}
+  - {name: Sanofi, sector: data, size: grande, ats: workday, host: sanofi.wd3.myworkdayjobs.com, site: SanofiCareers}
+  - {name: Scaleway, sector: data, size: eti, ats: lever, id: scaleway}
+  - {name: Scor, sector: data, size: eti, ats: unsupported, url: 'https://www.scor.com/en/careers', platform: oracle}
+  - {name: Servier, sector: data, size: grande, ats: unsupported, url: 'https://servier.com/carrieres/', platform: successfactors}
+  - {name: Shift Technology, sector: data, size: startup, ats: greenhouse, id: shifttechnology}
+  - {name: Side, sector: data, size: startup, ats: wttj, id: side}
+  - {name: Sidetrade, sector: data, size: pme, ats: smartrecruiters, id: sidetrade}
+  - {name: Société Générale, sector: data, size: grande, ats: unsupported, url: 'https://careers.societegenerale.com/', platform: taleo}
+  - {name: Sorare, sector: data, size: startup, ats: ashby, id: sorare}
+  - {name: Spendesk, sector: data, size: startup, ats: teamtailor, url: 'https://career.spendesk.com/jobs.rss'}
+  - {name: Stello, sector: data, size: startup, ats: wttj, id: stello}
+  - {name: Swan, sector: data, size: startup, ats: wttj, id: swan}
+  - {name: Sweep, sector: data, size: startup, ats: teamtailor, id: sweep}
+  - {name: Swile, sector: data, size: eti, ats: lever, id: swile}
+  - {name: Teads, sector: data, size: eti, ats: greenhouse, id: teads1}
+  - {name: Therapixel, sector: data, size: startup, ats: unsupported, url: 'https://www.therapixel.com/careers/', platform: custom}
+  - {name: Tiime, sector: data, size: startup, ats: wttj, id: tiime}
+  - {name: Toluna (incl. Harris Interactive), sector: data, size: eti, ats: unsupported, url: 'https://tolunacorporate.com/careers-at-toluna/', platform: custom}
+  - {name: Treezor, sector: data, size: pme, ats: wttj, id: treezor}
+  - {name: Vestiaire Collective, sector: data, size: eti, ats: lever, id: vestiairecollective}
+  - {name: Vinted, sector: data, size: eti, ats: greenhouse, id: vinteden}
+  - {name: Voodoo, sector: data, size: eti, ats: ashby, id: voodoo}
+  - {name: Wakam, sector: data, size: pme, ats: teamtailor, id: wakam}
+  - {name: Welcome to the Jungle, sector: data, size: pme, ats: wttj, id: wttj}
+  - {name: Withings, sector: data, size: eti, ats: workable, id: withings}
+  - {name: Younited, sector: data, size: pme, ats: lever, id: younited}
+  - {name: Yousign, sector: data, size: pme, ats: wttj, id: yousign}
+  - {name: Zama, sector: data, size: startup, ats: wttj, id: zama}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-23
+  - {name: AMI Paris, sector: luxe, size: pme, ats: recruitee, id: amiparis}
+  - {name: Advini, sector: luxe, size: eti, ats: unsupported, url: 'https://www.advini.com', platform: beetween}
+  - {name: Aroma-Zone, sector: luxe, size: eti, ats: teamtailor, id: aromazone}
+  - {name: Audemars Piguet, sector: luxe, size: eti, ats: smartrecruiters, id: audemarspiguet}
+  - {name: Bacardi, sector: luxe, size: grande, ats: workday, host: bacardi.wd3.myworkdayjobs.com, site: Jobs_Bacardi}
+  - {name: Baccarat, sector: luxe, size: pme, ats: unsupported, url: 'https://baccarat.talentview.io/fr', platform: talentview}
+  - {name: Balmain, sector: luxe, size: pme, ats: unsupported, url: 'https://balmain-career.talent-soft.com/offre-de-emploi/liste-toutes-offres.aspx', platform: talentsoft}
+  - {name: Breitling, sector: luxe, size: eti, ats: sf_rss, url: 'https://careers.breitling.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Caudalie, sector: luxe, size: pme, ats: unsupported, url: 'https://caudalie.career/home/our-job-offers', platform: in-house}
+  - {name: Chopard, sector: luxe, size: eti, ats: unsupported, url: 'https://chopard.csod.com/ux/ats/careersite/1/home?c=chopard', platform: cornerstone}
+  - {name: Clarins, sector: luxe, size: eti, ats: sf_rss, url: 'https://careers.groupeclarins.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Diageo, sector: luxe, size: grande, ats: workday, host: diageo.wd3.myworkdayjobs.com, site: Diageo_Careers}
+  - {name: Diptyque, sector: luxe, size: eti, ats: workday, host: diptyqueparis.wd103.myworkdayjobs.com, site: DiptyqueCareers}
+  - {name: Erborian, sector: luxe, size: pme, ats: teamtailor, id: erborian}
+  - {name: Expanscience, sector: luxe, size: eti, ats: workday, host: expanscience.wd3.myworkdayjobs.com, site: Expanscience_Careers}
+  - {name: Galderma, sector: luxe, size: grande, ats: workday, host: galderma.wd3.myworkdayjobs.com, site: External}
+  - {name: Galeries Lafayette, sector: luxe, size: grande, ats: smartrecruiters, id: GaleriesLafayette}
+  - {name: Givaudan, sector: luxe, size: grande, ats: sf_rss, url: 'https://careers.givaudan.com/services/rss/job/?locale=fr_FR&keywords={q}', enabled: false}
+  - {name: Groupe Pochet, sector: luxe, size: eti, ats: unsupported, url: 'https://groupepochet.flatchr.io', platform: flatchr}
+  - {name: Groupe Rocher, sector: luxe, size: grande, ats: sf_rss, url: 'https://careers.groupe-rocher.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Hermès, sector: luxe, size: grande, ats: oracle_hcm, host: fa-eoic-saasfaprod1.fa.ocs.oraclecloud.com, site: CX_1, job_url: 'https://fa-eoic-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/CX_1/job/{id}'}
+  - {name: Horace, sector: luxe, size: startup, ats: teamtailor, id: horace}
+  - {name: IFF, sector: luxe, size: grande, ats: workday, host: iff.wd5.myworkdayjobs.com, site: iff_careers}
+  - {name: L'Occitane France (retail), sector: luxe, size: grande, ats: teamtailor, url: 'https://jobs-fr.loccitane.com/jobs.rss'}
+  - {name: L'Occitane Groupe (siege), sector: luxe, size: grande, ats: sf_rss, url: 'https://careers-group.loccitane.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: La Martiniquaise, sector: luxe, size: eti, ats: teamtailor, id: lamartiniquaise}
+  - {name: La Rosee, sector: luxe, size: startup, ats: teamtailor, id: larosee}
+  - {name: Lacoste, sector: luxe, size: grande, ats: digitalrecruiters, id: careers.lacoste.com}
+  - {name: Lancel, sector: luxe, size: pme, ats: unsupported, url: 'https://www.lancel.com', platform: beetween}
+  - {name: Longchamp, sector: luxe, size: eti, ats: unsupported, url: 'https://longchamp-career.talent-soft.com/offre-de-emploi/liste-toutes-offres.aspx', platform: talentsoft}
+  - {name: NAOS (Bioderma), sector: luxe, size: eti, ats: unsupported, url: 'https://groupenaos-recrute.talent-soft.com/accueil.aspx?LCID=1036', platform: talentsoft}
+  - {name: Nuxe, sector: luxe, size: eti, ats: digitalrecruiters, id: recrutement.nuxe.com}
+  - {name: Oh My Cream, sector: luxe, size: pme, ats: rss, url: 'https://careers.ohmycream.com/jobs.rss'}
+  - {name: Pandora, sector: luxe, size: grande, ats: unsupported, url: 'https://career2.successfactors.eu/careers?company=pandoraas', platform: successfactors}
+  - {name: Payot, sector: luxe, size: pme, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/payot/jobs', platform: wttj}
+  - {name: Puig, sector: luxe, size: grande, ats: sf_rss, url: 'https://careers.puig.com/services/rss/job/?locale=fr_FR&keywords={q}', enabled: false}
+  - {name: Respire, sector: luxe, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/respire/jobs', platform: wttj}
+  - {name: Rolex, sector: luxe, size: grande, ats: sf_rss, url: 'https://www.carrieres-rolex.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: SMCP, sector: luxe, size: grande, ats: smartrecruiters, id: smcp}
+  - {name: Sephora, sector: luxe, size: grande, ats: sf_rss, url: 'https://jobs.sephora.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Shiseido, sector: luxe, size: grande, ats: sf_rss, url: 'https://careers.shiseido.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Sisley, sector: luxe, size: eti, ats: smartrecruiters, id: sisley}
+  - {name: Swarovski, sector: luxe, size: grande, ats: workday, host: swarovski.wd3.myworkdayjobs.com, site: Swarovski}
+  - {name: Swatch Group, sector: luxe, size: grande, ats: unsupported, url: 'https://www.swatchgroup.com/en/job-finder', platform: in-house}
+  - {name: Symrise, sector: luxe, size: grande, ats: unsupported, url: 'https://www.symrise.com/careers/', platform: talentlink}
+  - {name: Typology, sector: luxe, size: startup, ats: rss, url: 'https://typology-1732032895.teamtailor.com/jobs.rss'}
+  - {name: Uriage, sector: luxe, size: pme, ats: unsupported, url: 'https://uriage-cand.talent-soft.com/', platform: talentsoft}
+  - {name: Veja, sector: luxe, size: pme, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/veja/jobs', platform: wttj}
+  - {name: dsm-firmenich, sector: luxe, size: grande, ats: eightfold, id: dsm.com, base: 'https://jobs.dsm-firmenich.com'}
+  - {name: Aigle, sector: sport, size: eti, ats: digitalrecruiters, id: careers.aigle.com}
+  - {name: Amaury Sport Organisation, sector: sport, size: pme, ats: teamtailor, url: 'https://carrieres.aso.fr/jobs.rss'}
+  - {name: Amer Sports, sector: sport, size: grande, ats: workable, id: amer-sports}
+  - {name: Arkose, sector: sport, size: pme, ats: unsupported, url: 'https://www.hellowork.com/fr-fr/entreprises/arkose-et-co-154584.html', platform: hellowork}
+  - {name: Asics (Oceanie), sector: sport, size: grande, ats: smartrecruiters, id: asics}
+  - {name: Beacon Biosignals (Dreem), sector: sport, size: startup, ats: greenhouse, id: beaconbiosignals}
+  - {name: Betclic, sector: sport, size: eti, ats: breezy, id: betclic-group}
+  - {name: Boardriders (Quiksilver), sector: sport, size: grande, ats: unsupported, url: 'https://career5.successfactors.eu/careers?company=NAPALIDP', platform: successfactors}
+  - {name: Catapult, sector: sport, size: eti, ats: greenhouse, id: catapultsports}
+  - {name: Club Med, sector: sport, size: grande, ats: unsupported, url: 'https://www.clubmed.fr', platform: radancy}
+  - {name: Coros, sector: sport, size: pme, ats: smartrecruiters, id: coros}
+  - {name: Decathlon, sector: sport, size: grande, ats: digitalrecruiters, id: joinus.decathlon.fr}
+  - {name: Decathlon Technology, sector: sport, size: grande, ats: greenhouse, id: decathlontechnology}
+  - {name: Deckers (Hoka), sector: sport, size: grande, ats: workday, host: deckers.wd5.myworkdayjobs.com, site: Deckers}
+  - {name: EGYM Wellpass (Gymlib), sector: sport, size: eti, ats: ashby, id: egym}
+  - {name: FDJ United, sector: sport, size: grande, ats: workday, host: groupefdj.wd103.myworkdayjobs.com, site: FDJ-UNITED}
+  - {name: Fédération Française de Tennis, sector: sport, size: pme, ats: rss, url: 'https://jobs.fft.fr/jobs.rss'}
+  - {name: Genius Sports, sector: sport, size: eti, ats: greenhouse, id: geniussports}
+  - {name: Gymlib (EGYM Wellpass), sector: sport, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/egym-wellpass/jobs', platform: wttj}
+  - {name: Gymshark, sector: sport, size: eti, ats: greenhouse, id: gymshark}
+  - {name: Hudl, sector: sport, size: eti, ats: greenhouse, id: hudl}
+  - {name: INSEP, sector: sport, size: public, ats: rss, url: 'https://www.insep.fr/fr/offres-demploi-concours.xml'}
+  - {name: Keep Cool, sector: sport, size: pme, ats: unsupported, url: 'https://www.hellowork.com/fr-fr/entreprises/keep-cool-35488.html', platform: hellowork}
+  - {name: Kindred (Unibet), sector: sport, size: grande, ats: unsupported, url: 'https://www.kindredgroup.com/careers/', platform: radancy}
+  - {name: Kinexon, sector: sport, size: pme, ats: greenhouse, id: kinexon}
+  - {name: Kitman Labs, sector: sport, size: pme, ats: smartrecruiters, id: kitmanlabs}
+  - {name: Ligue de Football Professionnel, sector: sport, size: pme, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/ligue-de-football-professionnel/jobs', platform: wttj}
+  - {name: Look Cycle, sector: sport, size: pme, ats: recruitee, id: look}
+  - {name: Mammut, sector: sport, size: eti, ats: unsupported, url: 'https://www.mammut.com', platform: umantis}
+  - {name: Neoness, sector: sport, size: pme, ats: unsupported, url: 'https://www.hellowork.com/fr-fr/entreprises/neoness-134448.html', platform: hellowork}
+  - {name: Olympique de Marseille, sector: sport, size: pme, ats: unsupported, url: 'https://olympique-de-marseille.taleez.com/', platform: taleez}
+  - {name: PMU, sector: sport, size: eti, ats: teamtailor, id: pmu}
+  - {name: Puma, sector: sport, size: grande, ats: workday, host: puma.wd502.myworkdayjobs.com, site: Jobs_at_Puma}
+  - {name: SkillCorner, sector: sport, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/skillcorner/jobs', platform: wttj}
+  - {name: Sport Heroes, sector: sport, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/sport-heroes-group/jobs', platform: wttj}
+  - {name: SportEasy, sector: sport, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/sporteasy/jobs', platform: wttj}
+  - {name: Sportradar, sector: sport, size: grande, ats: smartrecruiters, id: sportradar}
+  - {name: Teamworks, sector: sport, size: eti, ats: ashby, id: teamworks}
+  - {name: Technogym, sector: sport, size: grande, ats: sf_rss, url: 'https://careers.technogym.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Urban Soccer, sector: sport, size: pme, ats: unsupported, url: 'https://urbansoccer.softy.pro/offres', platform: softy}
+  - {name: 'VF Corp (The North Face, Vans, Timberland)', sector: sport, size: grande, ats: workday, host: vfc.wd5.myworkdayjobs.com, site: vfc_careers}
+  - {name: Wilson Sporting Goods, sector: sport, size: grande, ats: unsupported, url: 'https://careers-wilson.icims.com/jobs/search', platform: icims}
+  - {name: Winamax, sector: sport, size: pme, ats: lever, id: winamax}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-23
+  - {name: Albéa, sector: luxe, size: eti, ats: rss, url: 'https://albeagroup.teamtailor.com/jobs.rss'}
+  - {name: Campari Group, sector: luxe, size: grande, ats: sf_rss, url: 'https://careers.camparigroup.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Castel Frères, sector: luxe, size: eti, ats: talentsoft, url: 'https://castelfreres-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Groupe Chantelle, sector: luxe, size: eti, ats: talentsoft, url: 'https://groupechantelle-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Jacquemus, sector: luxe, size: pme, ats: lever, id: jacquemus, region: eu}
+  - {name: Mane, sector: luxe, size: eti, ats: talentsoft, url: 'https://mane-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Printemps, sector: luxe, size: eti, ats: talentsoft, url: 'https://printemps-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Quadpack, sector: luxe, size: pme, ats: unsupported, url: 'https://quadpack.bamboohr.com/careers/list', platform: bamboohr}
+  - {name: The Kooples, sector: luxe, size: eti, ats: digitalrecruiters, id: careers.thekooples.com}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-23
+  - {name: Babolat, sector: sport, size: eti, ats: rss, url: 'https://www.babolat-jobs.fr/emplois/feed/'}
+  - {name: Fédération Française de Rugby, sector: sport, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/fr/company/ffr/', platform: flatchr}
+  - {name: Groupe Amaury (L'Équipe), sector: sport, size: eti, ats: rss, url: 'https://carrieres.amaury.com/jobs.rss'}
+  - {name: Millet Mountain Group, sector: sport, size: pme, ats: rss, url: 'https://jobs.milletmountaingroup.com/jobs.rss'}
+  - {name: Olympique Lyonnais (Eagle Football), sector: sport, size: eti, ats: sf_rss, url: 'https://careers.eaglefootballgroup.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Paris Saint-Germain, sector: sport, size: eti, ats: workday, host: parissaintgermain.wd3.myworkdayjobs.com, site: rejoigneznous}
+  - {name: Petzl, sector: sport, size: eti, ats: unsupported, url: 'https://careers.flatchr.io/fr/company/petzl/', platform: flatchr}
+  - {name: Rossignol, sector: sport, size: eti, ats: unsupported, url: 'https://groupe-rossignol.layan.eu/fr/', platform: layan}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-23
+  - {name: Assystem, sector: conseil, size: eti, ats: smartrecruiters, id: assystem}
+  - {name: Akur8, sector: data, size: startup, ats: ashby, id: akur8}
+  - {name: Actia, sector: industrie, size: eti, ats: unsupported, url: 'https://actia.talent-soft.com', platform: talentsoft}
+  - {name: Advizeo, sector: industrie, size: pme, ats: recruitee, id: advizeo}
+  - {name: Afyren, sector: industrie, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/company/afyren/', platform: flatchr}
+  - {name: Aguettant, sector: industrie, size: eti, ats: unsupported, url: 'https://aguettant.csod.com/ux/ats/careersite/1/home?c=aguettant', platform: cornerstone}
+  - {name: Air France (incl. AFI KLM E&M), sector: industrie, size: grande, ats: talentsoft, url: 'https://airfrance-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Air Liquide, sector: industrie, size: grande, ats: workday, host: airliquidehr.wd3.myworkdayjobs.com, site: AirLiquideExternalCareer}
+  - {name: Airseas, sector: industrie, size: startup, ats: unsupported, url: 'https://careers.werecruit.io/fr/airseas', platform: werecruit}
+  - {name: Akuo, sector: industrie, size: pme, ats: smartrecruiters, id: Akuo}
+  - {name: Albioma, sector: industrie, size: pme, ats: unsupported, url: 'https://taleez.com/apply/sp/albioma', platform: taleez}
+  - {name: Amarenco, sector: industrie, size: pme, ats: teamtailor, id: amarenco}
+  - {name: Aperam, sector: industrie, size: grande, ats: oracle_hcm, host: hdhy.fa.em3.oraclecloud.com, site: AperamCareerSite, job_url: 'https://hdhy.fa.em3.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/AperamCareerSite/job/{id}'}
+  - {name: ArcelorMittal, sector: industrie, size: grande, ats: oracle_hcm, host: emfg.fa.em4.oraclecloud.com, site: CX_1001, job_url: 'https://emfg.fa.em4.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/CX_1001/job/{id}'}
+  - {name: ArianeGroup, sector: industrie, size: eti, ats: workday, host: arianegroup.wd3.myworkdayjobs.com, site: EXTERNALALL}
+  - {name: Arkema, sector: industrie, size: grande, ats: unsupported, url: 'https://www.arkema.com/france/fr/careers/', platform: successfactors}
+  - {name: Ascendance Flight Technologies, sector: industrie, size: startup, ats: unsupported, url: 'https://www.ascendance-ft.com/', platform: taleez}
+  - {name: Aspentech, sector: industrie, size: grande, ats: workday, host: aspentech.wd5.myworkdayjobs.com, site: aspentech}
+  - {name: Ateme, sector: industrie, size: pme, ats: teamtailor, id: ateme}
+  - {name: Aubert & Duval, sector: industrie, size: eti, ats: unsupported, url: 'https://www.aubertduval.com/carrieres/', platform: successfactors}
+  - {name: BA Systemes (Alstef Group), sector: industrie, size: pme, ats: unsupported, url: 'https://careers.alstefgroup.com/fr', platform: werecruit}
+  - {name: Balyo, sector: industrie, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/company/balyo/', platform: flatchr}
+  - {name: Beev, sector: industrie, size: startup, ats: wttj, id: beev}
+  - {name: Beneteau, sector: industrie, size: eti, ats: unsupported, url: 'https://www.beneteau-group.com/carrieres/', platform: successfactors}
+  - {name: Bosch, sector: industrie, size: grande, ats: smartrecruiters, id: BoschGroup}
+  - {name: Braincube, sector: industrie, size: pme, ats: teamtailor, id: braincube}
+  - {name: Bump, sector: industrie, size: startup, ats: wttj, id: bump-charge}
+  - {name: CEA, sector: industrie, size: grande, ats: unsupported, url: 'https://www.emploi.cea.fr/', platform: talentsoft}
+  - {name: CNES, sector: industrie, size: eti, ats: digitalrecruiters, id: recrutement.cnes.fr}
+  - {name: Cailabs, sector: industrie, size: pme, ats: unsupported, url: 'https://rejoignez.cailabs.com/fr', platform: werecruit}
+  - {name: Carbios, sector: industrie, size: pme, ats: unsupported, url: 'https://carbios.flatchr.io/', platform: flatchr}
+  - {name: Ceva Sante Animale, sector: industrie, size: grande, ats: unsupported, url: 'https://ceva.csod.com/ux/ats/careersite/3/home?c=ceva', platform: cornerstone}
+  - {name: Comand AI, sector: industrie, size: startup, ats: ashby, id: comand-ai}
+  - {name: Continental, sector: industrie, size: grande, ats: smartrecruiters, id: continental}
+  - {name: Cosmo Tech, sector: industrie, size: pme, ats: unsupported, url: 'https://cosmotech.com/join-us/', platform: custom}
+  - {name: Daher, sector: industrie, size: eti, ats: workday, host: daher.wd3.myworkdayjobs.com, site: Daher}
+  - {name: Dalkia, sector: industrie, size: grande, ats: talentsoft, url: 'https://dalkia-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Dassault Aviation, sector: industrie, size: grande, ats: talentsoft, url: 'https://dassault-aviation-cand.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Delair, sector: industrie, size: pme, ats: teamtailor, id: delair}
+  - {name: Delpharm, sector: industrie, size: eti, ats: smartrecruiters, id: delpharm}
+  - {name: Delta Dore, sector: industrie, size: eti, ats: teamtailor, url: 'https://jobs-group.deltadore.com/jobs.rss'}
+  - {name: Donecle, sector: industrie, size: startup, ats: unsupported, url: 'https://taleez.com/careers/donecle', platform: taleez}
+  - {name: Driveco, sector: industrie, size: pme, ats: teamtailor, url: 'https://careers.driveco.com/jobs.rss'}
+  - {name: EasyMile, sector: industrie, size: pme, ats: wttj, id: easymile}
+  - {name: Ekwateur, sector: industrie, size: pme, ats: wttj, id: ekwateur}
+  - {name: Electra, sector: industrie, size: startup, ats: teamtailor, url: 'https://careers.go-electra.com/jobs.rss'}
+  - {name: Elyse Energy, sector: industrie, size: startup, ats: unsupported, url: 'https://careers.flatchr.io/company/elyseenergy', platform: flatchr}
+  - {name: Enchanted Tools, sector: industrie, size: startup, ats: unsupported, url: 'https://enchanted.tools/', platform: taleez}
+  - {name: Enedis, sector: industrie, size: grande, ats: talentsoft, url: 'https://enedis-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Engie, sector: industrie, size: grande, ats: sf_rss, url: 'https://jobs.engie.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Enogia, sector: industrie, size: startup, ats: unsupported, url: 'https://www.hellowork.com/fr-fr/entreprises/enogia-168673.html', platform: hellowork}
+  - {name: Eramet, sector: industrie, size: grande, ats: unsupported, url: 'https://www.eramet.com/fr/carrieres/', platform: successfactors}
+  - {name: Europe Technologies, sector: industrie, size: pme, ats: unsupported, url: 'https://careers.werecruit.io/fr/europe-technologies', platform: werecruit}
+  - {name: Exail, sector: industrie, size: eti, ats: digitalrecruiters, id: jobs.exail.com}
+  - {name: Exotec, sector: industrie, size: eti, ats: workable, id: exotec}
+  - {name: Exotrail, sector: industrie, size: pme, ats: teamtailor, url: 'https://careers.exotrail.com/jobs.rss'}
+  - {name: Fieldbox, sector: industrie, size: pme, ats: wttj, id: fieldbox-ai}
+  - {name: Figeac Aero, sector: industrie, size: eti, ats: unsupported, url: 'https://figeac-aero.csod.com/ux/ats/careersite/1/home?c=figeac-aero', platform: cornerstone}
+  - {name: Forsee Power, sector: industrie, size: eti, ats: unsupported, url: 'https://careers.flatchr.io/fr/company/forseepower/', platform: flatchr}
+  - {name: Framatome, sector: industrie, size: grande, ats: talentsoft, url: 'https://framatome-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: GRTgaz (Natran), sector: industrie, size: eti, ats: talentsoft, url: 'https://natran-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: GSK, sector: industrie, size: grande, ats: workday, host: gsk.wd5.myworkdayjobs.com, site: GSKCareers}
+  - {name: Getlink, sector: industrie, size: eti, ats: recruitee, id: getlink}
+  - {name: GreenYellow, sector: industrie, size: eti, ats: workday, host: greenyellow.wd3.myworkdayjobs.com, site: GY}
+  - {name: Guerbet, sector: industrie, size: eti, ats: sf_rss, url: 'https://careers.guerbet.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Harmattan AI, sector: industrie, size: startup, ats: ashby, id: harmattan-ai}
+  - {name: Heex Technologies, sector: industrie, size: startup, ats: unsupported, url: 'https://www.notion.so/heex/Join-the-Smart-Data-Revolution-24a54af7e722804196bdf00ad58a58f9', platform: notion}
+  - {name: Helsing, sector: industrie, size: eti, ats: greenhouse, id: helsing}
+  - {name: Hemeria, sector: industrie, size: pme, ats: recruitee, id: hemeriagroup}
+  - {name: Hexana, sector: industrie, size: startup, ats: teamtailor, id: hexana}
+  - {name: Hiflow, sector: industrie, size: pme, ats: recruitee, id: hiflow}
+  - {name: Hitachi (incl. Hitachi Rail), sector: industrie, size: grande, ats: workday, host: hitachi.wd1.myworkdayjobs.com, site: hitachi}
+  - {name: Hutchinson, sector: industrie, size: grande, ats: oracle_hcm, host: fa-eocc-saasfaprod1.fa.ocs.oraclecloud.com, site: CX_1007, job_url: 'https://fa-eocc-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/CX_1007/job/{id}'}
+  - {name: Hydrogen Refueling Solutions, sector: industrie, size: pme, ats: teamtailor, id: hydrogenrefuelingsolutions}
+  - {name: Hydrogene de France (HDF Energy), sector: industrie, size: pme, ats: teamtailor, url: 'https://jobs.hdf-energy.com/jobs.rss'}
+  - {name: IFP Energies nouvelles, sector: industrie, size: eti, ats: talentsoft, url: 'https://ifpen-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Idemia, sector: industrie, size: grande, ats: unsupported, url: 'https://www.idemia.com/careers-idemia', platform: successfactors}
+  - {name: Idex, sector: industrie, size: grande, ats: workday, host: idex.wd3.myworkdayjobs.com, site: toutes-nos-offres-demploi}
+  - {name: Imerys, sector: industrie, size: grande, ats: workday, host: imerys.wd3.myworkdayjobs.com, site: IMERYS-Careers}
+  - {name: Inbolt, sector: industrie, size: startup, ats: wttj, id: inbolt}
+  - {name: Ipsen, sector: industrie, size: eti, ats: workday, host: ipsen.wd103.myworkdayjobs.com, site: Ipsen_Careers}
+  - {name: JPee, sector: industrie, size: pme, ats: wttj, id: jpee}
+  - {name: Kalray, sector: industrie, size: pme, ats: unsupported, url: 'https://www.kalrayinc.com/careers/', platform: custom}
+  - {name: Kerlink, sector: industrie, size: pme, ats: unsupported, url: 'https://www.kerlink.com/careers/', platform: custom}
+  - {name: Kickmaker, sector: industrie, size: pme, ats: smartrecruiters, id: kickmaker}
+  - {name: Kineis, sector: industrie, size: pme, ats: unsupported, url: 'https://kineis.softy.pro/offers', platform: softy}
+  - {name: LFB, sector: industrie, size: eti, ats: workday, host: lfb.wd3.myworkdayjobs.com, site: LFB_External_Careers}
+  - {name: Laboratoires Thea, sector: industrie, size: eti, ats: unsupported, url: 'https://theapharma.csod.com/ux/ats/careersite/4/home?c=theapharma', platform: cornerstone}
+  - {name: Lacroix Group, sector: industrie, size: eti, ats: smartrecruiters, id: Lacroix1}
+  - {name: Lancey Energy Storage, sector: industrie, size: startup, ats: wttj, id: lancey-energy-storage}
+  - {name: Latecoere, sector: industrie, size: eti, ats: unsupported, url: 'https://www.latecoere.aero/carrieres/', platform: successfactors}
+  - {name: Legrand, sector: industrie, size: grande, ats: oracle_hcm, host: iadugs.fa.ocs.oraclecloud.com, site: CX_1001, job_url: 'https://iadugs.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/CX_1001/job/{id}'}
+  - {name: Lhyfe, sector: industrie, size: pme, ats: teamtailor, url: 'https://jobs.lhyfe.com/jobs.rss'}
+  - {name: Liebherr Aerospace, sector: industrie, size: grande, ats: unsupported, url: 'https://www.liebherr.com/fr/fra/carri%C3%A8res/carri%C3%A8res.html', platform: successfactors}
+  - {name: Loft Orbital, sector: industrie, size: pme, ats: lever, id: loftorbital}
+  - {name: Lokad, sector: industrie, size: pme, ats: unsupported, url: 'https://www.lokad.com/careers/', platform: custom}
+  - {name: Lynred, sector: industrie, size: eti, ats: talentsoft, url: 'https://lynred-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Mecachrome, sector: industrie, size: eti, ats: digitalrecruiters, id: jobs.mecachrome.com}
+  - {name: Metroscope, sector: industrie, size: startup, ats: wttj, id: metroscope}
+  - {name: Neoen, sector: industrie, size: pme, ats: digitalrecruiters, id: careers.neoen.com}
+  - {name: Nexans, sector: industrie, size: grande, ats: sf_rss, url: 'https://career.nexans.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Niryo, sector: industrie, size: startup, ats: teamtailor, url: 'https://careers.niryo.com/jobs.rss'}
+  - {name: ONERA, sector: industrie, size: eti, ats: unsupported, url: 'https://rejoindre.onera.fr', platform: talentlink}
+  - {name: OPmobility, sector: industrie, size: grande, ats: unsupported, url: 'https://www.opmobility.com/fr/carrieres/', platform: successfactors}
+  - {name: Ombrea, sector: industrie, size: startup, ats: wttj, id: ombrea}
+  - {name: Orano, sector: industrie, size: grande, ats: unsupported, url: 'https://jobs.orano.group/fr_FR/jobs/SearchJobs', platform: avature}
+  - {name: Outsight, sector: industrie, size: startup, ats: lever, id: outsight}
+  - {name: Padam Mobility, sector: industrie, size: startup, ats: wttj, id: padam}
+  - {name: Paprec, sector: industrie, size: grande, ats: digitalrecruiters, id: recrutement.paprec.com}
+  - {name: Photosol, sector: industrie, size: pme, ats: teamtailor, id: photosol}
+  - {name: Prophesee, sector: industrie, size: pme, ats: teamtailor, id: prophesee}
+  - {name: Qovoltis, sector: industrie, size: startup, ats: wttj, id: qovoltis-1}
+  - {name: Quandela, sector: industrie, size: pme, ats: workable, id: quandela}
+  - {name: RATP, sector: industrie, size: grande, ats: workday, host: ratp.wd3.myworkdayjobs.com, site: RATP_Externe}
+  - {name: RTE, sector: industrie, size: grande, ats: smartrecruiters, id: RTE1}
+  - {name: Reden Solar, sector: industrie, size: pme, ats: teamtailor, id: redensolar}
+  - {name: Renaissance Fusion, sector: industrie, size: startup, ats: teamtailor, id: renaissancefusion}
+  - {name: Roquette, sector: industrie, size: grande, ats: workday, host: roquette.wd3.myworkdayjobs.com, site: External}
+  - {name: STMicroelectronics, sector: industrie, size: grande, ats: unsupported, url: 'https://stmicroelectronics.eightfold.ai/careers', platform: eightfold}
+  - {name: Sagemcom, sector: industrie, size: eti, ats: talentsoft, url: 'https://sagemcom-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Sartorius, sector: industrie, size: grande, ats: workday, host: sartorius.wd3.myworkdayjobs.com, site: sartoriuscareers}
+  - {name: Saur, sector: industrie, size: grande, ats: teamtailor, url: 'https://eu.jobs.saur.com/jobs.rss'}
+  - {name: Scortex, sector: industrie, size: startup, ats: wttj, id: scortex}
+  - {name: Seche Environnement, sector: industrie, size: eti, ats: unsupported, url: 'https://candidaturespontanees-groupe-seche.icims.com/', platform: icims}
+  - {name: Seqens, sector: industrie, size: eti, ats: talentsoft, url: 'https://seqens-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Sidel, sector: industrie, size: eti, ats: unsupported, url: 'https://sidelgroup.csod.com/ux/ats/careersite/2/home?c=sidelgroup', platform: cornerstone}
+  - {name: Sightcall, sector: industrie, size: pme, ats: smartrecruiters, id: sightcall}
+  - {name: Sileane, sector: industrie, size: pme, ats: unsupported, url: 'https://careers.werecruit.io/fr/sileane', platform: werecruit}
+  - {name: Soitec, sector: industrie, size: eti, ats: unsupported, url: 'https://careers-fr-soitec.icims.com/jobs/search?ss=1', platform: icims}
+  - {name: Somfy, sector: industrie, size: eti, ats: smartrecruiters, id: SomfyGroup}
+  - {name: Suez, sector: industrie, size: grande, ats: unsupported, url: 'https://hris-suez.csod.com/ux/ats/careersite/10/home?c=hris-suez', platform: cornerstone}
+  - {name: Symbio, sector: industrie, size: eti, ats: teamtailor, id: symbio}
+  - {name: Sysnav, sector: industrie, size: pme, ats: wttj, id: sysnav}
+  - {name: Tarkett, sector: industrie, size: grande, ats: workday, host: tarkett.wd3.myworkdayjobs.com, site: Tarkett_Careers}
+  - {name: Tiamat, sector: industrie, size: startup, ats: teamtailor, url: 'https://jobs.tiamat-energy.com/jobs.rss'}
+  - {name: Unabiz, sector: industrie, size: pme, ats: smartrecruiters, id: unabiz}
+  - {name: Unseenlabs, sector: industrie, size: pme, ats: unsupported, url: 'https://careers.werecruit.io/fr/unseenlabs', platform: werecruit}
+  - {name: Urbasolar, sector: industrie, size: pme, ats: teamtailor, id: urbasolar}
+  - {name: Veolia, sector: industrie, size: grande, ats: smartrecruiters, id: VeoliaEnvironnementSA}
+  - {name: Verallia, sector: industrie, size: grande, ats: unsupported, url: 'https://www.verallia.com/', platform: successfactors}
+  - {name: Verkor, sector: industrie, size: eti, ats: lever, id: verkor}
+  - {name: Vianova, sector: industrie, size: startup, ats: wttj, id: vianova}
+  - {name: Virbac, sector: industrie, size: eti, ats: workday, host: virbac.wd103.myworkdayjobs.com, site: Career}
+  - {name: Visionairy, sector: industrie, size: startup, ats: wttj, id: visionairy}
+  - {name: Voltalia, sector: industrie, size: eti, ats: talentsoft, url: 'https://voltalia-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Wabtec (ex-Faiveley), sector: industrie, size: grande, ats: smartrecruiters, id: Wabtec}
+  - {name: Waga Energy, sector: industrie, size: pme, ats: teamtailor, url: 'https://careers.waga-energy.com/jobs.rss'}
+  - {name: Wandercraft, sector: industrie, size: startup, ats: wttj, id: wandercraft}
+  - {name: bioMerieux, sector: industrie, size: grande, ats: unsupported, url: 'https://careers.biomerieux.com/', platform: jobvite}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-23
+  - {name: ACTA, sector: agro, size: pme, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/acta', platform: wttj}
+  - {name: ADM, sector: agro, size: grande, ats: unsupported, url: 'https://sjobs.brassring.com/TGnewUI/Search/Home/Home?partnerid=25416&siteid=5998', platform: brassring}
+  - {name: AGCO, sector: agro, size: grande, ats: sf_rss, url: 'https://careers.agcocorp.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: ANSES, sector: agro, size: eti, ats: unsupported, url: 'https://www.anses.fr/fr/liste-offre-d-emploi', platform: custom}
+  - {name: Adisseo, sector: agro, size: eti, ats: unsupported, url: 'https://careers-fr-adisseo.icims.com/', platform: icims}
+  - {name: Agreenculture, sector: agro, size: startup, ats: unsupported, url: 'https://www.agreenculture.fr/carriere', platform: custom}
+  - {name: Agrial, sector: agro, size: grande, ats: unsupported, url: 'https://agrial.csod.com/ux/ats/careersite/8/home', platform: cornerstone}
+  - {name: Agriconomie (Aladin/Agryco), sector: agro, size: startup, ats: unsupported, url: 'https://agriconomie.flatchr.io/fr/company/agriconomie', platform: flatchr}
+  - {name: Agromousquetaires, sector: agro, size: grande, ats: smartrecruiters, id: GroupementMousquetaires3}
+  - {name: Agronutris, sector: agro, size: startup, ats: unsupported, url: 'https://agronutris.taleez.com/', platform: taleez}
+  - {name: Andros, sector: agro, size: grande, ats: digitalrecruiters, id: carrieres.andros.fr}
+  - {name: Arterris, sector: agro, size: eti, ats: teamtailor, id: arterris}
+  - {name: Arvalis (incl. Visiofarm), sector: agro, size: pme, ats: unsupported, url: 'https://www.arvalis.fr/l-institut/nous-rejoindre/offres-d-emploi-de-stages', platform: custom}
+  - {name: Aviagen, sector: agro, size: grande, ats: workday, host: aviagen.wd1.myworkdayjobs.com, site: aviagen-careers}
+  - {name: Axereal, sector: agro, size: eti, ats: unsupported, url: 'https://www.axereal.com/carrieres', platform: custom}
+  - {name: BASF, sector: agro, size: grande, ats: sf_rss, url: 'https://basf.jobs/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Barry Callebaut, sector: agro, size: grande, ats: sf_rss, url: 'https://jobs.barry-callebaut.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Bigard, sector: agro, size: grande, ats: unsupported, url: 'https://www.groupebigardrecrute.fr/offres-emploi/', platform: custom}
+  - {name: Biobest, sector: agro, size: eti, ats: unsupported, url: 'https://www.biobest.com/fr/jobs', platform: custom}
+  - {name: Boehringer Ingelheim (santé animale), sector: agro, size: grande, ats: sf_rss, url: 'https://jobs.boehringer-ingelheim.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Boortmalt (ex Soufflet Malt), sector: agro, size: eti, ats: unsupported, url: 'https://www.boortmalt.com/career', platform: custom}
+  - {name: Brioche Pasquier, sector: agro, size: eti, ats: unsupported, url: 'https://recrutement.pasquier.fr/', platform: hellowork}
+  - {name: CIRAD, sector: agro, size: eti, ats: unsupported, url: 'https://recrutement.cirad.fr/accueil.aspx?LCID=1036', platform: talentsoft}
+  - {name: CLAAS, sector: agro, size: grande, ats: sf_rss, url: 'https://recruiting.claas.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: CNH, sector: agro, size: grande, ats: unsupported, url: 'https://careers.cnh.com/', platform: successfactors}
+  - {name: CTIFL, sector: agro, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/company/ctifl', platform: flatchr}
+  - {name: Califrais, sector: agro, size: startup, ats: workable, id: califrais}
+  - {name: Cargill, sector: agro, size: grande, ats: unsupported, url: 'https://careers.cargill.com/', platform: successfactors}
+  - {name: Carré, sector: agro, size: pme, ats: unsupported, url: 'https://www.carre.fr/nous-rejoindre/', platform: custom}
+  - {name: Cavac, sector: agro, size: eti, ats: digitalrecruiters, id: recrutement.coop-cavac.fr}
+  - {name: Cerfrance, sector: agro, size: grande, ats: unsupported, url: 'https://www.cerfrance.fr/recrutement', platform: beetween}
+  - {name: Certis Belchim, sector: agro, size: eti, ats: oracle_hcm, host: iaanbn.fa.ocs.oraclecloud.com, site: CX_1, job_url: 'https://iaanbn.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/CX_1/job/{id}'}
+  - {name: Chambres d'agriculture, sector: agro, size: grande, ats: unsupported, url: 'https://chambres-agriculture.fr/nous-rejoindre/les-offres-demploi', platform: flatchr}
+  - {name: Choose, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/choose', platform: wttj}
+  - {name: Coca-Cola Europacific Partners, sector: agro, size: grande, ats: unsupported, url: 'https://www.ccep.jobs/en/france-jobs', platform: successfactors}
+  - {name: Cooperl, sector: agro, size: grande, ats: digitalrecruiters, id: recrutement.cooperl.com}
+  - {name: Cristal Union, sector: agro, size: eti, ats: unsupported, url: 'https://recrute.cristal-union.fr/', platform: talentsoft}
+  - {name: De Sangosse, sector: agro, size: eti, ats: unsupported, url: 'https://recrutement-groupe.desangosse.com/', platform: hellowork}
+  - {name: DeLaval, sector: agro, size: eti, ats: sf_rss, url: 'https://delaval-careers.jobs.hr.cloud.sap/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Earthworm Foundation, sector: agro, size: pme, ats: unsupported, url: 'https://www.earthworm.org/pages/job-openings', platform: custom}
+  - {name: Ecorobotix, sector: agro, size: startup, ats: unsupported, url: 'https://careers.ecorobotix.com/fr_FR/careers', platform: odoo}
+  - {name: Ecotable, sector: agro, size: startup, ats: unsupported, url: 'https://jobs.makesense.org/fr/projects/ecotable-45', platform: makesense}
+  - {name: Ekylibre, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/ekylibre', platform: wttj}
+  - {name: Elicit Plant, sector: agro, size: startup, ats: unsupported, url: 'https://www.elicit-plant.com/fr/opportunites/', platform: custom}
+  - {name: Enza Zaden, sector: agro, size: grande, ats: workday, host: enzazaden.wd103.myworkdayjobs.com, site: Enza-Careers}
+  - {name: 'Euralis (incl. Lidea, Caussade Semences)', sector: agro, size: eti, ats: unsupported, url: 'https://euralis.nos-recrutements.fr/jobs', platform: beetween}
+  - {name: Even, sector: agro, size: grande, ats: digitalrecruiters, id: recrutement.even.fr}
+  - {name: Exel Industries, sector: agro, size: eti, ats: unsupported, url: 'https://www.exel-industries.com/talents/', platform: custom}
+  - {name: FMC, sector: agro, size: grande, ats: workday, host: fmc.wd12.myworkdayjobs.com, site: FMC}
+  - {name: Farmleap, sector: agro, size: startup, ats: unsupported, url: 'https://www.notion.so/farmleap/Offres-d-emploi-bf1e6ceb884d4fdc8ba383d3951d4dde', platform: notion}
+  - {name: Fleury Michon, sector: agro, size: eti, ats: recruitee, id: fleurymichon}
+  - {name: Florimond Desprez, sector: agro, size: eti, ats: unsupported, url: 'https://www.florimond-desprez.fr/carrieres/', platform: custom}
+  - {name: Foodles, sector: agro, size: startup, ats: teamtailor, id: foodles}
+  - {name: Frayssinet, sector: agro, size: pme, ats: unsupported, url: 'https://frayssinet.fr/fr/recrutement/', platform: custom}
+  - {name: Futura Gaïa, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/futura-gaia', platform: wttj}
+  - {name: GEA, sector: agro, size: grande, ats: workday, host: gea.wd3.myworkdayjobs.com, site: geacareers}
+  - {name: Gautier Semences, sector: agro, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/fr/company/gautiersemences', platform: flatchr}
+  - {name: General Mills (Yoplait), sector: agro, size: grande, ats: workday, host: genmills.wd1.myworkdayjobs.com, site: GMI_External_Careers}
+  - {name: Genesis, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/genesis', platform: wttj}
+  - {name: Grimaud (incl. Choice Genetics), sector: agro, size: eti, ats: unsupported, url: 'https://groupegrimaud.nous-recrutons.fr/', platform: beetween}
+  - {name: HappyVore, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/happyvore', platform: wttj}
+  - {name: Hectar, sector: agro, size: startup, ats: unsupported, url: 'https://jobs.world.luccasoftware.com/ge-hectar-group', platform: lucca}
+  - {name: Heineken France, sector: agro, size: grande, ats: unsupported, url: 'https://careers.theheinekencompany.com/', platform: successfactors}
+  - {name: Hendrix Genetics, sector: agro, size: eti, ats: digitalrecruiters, id: careers.hendrix-genetics.com}
+  - {name: Herta, sector: agro, size: eti, ats: unsupported, url: 'https://herta-mrs-prod.elsatis.fr/recruitment/public/offers/list', platform: elsatis}
+  - {name: Hiphen, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/hiphen-1', platform: wttj}
+  - {name: Hénaff, sector: agro, size: pme, ats: unsupported, url: 'https://careers.werecruit.io/fr/henaff', platform: werecruit}
+  - {name: ICL, sector: agro, size: grande, ats: sf_rss, url: 'https://careers.icl-group.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: IDEXX, sector: agro, size: grande, ats: workday, host: idexx.wd115.myworkdayjobs.com, site: IDEXX}
+  - {name: IFIP, sector: agro, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/fr/company/ifip', platform: flatchr}
+  - {name: IFREMER, sector: agro, size: eti, ats: unsupported, url: 'https://www.hellowork.com/fr-fr/entreprises/ifremer-9336.html', platform: hellowork}
+  - {name: IFV, sector: agro, size: pme, ats: unsupported, url: 'https://www.vignevin.com/?s=recrutement', platform: custom}
+  - {name: INRAE (incl. GEVES), sector: agro, size: grande, ats: unsupported, url: 'https://jobs.inrae.fr/', platform: custom}
+  - {name: ITAVI, sector: agro, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/company/itavi', platform: flatchr}
+  - {name: ITB, sector: agro, size: pme, ats: unsupported, url: 'https://www.itbfr.org/nous-connaitre/recrutement', platform: custom}
+  - {name: Idele, sector: agro, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/fr/company/idele', platform: flatchr}
+  - {name: Ingredia, sector: agro, size: pme, ats: talentsoft, url: 'https://ingredia-cand.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Ingredion, sector: agro, size: grande, ats: workday, host: ingredion.wd1.myworkdayjobs.com, site: ingredioncareers}
+  - {name: Innovafeed, sector: agro, size: startup, ats: unsupported, url: 'https://taleez.com/careers/innovafeed', platform: taleez}
+  - {name: Innoval (incl. Evolution), sector: agro, size: eti, ats: unsupported, url: 'https://rejoindre.innoval.com/fr', platform: werecruit}
+  - {name: Isagri, sector: agro, size: eti, ats: unsupported, url: 'https://emploi.isagri.fr/', platform: beetween}
+  - {name: Javelot, sector: agro, size: startup, ats: teamtailor, id: javelot}
+  - {name: John Deere, sector: agro, size: grande, ats: unsupported, url: 'https://careers.deere.com/careers', platform: successfactors}
+  - {name: Jow, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/jow', platform: wttj}
+  - {name: KWS, sector: agro, size: grande, ats: sf_rss, url: 'https://jobs.kws.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Karnott, sector: agro, size: startup, ats: unsupported, url: 'https://www.karnott.fr/offres-demploi-jobs', platform: custom}
+  - {name: Kerry, sector: agro, size: grande, ats: unsupported, url: 'https://jobs.kerry.com/', platform: successfactors}
+  - {name: Koppert, sector: agro, size: eti, ats: unsupported, url: 'https://werkenbijkoppert.nl/en/vacancies', platform: custom}
+  - {name: Kronenbourg (Carlsberg), sector: agro, size: eti, ats: sf_rss, url: 'https://careers.carlsberg.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Kuhn, sector: agro, size: eti, ats: unsupported, url: 'https://jobs.kuhn.com/', platform: custom}
+  - {name: Kverneland, sector: agro, size: eti, ats: unsupported, url: 'https://kverneland.jobylon.com/', platform: jobylon}
+  - {name: LDC, sector: agro, size: grande, ats: digitalrecruiters, id: recrutement.ldc.fr}
+  - {name: La Belle Vie, sector: agro, size: startup, ats: unsupported, url: 'https://www.labellevie.com/nous-rejoindre', platform: custom}
+  - {name: La Fourche, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/la-fourche', platform: wttj}
+  - {name: Labeyrie Fine Foods, sector: agro, size: eti, ats: recruitee, id: labeyriefinefoods}
+  - {name: Labocea, sector: agro, size: pme, ats: unsupported, url: 'https://www.labocea.fr/offres-demploi/', platform: custom}
+  - {name: Lallemand, sector: agro, size: eti, ats: unsupported, url: 'https://careers.lallemand.com/job-postings', platform: custom}
+  - {name: Laïta, sector: agro, size: eti, ats: digitalrecruiters, id: recrutement.laita.fr}
+  - {name: Le Duff (Bridor), sector: agro, size: grande, ats: digitalrecruiters, id: recrutement.groupeleduff.com}
+  - {name: Le Gouessant, sector: agro, size: eti, ats: unsupported, url: 'https://recrutement.legouessant.com/fr/', platform: werecruit}
+  - {name: Lely, sector: agro, size: eti, ats: unsupported, url: 'https://www.lely.com/vacancies/', platform: custom}
+  - {name: Lisaqua, sector: agro, size: startup, ats: unsupported, url: 'https://careers.flatchr.io/company/lisaqua', platform: flatchr}
+  - {name: Louis Dreyfus Company, sector: agro, size: grande, ats: smartrecruiters, id: louisdreyfuscompany}
+  - {name: M2i Life Sciences, sector: agro, size: pme, ats: unsupported, url: 'https://www.m2i-lifesciences.com/nos-equipes/#offres', platform: custom}
+  - {name: MSD Animal Health, sector: agro, size: grande, ats: workday, host: msd.wd5.myworkdayjobs.com, site: SearchJobs}
+  - {name: Manitou, sector: agro, size: eti, ats: unsupported, url: 'https://careers.manitou-group.com/around-the-world/france/jobs/', platform: custom}
+  - {name: Maïsadour (incl. MAS Seeds), sector: agro, size: eti, ats: digitalrecruiters, id: recrutement.maisadour.com}
+  - {name: Metro France, sector: agro, size: grande, ats: unsupported, url: 'https://recrutement.metro.fr/jobs', platform: attrax}
+  - {name: Miimosa, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/miimosa', platform: wttj}
+  - {name: Mondelez, sector: agro, size: grande, ats: workday, host: mdlz.wd3.myworkdayjobs.com, site: External}
+  - {name: Mycophyto, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/mycophyto', platform: wttj}
+  - {name: Mérieux NutriSciences, sector: agro, size: grande, ats: unsupported, url: 'https://mxns.csod.com/ux/ats/careersite/5/home', platform: cornerstone}
+  - {name: Naïo Technologies, sector: agro, size: startup, ats: unsupported, url: 'https://www.naio-technologies.com/rejoindre-naio-technologies/', platform: custom}
+  - {name: Noriap, sector: agro, size: eti, ats: talentsoft, url: 'https://noriap-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Novonesis, sector: agro, size: grande, ats: workday, host: novonesis.wd103.myworkdayjobs.com, site: novonesis_careers}
+  - {name: Nufarm, sector: agro, size: eti, ats: unsupported, url: 'https://career41.sapsf.com/portalcareer?company=nufarmlimi', platform: successfactors}
+  - {name: Nutriset, sector: agro, size: pme, ats: unsupported, url: 'https://www.groupenutriset.fr/job-offer/', platform: custom}
+  - {name: Nutrition & Santé, sector: agro, size: eti, ats: unsupported, url: 'https://nutritionetsante.nous-recrutons.fr/offres-emploi/', platform: beetween}
+  - {name: Ocealia, sector: agro, size: eti, ats: unsupported, url: 'https://www.ocealia-groupe.fr/pourquoi-nous-rejoindre/', platform: custom}
+  - {name: Olmix, sector: agro, size: eti, ats: teamtailor, url: 'https://carrieres.olmix.com/jobs.rss'}
+  - {name: Panzani, sector: agro, size: eti, ats: unsupported, url: 'https://panzani.layan.eu/fr/', platform: layan}
+  - {name: PepsiCo, sector: agro, size: grande, ats: unsupported, url: 'https://www.pepsicojobs.com/main/jobs?location=France', platform: icims}
+  - {name: Phenix, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/phenix-1', platform: wttj}
+  - {name: Phytocontrol, sector: agro, size: pme, ats: unsupported, url: 'https://phytocontrolanalyticsfrance.flatchr.io/fr/company/phytocontrolanalyticsfrance/', platform: flatchr}
+  - {name: Picard, sector: agro, size: eti, ats: unsupported, url: 'https://www.recrutement.picard.fr/', platform: jobaffinity}
+  - {name: Pomona, sector: agro, size: eti, ats: unsupported, url: 'https://www.pomona.fr/nos-offres-d-emploi', platform: successfactors}
+  - {name: RAGT (incl. Deleplanque), sector: agro, size: eti, ats: digitalrecruiters, id: jobs.ragt.com}
+  - {name: Rijk Zwaan, sector: agro, size: grande, ats: unsupported, url: 'https://www.rijkzwaancareers.com/fr/offres-d-emploi', platform: custom}
+  - {name: Roullier (Timac Agro), sector: agro, size: grande, ats: unsupported, url: 'https://roullier.csod.com/ux/ats/careersite/1/home', platform: cornerstone}
+  - {name: Rémy Cointreau, sector: agro, size: eti, ats: unsupported, url: 'https://carriere.remy-cointreau.com/', platform: successfactors}
+  - {name: Savencia, sector: agro, size: grande, ats: oracle_hcm, host: eoct.fa.em2.oraclecloud.com, site: careers, job_url: 'https://eoct.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/careers/job/{id}'}
+  - {name: Savéol, sector: agro, size: pme, ats: unsupported, url: 'https://careers.werecruit.io/fr/saveol', platform: werecruit}
+  - {name: Sencrop, sector: agro, size: startup, ats: teamtailor, id: sencrop}
+  - {name: Sill Entreprises, sector: agro, size: eti, ats: unsupported, url: 'https://sill-entreprises.com/talents', platform: werecruit}
+  - {name: Sodebo, sector: agro, size: eti, ats: unsupported, url: 'https://www.sodebo.com/recrutement/toutes-nos-offres', platform: custom}
+  - {name: Sodiaal, sector: agro, size: grande, ats: oracle_hcm, host: fa-epmr-saasfaprod1.fa.ocs.oraclecloud.com, site: CX_1, job_url: 'https://fa-epmr-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/CX_1/job/{id}'}
+  - {name: Soil Capital, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/soilcapital', platform: wttj}
+  - {name: Sun'Agri, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/groupe-sun-r', platform: wttj}
+  - {name: Système U, sector: agro, size: grande, ats: digitalrecruiters, id: offres.u-emploi.com}
+  - {name: TSE (agrivoltaïsme), sector: agro, size: startup, ats: unsupported, url: 'https://www.tse.energy/carrieres-energie-renouvelable', platform: taleez}
+  - {name: Techna, sector: agro, size: eti, ats: unsupported, url: 'https://recrutement.groupe-techna.com/fr', platform: werecruit}
+  - {name: Terres Inovia, sector: agro, size: pme, ats: unsupported, url: 'https://www.terresinovia.fr/fr/institut/carrieres', platform: custom}
+  - {name: Too Good To Go, sector: agro, size: startup, ats: ashby, id: toogoodtogo}
+  - {name: Toopi Organics, sector: agro, size: startup, ats: unsupported, url: 'https://jobs.makesense.org/fr/projects/toopi-organics-2869', platform: makesense}
+  - {name: UPL, sector: agro, size: grande, ats: sf_rss, url: 'https://careers.upl-ltd.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Unilever (Early Careers), sector: agro, size: grande, ats: workday, host: unilever.wd3.myworkdayjobs.com, site: Unilever_Early_Careers}
+  - {name: Valorex, sector: agro, size: pme, ats: unsupported, url: 'https://www.valorex.com/nos-offres/', platform: werecruit}
+  - {name: Vetoquinol, sector: agro, size: eti, ats: smartrecruiters, id: vetoquinol}
+  - {name: Vivescia (incl. Malteurop), sector: agro, size: grande, ats: unsupported, url: 'https://www.vivescia.com/nous-rejoindre/nos-offres-emploi-et-opportunites', platform: inrecruiting}
+  - {name: Weenat, sector: agro, size: startup, ats: unsupported, url: 'https://weenat.com/nous-rejoindre/', platform: custom}
+  - {name: Yara, sector: agro, size: grande, ats: sf_rss, url: 'https://jobs.yara.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Yuka, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/yuka', platform: wttj}
+  - {name: Zoetis, sector: agro, size: grande, ats: workday, host: zoetis.wd5.myworkdayjobs.com, site: zoetis}
+  - {name: Carbon Maps, sector: data, size: startup, ats: unsupported, url: 'https://www.carbonmaps.io/careers', platform: notion}
+  - {name: Kanop, sector: data, size: startup, ats: unsupported, url: 'https://kanop.notion.site/kanop/Careers-kanop-c3b4779be5f34baea604292bc737da2c', platform: notion}
