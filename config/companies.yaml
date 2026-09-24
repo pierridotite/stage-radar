@@ -97,11 +97,9 @@ companies:
   - {name: Safran, sector: industrie, size: grande, ats: wttj, id: safran}
   - {name: Schneider Electric, sector: industrie, size: grande, ats: wttj, id: schneider-electric}
   - {name: TotalEnergies, sector: industrie, size: grande, ats: wttj, id: totalenergies}
-  - {name: EDF, sector: industrie, size: grande, ats: wttj, id: edf}
 
   # ------------------------------------------------------------------ ajouts du 2026-09-23
   - {name: Advancy, sector: conseil, size: pme, ats: recruitee, id: advancy}
-  - {name: Akkodis, sector: conseil, size: grande, ats: unsupported, url: 'https://akka-cand.talent-soft.com/job/list-of-jobs.aspx', platform: talentsoft}
   - {name: Alcimed, sector: conseil, size: pme, ats: wttj, id: alcimed}
   - {name: Alten, sector: conseil, size: grande, ats: smartrecruiters, id: alten}
   - {name: Aneo, sector: conseil, size: pme, ats: recruitee, id: aneo}
@@ -176,7 +174,6 @@ companies:
   - {name: Bioptimus, sector: data, size: startup, ats: greenhouse, id: bioptimus-careers}
   - {name: Botify, sector: data, size: pme, ats: teamtailor, id: botify}
   - {name: Brevo, sector: data, size: eti, ats: lever, id: brevo}
-  - {name: CNP Assurances, sector: data, size: eti, ats: unsupported, url: 'https://cnp-recrute.talent-soft.com/', platform: talentsoft}
   - {name: Carbon4 Finance, sector: data, size: startup, ats: wttj, id: carbon4-finance}
   - {name: Circana, sector: data, size: grande, ats: unsupported, url: 'https://jobs.circana.com/careers', platform: eightfold}
   - {name: Covéa, sector: data, size: grande, ats: smartrecruiters, id: COVEA1}
@@ -730,3 +727,56 @@ companies:
   - {name: Orange, sector: data, size: grande, ats: phenom, host: orange.jobs, ref: OYVOCZGB, lang: fr_fr, job_url: 'https://orange.jobs/jobs/fr/job/{id}'}
   - {name: VINCI, sector: industrie, size: grande, ats: radancy, host: jobs.vinci.com, lang: fr}
   - {name: Club Med, sector: sport, size: grande, ats: radancy, host: www.clubmedjobs.com, lang: fr}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-24
+  - {name: Barilla (Harrys), sector: agro, size: grande, ats: sf_rss, url: 'https://jobs.barillagroup.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Kraft Heinz, sector: agro, size: grande, ats: workday, host: heinz.wd1.myworkdayjobs.com, site: KraftHeinz_Careers}
+  - {name: Lindt & Sprüngli, sector: agro, size: grande, ats: workday, host: lindtspruengli.wd103.myworkdayjobs.com, site: LindtSpruengliGroupCareers}
+  - {name: Akkodis, sector: conseil, size: grande, ats: talentsoft, url: 'https://akka-cand.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Atos, sector: conseil, size: grande, ats: sf_rss, url: 'https://jobs.atos.net/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: ADEO, sector: data, size: grande, ats: teamtailor, id: adeo}
+  - {name: Accor, sector: data, size: grande, ats: smartrecruiters, id: accor}
+  - {name: Airbnb, sector: data, size: grande, ats: greenhouse, id: airbnb}
+  - {name: Amundi, sector: data, size: grande, ats: talentsoft, url: 'https://jobs.amundi.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Boulanger, sector: data, size: grande, ats: smartrecruiters, id: boulanger}
+  - {name: CNP Assurances, sector: data, size: eti, ats: talentsoft, url: 'https://cnp-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Coface, sector: data, size: grande, ats: smartrecruiters, id: Coface}
+  - {name: Edenred, sector: data, size: grande, ats: workday, host: edenpeople.wd3.myworkdayjobs.com, site: Edenred_Careers}
+  - {name: Euronext, sector: data, size: grande, ats: workday, host: hrhub.wd3.myworkdayjobs.com, site: Euronext_Career_Page}
+  - {name: Havas, sector: data, size: grande, ats: workday, host: havas.wd3.myworkdayjobs.com, site: GroupExternalCareerSite}
+  - {name: Iliad (Free), sector: data, size: grande, ats: smartrecruiters, id: iliad-free}
+  - {name: Klépierre, sector: data, size: grande, ats: oracle_hcm, host: fa-ewfm-saasfaprod1.fa.ocs.oraclecloud.com, site: CX_1, job_url: 'https://fa-ewfm-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/klepierre/job/{id}'}
+  - {name: Lectra, sector: data, size: eti, ats: sf_rss, url: 'https://careers.lectra.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Leroy Merlin, sector: data, size: grande, ats: teamtailor, url: 'https://recrutement.leroymerlin.fr/jobs.rss'}
+  - {name: MAIF, sector: data, size: grande, ats: talentsoft, url: 'https://recrutement.maif.fr/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Microsoft, sector: data, size: grande, ats: eightfold, id: microsoft.com, base: 'https://apply.careers.microsoft.com', flavor: pcsx}
+  - {name: Monoprix, sector: data, size: grande, ats: digitalrecruiters, id: recrutement.monoprix.fr}
+  - {name: Palantir, sector: data, size: grande, ats: lever, id: palantir}
+  - {name: Pluxee, sector: data, size: grande, ats: workday, host: pluxee.wd3.myworkdayjobs.com, site: Pluxee_Career_Site}
+  - {name: Salesforce, sector: data, size: grande, ats: workday, host: salesforce.wd12.myworkdayjobs.com, site: External_Career_Site}
+  - {name: Snowflake, sector: data, size: grande, ats: ashby, id: snowflake}
+  - {name: Spotify, sector: data, size: grande, ats: lever, id: spotify}
+  - {name: Ubisoft, sector: data, size: grande, ats: smartrecruiters, id: Ubisoft2}
+  - {name: Veepee, sector: data, size: grande, ats: lever, id: veepee}
+  - {name: Worldline, sector: data, size: grande, ats: sf_rss, url: 'https://jobs.worldline.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: BIC, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.bic.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: CMA CGM, sector: industrie, size: grande, ats: sf_rss, url: 'https://jobs.cmacgm-group.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: EDF (groupe, sector: industrie, size: grande, ats: talentsoft, url: 'https://edf-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}', incl. Enedis/Framatome/Dalkia): null}
+  - {name: Eiffage, sector: industrie, size: grande, ats: workday, host: eiffage.wd3.myworkdayjobs.com, site: Eiffage_Careers}
+  - {name: Elis, sector: industrie, size: grande, ats: talentsoft, url: 'https://elis-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Essity, sector: industrie, size: grande, ats: workday, host: essity.wd3.myworkdayjobs.com, site: Job_opportunities}
+  - {name: GTT, sector: industrie, size: eti, ats: smartrecruiters, id: gtt}
+  - {name: Geodis, sector: industrie, size: grande, ats: talentsoft, url: 'https://injob.geodis.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Johnson & Johnson, sector: industrie, size: grande, ats: workday, host: jj.wd5.myworkdayjobs.com, site: JJ}
+  - {name: Keolis, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.keolis.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Reckitt, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.reckitt.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: SPIE, sector: industrie, size: grande, ats: talentsoft, url: 'https://spie-job.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Solvay, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.solvay.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Syensqo, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.syensqo.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Technip Energies, sector: industrie, size: grande, ats: oracle_hcm, host: hcxg.fa.em2.oraclecloud.com, site: CX_1, job_url: 'https://hcxg.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/{id}'}
+  - {name: Colgate-Palmolive, sector: luxe, size: grande, ats: sf_rss, url: 'https://jobs.colgate.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Kenvue, sector: luxe, size: grande, ats: workday, host: kenvue.wd5.myworkdayjobs.com, site: kenvue}
+  - {name: Red Bull, sector: sport, size: grande, ats: smartrecruiters, id: redbull}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-24
+  - {name: Groupe BPCE, sector: data, size: grande, ats: opendatasoft, base: bpce.opendatasoft.com, dataset: groupe-bpce-offres-emploi, where: search("stage") or search("stagiaire") or search("internship")}

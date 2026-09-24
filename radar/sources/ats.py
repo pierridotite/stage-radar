@@ -674,7 +674,39 @@ def icims(cfg: dict, s) -> list[Offer]:
     return offers
 
 
+# --------------------------------------------------------------------------- Opendatasoft (BPCE / Natixis)
+def opendatasoft(cfg: dict, s) -> list[Offer]:
+    """Offres publiées en open data (API Explore v2.1 d'Opendatasoft). cfg : base, dataset, where (filtre ODSQL).
+    Seuls les champs de l'offre sont repris : les noms et e-mails des recruteurs éventuels sont ignorés."""
+    url = f"https://{cfg['base']}/api/explore/v2.1/catalog/datasets/{cfg['dataset']}/records"
+    offers, offset = [], 0
+    while offset < 2000:
+        data = s.get(url, params={"limit": 100, "offset": offset, "where": cfg.get("where", 'jobtype="Stage"')}).json()
+        rows = data.get("results", [])
+        for r in rows:
+            if not looks_like_internship(r.get("title", ""), r.get("jobtype", ""), r.get("category", "")):
+                continue
+            posted = ""
+            m = re.match(r"(\d{2})/(\d{2})/(\d{4})", r.get("lastmodifieddate") or "")
+            if m:
+                posted = f"{m[3]}-{m[1]}-{m[2]}"
+            entity = r.get("organization") or ""
+            offers.append(Offer(
+                company=f"{cfg['name']} · {entity}" if entity and entity != cfg["name"] else cfg["name"],
+                sector=cfg.get("sector", ""), size=cfg.get("size", ""), source="opendatasoft",
+                title=r.get("title", ""), url=r.get("url") or r.get("apply_url", ""),
+                location=", ".join(x for x in (r.get("city"), r.get("state"), r.get("country")) if x),
+                country="fr" if (r.get("country") or "").lower() == "france" else "",
+                description=strip_html(r.get("description")), posted_at=posted, contract_hint=r.get("jobtype", ""),
+            ))
+        offset += 100
+        if len(rows) < 100 or offset >= data.get("total_count", 0):
+            break
+    return offers
+
+
 FETCHERS = {
+    "opendatasoft": opendatasoft,
     "phenom": phenom,
     "radancy": radancy,
     "icims": icims,
