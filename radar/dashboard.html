@@ -414,7 +414,10 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   }
 
   // ------------------------------------------------------------------ filtres, tri
+  // sans espaces ni ponctuation : « redbull » trouve Red Bull, « loreal » L'Oréal, « saintgobain » Saint-Gobain
+  const compact = (s) => s.replace(/[^a-z0-9]/g, "");
   function haystack(o) {
+    o._names ??= compact(fold([o.company, o.title, o.location].join(" ")));
     return o._hay ??= fold([o.title, o.company, o.location, o.region, SECTORS[o.sector], o.sector, SIZES[o.size], o.size,
       o.text || o.excerpt].join(" "));
   }
@@ -427,7 +430,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       (!state.grades.size || state.grades.has(o.grade)) &&
       (!state.region || o.region === state.region) &&
       (!state.onlyNew || o.new) && (!state.onlyFav || favs.has(o.id)) &&
-      words.every((w) => o._hay.includes(w)) &&
+      words.every((w) => o._hay.includes(w) || (compact(w).length > 2 && o._names.includes(compact(w)))) &&
       (!kws.length || kws.some((k) => k.rx.test(o._hay))));
     const byGrade = (a, b) => GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade] || b.score - a.score;
     if (state.sort === "recent") items.sort((a, b) => (b.first_seen + b.posted_at).localeCompare(a.first_seen + a.posted_at));

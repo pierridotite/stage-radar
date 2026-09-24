@@ -10,6 +10,7 @@ import csv
 import logging
 import os
 import re
+from collections import Counter
 from pathlib import Path
 
 from ..filters import looks_like_internship
@@ -57,15 +58,21 @@ def adzuna(queries: list[str], companies: list[dict], s, pages: int = 2) -> list
     for c in companies:
         # l'éditeur doit COMMENCER par le nom ("Safran Aircraft Engines" oui, "Cabinet X pour Safran" non)
         own = re.compile(r"(groupe |l['’] ?)?(" + "|".join(re.escape(fold(m)) for m in c["match"]) + r")(?![a-z0-9])")
-        kept = 0
+        kept, own_other, others = 0, 0, Counter()
         for p in _adzuna_search(s, f"stage {c['name']}", pages):
             publisher = fold((p.get("company") or {}).get("display_name", ""))
-            if not own.match(publisher) or not (o := _adzuna_offer(p)):
+            if not own.match(publisher):
+                others[publisher or "?"] += 1
+                continue
+            if not (o := _adzuna_offer(p)):
+                own_other += 1
                 continue
             o.company, o.sector, o.size = c["name"], c.get("sector", ""), c.get("size", "")
             offers.append(o)
             kept += 1
-        log.info("Adzuna %-20s %3d stage(s)", c["name"][:20], kept)
+        # éditeurs écartés affichés dans le journal : permet de repérer un groupe publié sous un autre nom
+        log.info("Adzuna %-20s %3d stage(s), %d autre(s) annonce(s) du groupe, autres éditeurs : %s", c["name"][:20],
+                 kept, own_other, ", ".join(f"{n} ({k})" for n, k in others.most_common(8)) or "aucun")
     return offers
 
 
