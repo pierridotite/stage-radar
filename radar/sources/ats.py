@@ -18,8 +18,10 @@ from ..text import strip_html
 
 log = logging.getLogger(__name__)
 
-MAX_DETAILS = 80  # détails téléchargés au plus par entreprise et par jour
+MAX_DETAILS = 120  # détails téléchargés au plus par entreprise et par jour (intitulés "data" en premier)
 SEARCH_TERMS = ["stage", "stagiaire", "intern", "internship"]
+DATA_HINT = re.compile(r"data|donn[ée]e|stat|analy|machine|ia\b|ai\b|model|bi\b|scien|digital|r&d|recherche",
+                       re.I)
 
 
 def _xml(content: bytes) -> ET.Element:
@@ -152,7 +154,7 @@ def workday(cfg: dict, s) -> list[Offer]:
     facets = _workday_country_facet(s, api)
     hits: dict[str, dict] = {}
     for q in SEARCH_TERMS:
-        offset = 0
+        offset, total = 0, None
         while True:
             r = s.post(f"{api}/jobs", json={"appliedFacets": facets, "limit": 20, "offset": offset, "searchText": q})
             r.raise_for_status()
@@ -161,12 +163,22 @@ def workday(cfg: dict, s) -> list[Offer]:
             for p in postings:
                 if p.get("externalPath"):
                     hits[p["externalPath"]] = p
+            # Workday n'envoie le total qu'en première page (0 ensuite) : on garde celui de la première réponse
+            if total is None:
+                total = data.get("total", 0)
             offset += 20
-            if not postings or offset >= data.get("total", 0) or offset >= 200:
+            if not postings or offset >= total or offset >= 200:
                 break
 
     offers = []
-    for path, p in hits.items():
+    # les grands groupes publient des centaines de stages : on télécharge d'abord le détail des intitulés "data"
+    ordered = sorted(hits.items(), key=lambda kv: not DATA_HINT.search(kv[1].get("title", "") + " " + kv[0]))
+    for path, p in ordered:
+        # certains clients publient un intitulé générique ("Trainee") : le vrai titre est dans l'adresse de l'offre
+        if len(p.get("title", "")) < 14 and "/job/" in path:
+            slug = path.rsplit("/", 1)[-1].rsplit("_", 1)[0].replace("---", " - ").replace("-", " ").strip()
+            if len(slug) > len(p.get("title", "")):
+                p["title"] = slug
         if not looks_like_internship(p.get("title", "")):
             continue
         # filet de sécurité quand la facette pays n'existe pas : pas de détail pour les offres à l'étranger
@@ -446,9 +458,6 @@ def capgemini(cfg: dict, s) -> list[Offer]:
 
 
 # --------------------------------------------------------------------------- DigitalRecruiters (Decathlon...)
-DATA_HINT = re.compile(r"data|donn[ée]e|stat|analy|machine|ia\b|ai\b|model|bi\b|scien|digital|r&d|recherche",
-                       re.I)
-
 
 def digitalrecruiters(cfg: dict, s) -> list[Offer]:
     """API publique des sites carrières DigitalRecruiters ; `id` = nom de domaine du site carrières."""

@@ -42,7 +42,7 @@ def load(name: str) -> dict:
 def fetch_company(cfg: dict):
     """Chaque entreprise a sa propre session : les pauses sont par hôte, et une panne reste isolée."""
     try:
-        offers = FETCHERS[cfg["ats"]](cfg, PoliteSession(budget=240))
+        offers = FETCHERS[cfg["ats"]](cfg, PoliteSession(budget=420))
         for o in offers:
             o.size = cfg.get("size", "")
         return cfg, offers, ""

@@ -7,11 +7,11 @@ from .text import compile_terms, fold
 
 INTERNSHIP = compile_terms([
     "stage", "stages", "stagiaire*", "intern", "interns", "internship*", "pfe", "fin d'etudes",
-    "end of studies", "end-of-studies", "praktikum", "praktikant*", "tirocinio", "stagista", "practicas",
+    "end of studies", "end-of-studies", "praktikum", "praktikant*", "tirocinio", "stagista", "practicas", "trainee",
 ])
 NOT_INTERNSHIP = compile_terms([
     "alternance", "alternant*", "apprenti*", "apprentissage", "work-study", "work study", "v.i.e",
-    "volontariat international", "graduate program*", "werkstudent*", "stage 3e", "stage de 3e", "stage d'observation",
+    "volontariat international", "graduate program*", "graduate trainee", "management trainee", "werkstudent*", "stage 3e", "stage de 3e", "stage d'observation",
 ])
 
 

@@ -53,7 +53,7 @@ companies:
   - {name: Puratos, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.puratos.com/services/rss/job/?locale=fr_FR&keywords={q}"}
   - {name: Groupe Bel, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.groupe-bel.com/services/rss/job/?locale=fr_FR&keywords={q}"}
   - {name: Bayer, sector: agro, size: grande, ats: sf_rss, url: "https://jobs.bayer.com/services/rss/job/?locale=fr_FR&keywords={q}"}
-  - {name: InVivo, sector: agro, size: grande, ats: talentsoft, url: "https://invivo-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036"}
+  - {name: InVivo, sector: agro, size: grande, ats: talentsoft, url: "https://invivo-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}"}
   - {name: Tereos, sector: agro, size: grande, ats: recruitee, id: tereos}
   - {name: Avril, sector: agro, size: grande, ats: wttj, id: avril-fr}
   - {name: Eureden, sector: agro, size: grande, ats: wttj, id: eureden}
@@ -373,11 +373,11 @@ companies:
   # ------------------------------------------------------------------ ajouts du 2026-09-23
   - {name: Albéa, sector: luxe, size: eti, ats: rss, url: 'https://albeagroup.teamtailor.com/jobs.rss'}
   - {name: Campari Group, sector: luxe, size: grande, ats: sf_rss, url: 'https://careers.camparigroup.com/services/rss/job/?locale=fr_FR&keywords={q}'}
-  - {name: Castel Frères, sector: luxe, size: eti, ats: talentsoft, url: 'https://castelfreres-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
-  - {name: Groupe Chantelle, sector: luxe, size: eti, ats: talentsoft, url: 'https://groupechantelle-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Castel Frères, sector: luxe, size: eti, ats: talentsoft, url: 'https://castelfreres-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Groupe Chantelle, sector: luxe, size: eti, ats: talentsoft, url: 'https://groupechantelle-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Jacquemus, sector: luxe, size: pme, ats: lever, id: jacquemus, region: eu}
-  - {name: Mane, sector: luxe, size: eti, ats: talentsoft, url: 'https://mane-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
-  - {name: Printemps, sector: luxe, size: eti, ats: talentsoft, url: 'https://printemps-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Mane, sector: luxe, size: eti, ats: talentsoft, url: 'https://mane-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Printemps, sector: luxe, size: eti, ats: talentsoft, url: 'https://printemps-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Quadpack, sector: luxe, size: pme, ats: unsupported, url: 'https://quadpack.bamboohr.com/careers/list', platform: bamboohr}
   - {name: The Kooples, sector: luxe, size: eti, ats: digitalrecruiters, id: careers.thekooples.com}
 
@@ -398,7 +398,7 @@ companies:
   - {name: Advizeo, sector: industrie, size: pme, ats: recruitee, id: advizeo}
   - {name: Afyren, sector: industrie, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/company/afyren/', platform: flatchr}
   - {name: Aguettant, sector: industrie, size: eti, ats: unsupported, url: 'https://aguettant.csod.com/ux/ats/careersite/1/home?c=aguettant', platform: cornerstone}
-  - {name: Air France (incl. AFI KLM E&M), sector: industrie, size: grande, ats: talentsoft, url: 'https://airfrance-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Air France (incl. AFI KLM E&M), sector: industrie, size: grande, ats: talentsoft, url: 'https://airfrance-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Air Liquide, sector: industrie, size: grande, ats: workday, host: airliquidehr.wd3.myworkdayjobs.com, site: AirLiquideExternalCareer}
   - {name: Airseas, sector: industrie, size: startup, ats: unsupported, url: 'https://careers.werecruit.io/fr/airseas', platform: werecruit}
   - {name: Akuo, sector: industrie, size: pme, ats: smartrecruiters, id: Akuo}
@@ -428,8 +428,8 @@ companies:
   - {name: Continental, sector: industrie, size: grande, ats: smartrecruiters, id: continental}
   - {name: Cosmo Tech, sector: industrie, size: pme, ats: unsupported, url: 'https://cosmotech.com/join-us/', platform: custom}
   - {name: Daher, sector: industrie, size: eti, ats: workday, host: daher.wd3.myworkdayjobs.com, site: Daher}
-  - {name: Dalkia, sector: industrie, size: grande, ats: talentsoft, url: 'https://dalkia-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
-  - {name: Dassault Aviation, sector: industrie, size: grande, ats: talentsoft, url: 'https://dassault-aviation-cand.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Dalkia, sector: industrie, size: grande, ats: talentsoft, url: 'https://dalkia-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Dassault Aviation, sector: industrie, size: grande, ats: talentsoft, url: 'https://dassault-aviation-cand.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Delair, sector: industrie, size: pme, ats: teamtailor, id: delair}
   - {name: Delpharm, sector: industrie, size: eti, ats: smartrecruiters, id: delpharm}
   - {name: Delta Dore, sector: industrie, size: eti, ats: teamtailor, url: 'https://jobs-group.deltadore.com/jobs.rss'}
@@ -440,7 +440,7 @@ companies:
   - {name: Electra, sector: industrie, size: startup, ats: teamtailor, url: 'https://careers.go-electra.com/jobs.rss'}
   - {name: Elyse Energy, sector: industrie, size: startup, ats: unsupported, url: 'https://careers.flatchr.io/company/elyseenergy', platform: flatchr}
   - {name: Enchanted Tools, sector: industrie, size: startup, ats: unsupported, url: 'https://enchanted.tools/', platform: taleez}
-  - {name: Enedis, sector: industrie, size: grande, ats: talentsoft, url: 'https://enedis-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Enedis, sector: industrie, size: grande, ats: talentsoft, url: 'https://enedis-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Engie, sector: industrie, size: grande, ats: sf_rss, url: 'https://jobs.engie.com/services/rss/job/?locale=fr_FR&keywords={q}'}
   - {name: Enogia, sector: industrie, size: startup, ats: unsupported, url: 'https://www.hellowork.com/fr-fr/entreprises/enogia-168673.html', platform: hellowork}
   - {name: Eramet, sector: industrie, size: grande, ats: unsupported, url: 'https://www.eramet.com/fr/carrieres/', platform: successfactors}
@@ -451,8 +451,8 @@ companies:
   - {name: Fieldbox, sector: industrie, size: pme, ats: wttj, id: fieldbox-ai}
   - {name: Figeac Aero, sector: industrie, size: eti, ats: unsupported, url: 'https://figeac-aero.csod.com/ux/ats/careersite/1/home?c=figeac-aero', platform: cornerstone}
   - {name: Forsee Power, sector: industrie, size: eti, ats: unsupported, url: 'https://careers.flatchr.io/fr/company/forseepower/', platform: flatchr}
-  - {name: Framatome, sector: industrie, size: grande, ats: talentsoft, url: 'https://framatome-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
-  - {name: GRTgaz (Natran), sector: industrie, size: eti, ats: talentsoft, url: 'https://natran-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Framatome, sector: industrie, size: grande, ats: talentsoft, url: 'https://framatome-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: GRTgaz (Natran), sector: industrie, size: eti, ats: talentsoft, url: 'https://natran-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: GSK, sector: industrie, size: grande, ats: workday, host: gsk.wd5.myworkdayjobs.com, site: GSKCareers}
   - {name: Getlink, sector: industrie, size: eti, ats: recruitee, id: getlink}
   - {name: GreenYellow, sector: industrie, size: eti, ats: workday, host: greenyellow.wd3.myworkdayjobs.com, site: GY}
@@ -467,7 +467,7 @@ companies:
   - {name: Hutchinson, sector: industrie, size: grande, ats: oracle_hcm, host: fa-eocc-saasfaprod1.fa.ocs.oraclecloud.com, site: CX_1007, job_url: 'https://fa-eocc-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/CX_1007/job/{id}'}
   - {name: Hydrogen Refueling Solutions, sector: industrie, size: pme, ats: teamtailor, id: hydrogenrefuelingsolutions}
   - {name: Hydrogene de France (HDF Energy), sector: industrie, size: pme, ats: teamtailor, url: 'https://jobs.hdf-energy.com/jobs.rss'}
-  - {name: IFP Energies nouvelles, sector: industrie, size: eti, ats: talentsoft, url: 'https://ifpen-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: IFP Energies nouvelles, sector: industrie, size: eti, ats: talentsoft, url: 'https://ifpen-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Idemia, sector: industrie, size: grande, ats: unsupported, url: 'https://www.idemia.com/careers-idemia', platform: successfactors}
   - {name: Idex, sector: industrie, size: grande, ats: workday, host: idex.wd3.myworkdayjobs.com, site: toutes-nos-offres-demploi}
   - {name: Imerys, sector: industrie, size: grande, ats: workday, host: imerys.wd3.myworkdayjobs.com, site: IMERYS-Careers}
@@ -488,7 +488,7 @@ companies:
   - {name: Liebherr Aerospace, sector: industrie, size: grande, ats: unsupported, url: 'https://www.liebherr.com/fr/fra/carri%C3%A8res/carri%C3%A8res.html', platform: successfactors}
   - {name: Loft Orbital, sector: industrie, size: pme, ats: lever, id: loftorbital}
   - {name: Lokad, sector: industrie, size: pme, ats: unsupported, url: 'https://www.lokad.com/careers/', platform: custom}
-  - {name: Lynred, sector: industrie, size: eti, ats: talentsoft, url: 'https://lynred-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Lynred, sector: industrie, size: eti, ats: talentsoft, url: 'https://lynred-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Mecachrome, sector: industrie, size: eti, ats: digitalrecruiters, id: jobs.mecachrome.com}
   - {name: Metroscope, sector: industrie, size: startup, ats: wttj, id: metroscope}
   - {name: Neoen, sector: industrie, size: pme, ats: digitalrecruiters, id: careers.neoen.com}
@@ -511,12 +511,12 @@ companies:
   - {name: Renaissance Fusion, sector: industrie, size: startup, ats: teamtailor, id: renaissancefusion}
   - {name: Roquette, sector: industrie, size: grande, ats: workday, host: roquette.wd3.myworkdayjobs.com, site: External}
   - {name: STMicroelectronics, sector: industrie, size: grande, ats: unsupported, url: 'https://stmicroelectronics.eightfold.ai/careers', platform: eightfold}
-  - {name: Sagemcom, sector: industrie, size: eti, ats: talentsoft, url: 'https://sagemcom-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Sagemcom, sector: industrie, size: eti, ats: talentsoft, url: 'https://sagemcom-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Sartorius, sector: industrie, size: grande, ats: workday, host: sartorius.wd3.myworkdayjobs.com, site: sartoriuscareers}
   - {name: Saur, sector: industrie, size: grande, ats: teamtailor, url: 'https://eu.jobs.saur.com/jobs.rss'}
   - {name: Scortex, sector: industrie, size: startup, ats: wttj, id: scortex}
   - {name: Seche Environnement, sector: industrie, size: eti, ats: unsupported, url: 'https://candidaturespontanees-groupe-seche.icims.com/', platform: icims}
-  - {name: Seqens, sector: industrie, size: eti, ats: talentsoft, url: 'https://seqens-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Seqens, sector: industrie, size: eti, ats: talentsoft, url: 'https://seqens-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Sidel, sector: industrie, size: eti, ats: unsupported, url: 'https://sidelgroup.csod.com/ux/ats/careersite/2/home?c=sidelgroup', platform: cornerstone}
   - {name: Sightcall, sector: industrie, size: pme, ats: smartrecruiters, id: sightcall}
   - {name: Sileane, sector: industrie, size: pme, ats: unsupported, url: 'https://careers.werecruit.io/fr/sileane', platform: werecruit}
@@ -536,7 +536,7 @@ companies:
   - {name: Vianova, sector: industrie, size: startup, ats: wttj, id: vianova}
   - {name: Virbac, sector: industrie, size: eti, ats: workday, host: virbac.wd103.myworkdayjobs.com, site: Career}
   - {name: Visionairy, sector: industrie, size: startup, ats: wttj, id: visionairy}
-  - {name: Voltalia, sector: industrie, size: eti, ats: talentsoft, url: 'https://voltalia-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Voltalia, sector: industrie, size: eti, ats: talentsoft, url: 'https://voltalia-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Wabtec (ex-Faiveley), sector: industrie, size: grande, ats: smartrecruiters, id: Wabtec}
   - {name: Waga Energy, sector: industrie, size: pme, ats: teamtailor, url: 'https://careers.waga-energy.com/jobs.rss'}
   - {name: Wandercraft, sector: industrie, size: startup, ats: wttj, id: wandercraft}
@@ -619,7 +619,7 @@ companies:
   - {name: ITAVI, sector: agro, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/company/itavi', platform: flatchr}
   - {name: ITB, sector: agro, size: pme, ats: unsupported, url: 'https://www.itbfr.org/nous-connaitre/recrutement', platform: custom}
   - {name: Idele, sector: agro, size: pme, ats: unsupported, url: 'https://careers.flatchr.io/fr/company/idele', platform: flatchr}
-  - {name: Ingredia, sector: agro, size: pme, ats: talentsoft, url: 'https://ingredia-cand.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Ingredia, sector: agro, size: pme, ats: talentsoft, url: 'https://ingredia-cand.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Ingredion, sector: agro, size: grande, ats: workday, host: ingredion.wd1.myworkdayjobs.com, site: ingredioncareers}
   - {name: Innovafeed, sector: agro, size: startup, ats: unsupported, url: 'https://taleez.com/careers/innovafeed', platform: taleez}
   - {name: Innoval (incl. Evolution), sector: agro, size: eti, ats: unsupported, url: 'https://rejoindre.innoval.com/fr', platform: werecruit}
@@ -656,7 +656,7 @@ companies:
   - {name: Mycophyto, sector: agro, size: startup, ats: unsupported, url: 'https://www.welcometothejungle.com/fr/companies/mycophyto', platform: wttj}
   - {name: Mérieux NutriSciences, sector: agro, size: grande, ats: unsupported, url: 'https://mxns.csod.com/ux/ats/careersite/5/home', platform: cornerstone}
   - {name: Naïo Technologies, sector: agro, size: startup, ats: unsupported, url: 'https://www.naio-technologies.com/rejoindre-naio-technologies/', platform: custom}
-  - {name: Noriap, sector: agro, size: eti, ats: talentsoft, url: 'https://noriap-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036'}
+  - {name: Noriap, sector: agro, size: eti, ats: talentsoft, url: 'https://noriap-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Novonesis, sector: agro, size: grande, ats: workday, host: novonesis.wd103.myworkdayjobs.com, site: novonesis_careers}
   - {name: Nufarm, sector: agro, size: eti, ats: unsupported, url: 'https://career41.sapsf.com/portalcareer?company=nufarmlimi', platform: successfactors}
   - {name: Nutriset, sector: agro, size: pme, ats: unsupported, url: 'https://www.groupenutriset.fr/job-offer/', platform: custom}
@@ -698,3 +698,16 @@ companies:
   - {name: Zoetis, sector: agro, size: grande, ats: workday, host: zoetis.wd5.myworkdayjobs.com, site: zoetis}
   - {name: Carbon Maps, sector: data, size: startup, ats: unsupported, url: 'https://www.carbonmaps.io/careers', platform: notion}
   - {name: Kanop, sector: data, size: startup, ats: unsupported, url: 'https://kanop.notion.site/kanop/Careers-kanop-c3b4779be5f34baea604292bc737da2c', platform: notion}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-24
+  - {name: Ayvens (Société Générale), sector: data, size: grande, ats: workday, host: ayvens.wd3.myworkdayjobs.com, site: AyvensCareers}
+  - {name: Bouygues Telecom, sector: data, size: grande, ats: sf_rss, url: 'https://careers.bouyguestelecom.fr/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: FLOA (BNP Paribas), sector: data, size: eti, ats: teamtailor, id: floa}
+  - {name: Groupe TF1, sector: data, size: grande, ats: sf_rss, url: 'https://carrieres.groupe-tf1.fr/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Shine (Société Générale), sector: data, size: pme, ats: teamtailor, id: shine}
+  - {name: Bouygues Immobilier, sector: industrie, size: grande, ats: sf_rss, url: 'https://recrutement.bouygues-immobilier-corporate.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Colas, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.colasjobs.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: VINCI Airports, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=71&keywords={q}'}
+  - {name: VINCI Autoroutes, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=583&keywords={q}'}
+  - {name: VINCI Construction, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=6&keywords={q}'}
+  - {name: VINCI Energies, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=2&keywords={q}'}
