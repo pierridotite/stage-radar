@@ -22,6 +22,7 @@ import yaml
 from .company_size import enrich
 from .filters import REGIONS, classify_sector, geo_export, in_france, region
 from .fit import FitLexicon
+from . import geocode
 from .http import PoliteSession
 from .scoring import Scorer
 from .sources.aggregators import adzuna, manual
@@ -122,6 +123,8 @@ def export(store: Store, today: date) -> None:
         })
     order = {"A": 0, "B": 1, "C": 2, "D": 3, "X": 4}
     items.sort(key=lambda x: (order[x["grade"]], -x["score"], -x["data"]))
+    # ville et position sur la carte (et région quand le lieu brut ne la donnait pas)
+    geocode.locate(store.db, PoliteSession(delay=0.05, budget=240), items, today)
 
     runs = store.db.execute("SELECT source, company, found, error FROM runs WHERE day=?", (today.isoformat(),))
     runs = [dict(r) for r in runs]
@@ -133,6 +136,7 @@ def export(store: Store, today: date) -> None:
         "network": load("network.yaml"),
         "regions": list(REGIONS),
         "geo": geo_export(),
+        "map": {"proj": geocode.MAP["proj"], "regions": geocode.MAP["regions"]},
         "stats": {
             "offers": len(items), "new": sum(i["new"] for i in items),
             "by_sector": Counter(i["sector"] for i in items), "by_size": Counter(i["size"] or "?" for i in items),

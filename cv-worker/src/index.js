@@ -117,7 +117,7 @@ async function analyzeCv(payload, env) {
 }
 
 // ------------------------------------------------------------------ /contacts : recherche en entonnoir, lecture sans IA
-const HOME_SCHOOL = /agrocampus|institut agro rennes|agro rennes|rennes-angers|ensa ?rennes|inh angers|institut national d.horticulture/i;
+const HOME_SCHOOL = /agrocampus|institut agro rennes|institut agro \| rennes|agro rennes|rennes-angers|ensa ?rennes|\bensar\b|inh angers|institut national d.horticulture/i;
 const AGRO_SCHOOL = /agroparistech|institut agro|montpellier supagro|oniris|ensat|bordeaux sciences agro|vetagro|isara|esa angers|purpan|ensaia|agrosup|isa lille|junia/i;
 const DATA_ROLE = /\bdata\b|donnees|machine learning|statisti|analyst|analyste|scientist|\bbi\b|\bia\b|\bai\b|modelisation|biostat/;
 const RECRUITER = /talent|recrut|recruit|\brh\b|\bhr\b|campus|relations? ecoles|people partner|human resources|ressources humaines/;
@@ -261,7 +261,7 @@ async function findContacts(payload, env) {
   const city = cleanTerm(payload.city, 40);
   const job = jobOf(cleanTerm(payload.title, 160));
   if (!company) return [{ error: "Entreprise manquante." }, 400];
-  return cached(JSON.stringify(["v3", company, entity, city, job.phrase]), async () => {
+  return cached(JSON.stringify(["v4", company, entity, city, job.phrase]), async () => {
     const seen = new Map();
     const run = async (queries) => {
       for (const results of await Promise.all(queries.map((q) => tavily(env, q)))) {
@@ -280,7 +280,9 @@ async function findContacts(payload, env) {
     // requêtes courtes par mots-clés : le moteur répond mal aux phrases longues
     const queries = [`${company} ${entity} ${job.phrase || "data"} ${where}`];
     await run(queries);
-    const next = [`${company} ${entity} ${team} manager ${where}`, `${company} talent acquisition recrutement ${where}`];
+    // + les anciens de l'école dans l'entreprise, toujours cherchés : ce sont les contacts prioritaires
+    const next = [`${company} Agrocampus Ouest Institut Agro Rennes-Angers`,
+      `${company} ${entity} ${team} manager ${where}`, `${company} talent acquisition recrutement ${where}`];
     if (inside().length < 6 && city) next.unshift(`${company} ${entity} ${job.phrase || "data"} France`);
     await run(next);
     queries.push(...next);

@@ -113,6 +113,8 @@ FOREIGN_TERMS = [
     "australia", "australie", "new zealand", "korea", "seoul", "south africa", "morocco", "maroc", "tunisia",
     "tunisie", "casablanca", "tunis", "emea", "apac", "latam", "salzburg", "osterreich", "autriche"]
 FOREIGN_WORDS = compile_terms(FOREIGN_TERMS)
+# code pays étranger isolé (« Milan, IT, 20099 », « La Pocatiere, CA ») ou préfixe ISO (« MEX-Queretaro »)
+_FOREIGN_CODE = re.compile(r",\s*(es|it|de|gb|uk|us|ca|be|ch|nl|pt|mx|at|ie|pl|br|in|cn|jp)\s*(,|$)|^(?!fra-)[a-z]{3}-")
 FRANCE_WORDS = compile_terms(["france", "french", "francais*", "hexagone"])
 FR_STOPWORDS = compile_terms(["de", "la", "les", "et", "des", "vous", "pour", "une", "nous", "dans", "est", "au"])
 EN_STOPWORDS = compile_terms(["the", "and", "you", "of", "to", "with", "we", "our", "is", "for", "in", "will"])
@@ -140,10 +142,16 @@ def zone(country: str, location: str) -> str:
     c = (country or "").lower()
     if c:
         return "france" if c == "fr" else "etranger"
-    if region(location) or FRANCE_WORDS.search(fold(location)):
+    loc = fold(location)
+    if FRANCE_WORDS.search(loc) or loc.startswith("fra-") or any(rx.search(loc) for rx in _REGION_RX.values()):
+        return "france"
+    # pays étranger avant les codes postaux : « Madrid, ES, 28042 » n'est pas en Eure-et-Loir (28)
+    if FOREIGN_WORDS.search(loc) or _FOREIGN_CODE.search(loc):
+        return "etranger"
+    if region(location):
         return "france"
     # lieu non reconnu (petite ville, "Remote"...) : on ne tranche pas, la langue de l'annonce décidera
-    return "etranger" if FOREIGN_WORDS.search(fold(location)) else "inconnu"
+    return "inconnu"
 
 
 def written_in_french(text: str) -> bool:

@@ -113,27 +113,28 @@ publics, **en entonnoir** :
 1. même poste que l'offre (intitulé sans « stage », « H/F », durée...), dans la ville de l'offre ;
 2. même poste en France, si l'étape 1 trouve moins de 6 personnes de l'entreprise ;
 3. managers de l'équipe (mots de l'intitulé qui décrivent l'équipe, ex. « hors domicile ») ;
-4. recrutement / talent acquisition, dans la ville de l'offre.
+4. recrutement / talent acquisition, dans la ville de l'offre ;
+5. toujours : les anciens de l'Institut Agro Rennes-Angers / Agrocampus Ouest dans l'entreprise.
 
 Chaque profil est lu **sans IA** : poste actuel (titre et 1re expérience), entreprise, lieu, école. **Seules les
 personnes qui travaillent aujourd'hui dans l'entreprise sont gardées** (« Ex Nestlé », une entreprise citée seulement
 dans « Autres profils consultés » ou un homonyme sont écartés). Les équipes dites autrement en anglais sont
-reconnues (« On Premise » = hors domicile, « Off Premise » = grande distribution...). La page les classe ensuite, du
-plus utile au moins utile pour cette offre :
+reconnues (« On Premise » = hors domicile, « Off Premise » = grande distribution...). **Les anciens de l'école
+passent toujours en premier**, puis tout le monde est classé du plus utile au moins utile pour cette offre :
 
 | Critère | Points |
 |---|---|
+| Ancien·ne de l'Institut Agro Rennes-Angers (toujours en tête) / d'une autre école agro | 40 / 20 |
 | Même équipe ou entité que l'offre | 30 |
 | Même métier que l'offre (data analyst, data scientist, data engineer, statisticien) | 25 (autre métier data : 8) |
 | Manage l'équipe | 20 |
 | Recrute (RH, talent acquisition) | 15 |
 | Même ville que l'offre / même région / ailleurs en France | 15 / 10 / 5 |
-| Ancien·ne de l'Institut Agro Rennes-Angers / d'une autre école agro | 10 / 5 |
 | À l'étranger | −20 |
 
 Barème : `config/network.yaml`. LinkedIn n'est pas aspiré : ce sont les résultats publics d'un moteur de recherche.
 Les résultats d'une offre sont gardés 7 jours (cache partagé du serveur et navigateur de l'élève) : deux élèves sur la
-même offre ne consomment qu'une recherche, soit 3 ou 4 requêtes Tavily par offre.
+même offre ne consomment qu'une recherche, soit 4 ou 5 requêtes Tavily par offre.
 
 Tests (OpenAI, Tavily et Adzuna simulés, aucun appel réel) : `python -m unittest discover tests` et
 `node --test cv-worker/test/worker.test.mjs`.

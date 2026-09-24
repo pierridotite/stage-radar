@@ -91,7 +91,8 @@ test("/contacts : entonnoir sans IA, seules les personnes de l'entreprise, crit�
   assert.ok(calls.tavily.every((b) => b.include_domains[0] === "linkedin.com/in"), "profils LinkedIn uniquement");
   assert.match(calls.tavily[0].query, /Red Bull .*specialist hors domicile Paris/i, "1re requête : même poste, même ville");
   assert.ok(!/stage|h\/f/i.test(calls.tavily[0].query), "contrat et durée retirés de l'intitulé");
-  assert.equal(calls.tavily.length, 4, "peu de résultats dans l'entreprise : recherche élargie au pays");
+  assert.equal(calls.tavily.length, 5, "peu de résultats dans l'entreprise : recherche élargie au pays");
+  assert.ok(calls.tavily.some((b) => /Red Bull Agrocampus Ouest/.test(b.query)), "anciens de l'école toujours cherchés");
   assert.match(calls.tavily[1].query, /France$/);
   const byName = Object.fromEntries(people.map((p) => [p.name, p]));
   // ancienne de l'école ailleurs, ex-salarié, entreprise citée seulement dans « People also viewed », homonyme (Red Bulls),

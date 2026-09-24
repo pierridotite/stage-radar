@@ -156,6 +156,31 @@ details.more-info[open] summary::before { content: "− "; }
 .empty { padding: 40px 20px; text-align: center; color: var(--ink-3); border: 1px dashed var(--line); border-radius: 10px; }
 .more { margin: 14px auto 0; display: block; }
 
+/* Carte */
+.mapcard { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+.map-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.map-head h2 { font: 600 15px/1.2 var(--display); margin: 0; }
+.map-head .muted { font-size: 13px; flex: 1 1 auto; }
+.map-body { display: grid; grid-template-columns: minmax(0, 1fr) 190px; gap: 16px; margin-top: 8px; }
+@media (max-width: 640px) { .map-body { grid-template-columns: minmax(0, 1fr); } }
+#map { display: block; width: 100%; height: min(430px, 92vw); }
+.reg { fill: var(--sunken); stroke: var(--surface); stroke-width: 1.2; cursor: pointer; transition: fill .2s; }
+.reg:hover { stroke: var(--ink-3); }
+.reg.sel { stroke: var(--ink); stroke-width: 2; }
+.dot { cursor: pointer; }
+.dot circle { fill: var(--gold); fill-opacity: .9; stroke: var(--ink); stroke-width: .7; }
+.dot text { font: 700 10px var(--display); fill: var(--on-gold); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.dot.dim { opacity: .22; }
+.dot.sel circle { stroke-width: 2.4; }
+.map-side { font-size: 13px; min-width: 0; }
+.map-side h3 { font: 600 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px; }
+.map-side ol { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 2px; }
+.place { width: 100%; display: flex; justify-content: space-between; gap: 8px; background: none; border: 0; border-radius: 6px;
+  padding: 3px 7px; text-align: left; cursor: pointer; font-size: 13px; }
+.place:hover { background: var(--sunken); }
+.place[aria-pressed="true"] { background: var(--chip-on); color: var(--on-chip-on); }
+.place b { font: 500 12px var(--mono); font-variant-numeric: tabular-nums; }
+
 /* Colonne latérale */
 aside { display: grid; gap: 22px; align-content: start; }
 aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
@@ -227,6 +252,19 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
 
   <div class="layout">
     <main>
+      <section class="mapcard" id="mapcard" aria-label="Carte des offres" hidden>
+        <div class="map-head">
+          <h2>Carte des offres</h2><span class="muted" id="map-sub"></span>
+          <button class="linkish" id="map-toggle" aria-expanded="true" aria-controls="map-body">masquer la carte</button>
+        </div>
+        <div class="map-body" id="map-body">
+          <svg id="map" role="img" aria-label="Carte de France : offres par région et par ville"></svg>
+          <div class="map-side">
+            <h3>Régions</h3><ol id="map-regions"></ol>
+            <h3>Villes</h3><ol id="map-cities"></ol>
+          </div>
+        </div>
+      </section>
       <p class="count" id="count"></p>
       <div class="list" id="list"></div>
       <button class="chip more" id="more" hidden>Afficher plus</button>
@@ -270,7 +308,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-  const state = { q: "", sectors: new Set(), sizes: new Set(), grades: new Set(), region: store.get("radar.region", ""),
+  const state = { q: "", sectors: new Set(), sizes: new Set(), grades: new Set(), region: store.get("radar.region", ""), city: "",
     onlyNew: false, onlyFav: false, kw: new Set(), sort: "grade", shown: PAGE };
   const favs = new Set(store.get("radar.favs", []));
   let data = { offers: [], stats: {} };
@@ -423,14 +461,14 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     return o._hay ??= fold([o.title, o.company, o.location, o.region, SECTORS[o.sector], o.sector, SIZES[o.size], o.size,
       o.text || o.excerpt].join(" "));
   }
-  function filtered() {
+  function filtered(anyPlace = false) {
     const words = fold(state.q).split(/[\s,;]+/).filter(Boolean);
     const kws = (cv?._kw || []).filter((k) => state.kw.has(k.term));
     const items = data.offers.filter((o) =>
       (!state.sectors.size || state.sectors.has(o.sector)) &&
       (!state.sizes.size || state.sizes.has(o.size)) &&
       (!state.grades.size || state.grades.has(o.grade)) &&
-      (!state.region || o.region === state.region) &&
+      (anyPlace || ((!state.region || o.region === state.region) && (!state.city || o.city === state.city))) &&
       (!state.onlyNew || o.new) && (!state.onlyFav || favs.has(o.id)) &&
       words.every((w) => o._hay.includes(w) || (compact(w).length > 2 && o._names.includes(compact(w)))) &&
       (!kws.length || kws.some((k) => k.rx.test(o._hay))));
@@ -496,15 +534,17 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     if (f.error) return `<p class="minus">${esc(f.error)}</p><button class="chip" data-find="${esc(o.id)}">Réessayer</button>`;
     const C = Object.fromEntries((data.network?.criteria || []).map((c) => [c.id, c]));
     // seules les personnes de l'entreprise arrivent ici ; classement du plus utile au moins utile pour CETTE offre
+    // les anciens de l'école passent toujours en premier, puis tout le monde par score
     const people = f.people.filter((p) => p.works_at_target).map((p) => {
-      const crit = [p.same_team && "same_team", p.same_role ? "same_role" : p.data_role && "data_role",
-        p.manager && "manager", p.recruiter && "recruiter", placeOf(p, o),
-        p.school === "home" ? "same_school" : p.school === "agro" && "agro_school"].filter((c) => c && C[c]);
+      const crit = [p.school === "home" ? "same_school" : p.school === "agro" && "agro_school",
+        p.same_team && "same_team", p.same_role ? "same_role" : p.data_role && "data_role",
+        p.manager && "manager", p.recruiter && "recruiter", placeOf(p, o)].filter((c) => c && C[c]);
       return { ...p, crit, score: Math.max(0, Math.min(100, crit.reduce((a, c) => a + C[c].points, 0))) };
-    }).sort((a, b) => b.score - a.score).slice(0, 10);
+    }).sort((a, b) => (b.school === "home") - (a.school === "home") || b.score - a.score).slice(0, 12);
     if (!people.length) return `<p class="muted">Aucun profil public trouvé dans cette entreprise.</p>`;
+    const alumni = people.filter((p) => p.school === "home").length;
     return `<h4>Qui contacter dans l'entreprise</h4>
-      <p class="muted">Classés par utilité : même équipe › même métier › manager › recrutement › même ville › même région › France.</p>
+      <p class="muted">${alumni ? `${alumni} ancien${alumni > 1 ? "s" : ""} de l'école en tête. ` : "Aucun ancien de l'école trouvé dans l'entreprise. "}Puis, par utilité : même équipe › même métier › manager › recrutement › même ville › même région › France.</p>
       <div class="people">${people.map((p) => `<div class="person">
         <span class="ps" title="Score de pertinence">${p.score}</span>
         <span><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a>${p.headline || p.location
@@ -534,9 +574,63 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   }
 
   // ------------------------------------------------------------------ rendu
+  // ------------------------------------------------------------------ carte (régions colorées, une bulle par ville)
+  const SVGNS = "http://www.w3.org/2000/svg";
+  function buildMap() {
+    if (!data.map) return;
+    const { proj, regions } = data.map, svg = $("map");
+    svg.setAttribute("viewBox", `0 0 ${proj.width} ${proj.height}`);
+    svg.innerHTML = regions.map((r) => `<path class="reg" data-mreg="${esc(r.name)}" d="${r.d}"><title></title></path>`).join("")
+      + `<g id="map-dots"></g>`;
+    $("mapcard").hidden = false;
+    const open = store.get("radar.map", true);
+    $("map-body").hidden = !open;
+    $("map-toggle").textContent = open ? "masquer la carte" : "afficher la carte";
+    $("map-toggle").setAttribute("aria-expanded", open);
+  }
+  function renderMap(items) {
+    if (!data.map) return;
+    const byReg = {}, byCity = new Map();
+    let placed = 0;
+    for (const o of items) {
+      if (o.region) byReg[o.region] = (byReg[o.region] || 0) + 1;
+      if (!o.xy) continue;
+      placed++;
+      const c = byCity.get(o.city) || { n: 0, xy: o.xy, region: o.region };
+      c.n++; byCity.set(o.city, c);
+    }
+    const max = Math.max(1, ...Object.values(byReg));
+    for (const path of $("map").querySelectorAll(".reg")) {
+      const name = path.dataset.mreg, n = byReg[name] || 0;
+      path.style.fill = n ? `color-mix(in srgb, var(--brand-green) ${Math.round(12 + 68 * Math.sqrt(n / max))}%, var(--surface))` : "";
+      path.classList.toggle("sel", state.region === name);
+      path.firstChild.textContent = `${name} : ${n} offre${n > 1 ? "s" : ""}`;
+    }
+    const cities = [...byCity.entries()].sort((a, b) => b[1].n - a[1].n);
+    // grosses bulles d'abord, les petites par-dessus pour rester cliquables
+    $("map-dots").innerHTML = cities.map(([name, c]) => {
+      const r = Math.min(24, 3 + 1.8 * Math.sqrt(c.n));
+      const dim = (state.region && c.region !== state.region) || (state.city && state.city !== name);
+      return `<g class="dot${dim ? " dim" : ""}${state.city === name ? " sel" : ""}" data-city="${esc(name)}">
+        <circle cx="${c.xy[0]}" cy="${c.xy[1]}" r="${r.toFixed(1)}"><title>${esc(name)} : ${c.n} offre${c.n > 1 ? "s" : ""}</title></circle>
+        ${r >= 9 ? `<text x="${c.xy[0]}" y="${c.xy[1]}">${c.n}</text>` : ""}</g>`;
+    }).join("");
+    const btn = (attr, name, n, pressed) =>
+      `<li><button class="place" data-${attr}="${esc(name)}" aria-pressed="${pressed}"><span>${esc(name)}</span><b>${n}</b></button></li>`;
+    $("map-regions").innerHTML = Object.entries(byReg).sort((a, b) => b[1] - a[1]).slice(0, 13)
+      .map(([name, n]) => btn("reg", name, n, state.region === name)).join("");
+    $("map-cities").innerHTML = cities.filter(([, c]) => !state.region || c.region === state.region).slice(0, 10)
+      .map(([name, c]) => btn("city", name, c.n, state.city === name)).join("");
+    const place = state.city || state.region;
+    $("map-sub").textContent = place
+      ? `${place} sélectionné${state.region && !state.city ? "e" : ""} : clique à nouveau pour tout revoir`
+      : `${placed} offres placées${items.length > placed ? `, ${items.length - placed} sans ville précise` : ""} · clique sur une région ou une ville pour filtrer`;
+  }
+
   function render() {
     const items = filtered();
-    $("count").textContent = `${items.length} offre${items.length > 1 ? "s" : ""}` +
+    renderMap(filtered(true));
+    $("count").textContent = `${items.length} offre${items.length > 1 ? "s" : ""}` + (state.city ? ` à ${state.city}` : "") +
       (state.sort === "fit" && cv ? " · triées par fit avec ton CV" : state.sort === "recent" ? " · les plus récentes d'abord" : " · triées par note");
     $("list").innerHTML = items.length ? items.slice(0, state.shown).map(offerHTML).join("")
       : `<div class="empty">Aucune offre avec ces filtres. Retire un filtre ou élargis la recherche.</div>`;
@@ -629,7 +723,14 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     if (t.id === "more") { state.shown += PAGE; render(); return; }
     if (t.dataset.s) toggle(state.sectors, t.dataset.s);
     else if (t.dataset.kw) toggle(state.kw, t.dataset.kw);
-    else if (t.dataset.reg) { state.region = state.region === t.dataset.reg ? "" : t.dataset.reg; store.set("radar.region", state.region); }
+    else if (t.dataset.reg) { state.region = state.region === t.dataset.reg ? "" : t.dataset.reg; state.city = ""; store.set("radar.region", state.region); }
+    else if (t.dataset.city) { state.city = state.city === t.dataset.city ? "" : t.dataset.city; state.region = ""; store.set("radar.region", ""); }
+    else if (t.id === "map-toggle") {
+      const open = $("map-body").hidden;
+      $("map-body").hidden = !open; store.set("radar.map", open);
+      t.textContent = open ? "masquer la carte" : "afficher la carte"; t.setAttribute("aria-expanded", open);
+      return;
+    }
     else if (t.dataset.size) { toggle(state.sizes, t.dataset.size); t.setAttribute("aria-pressed", state.sizes.has(t.dataset.size)); }
     else if (t.dataset.g) { toggle(state.grades, t.dataset.g); t.setAttribute("aria-pressed", state.grades.has(t.dataset.g)); }
     else if (t.id === "only-new") { state.onlyNew = !state.onlyNew; t.setAttribute("aria-pressed", state.onlyNew); }
@@ -646,7 +747,16 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   }, true);
   $("q").addEventListener("input", (e) => { state.q = e.target.value; state.shown = PAGE; render(); });
   $("sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
-  $("region").addEventListener("change", (e) => { state.region = e.target.value; store.set("radar.region", state.region); syncPressed(); state.shown = PAGE; render(); });
+  $("region").addEventListener("change", (e) => { state.region = e.target.value; state.city = ""; store.set("radar.region", state.region); syncPressed(); state.shown = PAGE; render(); });
+  // clic sur une région ou une bulle de la carte (au clavier : listes de régions et de villes à côté)
+  $("map").addEventListener("click", (e) => {
+    const el = e.target.closest("[data-city], [data-mreg]");
+    if (!el) return;
+    if (el.dataset.city) { state.city = state.city === el.dataset.city ? "" : el.dataset.city; state.region = ""; }
+    else { state.region = state.region === el.dataset.mreg ? "" : el.dataset.mreg; state.city = ""; }
+    store.set("radar.region", state.region);
+    syncPressed(); state.shown = PAGE; render();
+  });
   $("cv-file").addEventListener("change", (e) => { loadCv(e.target.files[0]); e.target.value = ""; });
   const box = $("cv");
   ["dragenter", "dragover"].forEach((ev) => box.addEventListener(ev, (e) => { e.preventDefault(); box.classList.add("drag"); }));
@@ -664,7 +774,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       for (const o of data.offers) haystack(o);
       if (cv && cv.v !== 2) { cv = null; store.set("radar.profile", null); }   // profil d'une ancienne version
       if (cv) { compileProfile(); state.sort = "fit"; }
-      renderStatic(); renderCv(); render();
+      renderStatic(); buildMap(); renderCv(); render();
     })
     .catch(() => { $("list").innerHTML = `<div class="empty">Le fichier des offres (data/offers.json) est introuvable. Lance <code>python -m radar</code> pour le générer.</div>`; });
 })();

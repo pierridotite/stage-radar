@@ -6,7 +6,7 @@ Cloudflare pour ce volume) garde les clés en secret et rend deux services, **un
 | Service | Ce qu'il fait | Coût |
 |---|---|---|
 | `POST /cv` (au dépôt du CV) | reçoit le texte du CV extrait dans le navigateur et demande à `gpt-5-nano` les filtres du profil : typologie, compétences, métiers, secteurs, régions, langues (identifiants fournis par la page, schéma JSON strict) et jusqu'à 12 thèmes précis avec synonymes | ~0,001 $ par CV |
-| `POST /contacts` (« Trouver des contacts ») | recherche en entonnoir sur le moteur **Tavily**, limitée aux profils LinkedIn publics (`linkedin.com/in`) : même poste dans la ville de l'offre, puis en France, managers de l'équipe, recrutement ; lit **sans IA** le poste actuel, l'entreprise, le lieu et l'école, ne garde que les personnes de l'entreprise ; résultats gardés 7 jours par offre (Cache API) ; la page calcule le score avec `config/network.yaml` | 3 ou 4 recherches Tavily par offre (1 000 gratuites / mois), pas d'OpenAI |
+| `POST /contacts` (« Trouver des contacts ») | recherche en entonnoir sur le moteur **Tavily**, limitée aux profils LinkedIn publics (`linkedin.com/in`) : même poste dans la ville de l'offre, puis en France, managers de l'équipe, recrutement, anciens de l'école dans l'entreprise ; lit **sans IA** le poste actuel, l'entreprise, le lieu et l'école, ne garde que les personnes de l'entreprise ; résultats gardés 7 jours par offre (Cache API) ; la page calcule le score avec `config/network.yaml` | 4 ou 5 recherches Tavily par offre (1 000 gratuites / mois), pas d'OpenAI |
 
 Le score de fit et la note des offres sont calculés sans IA ; ce serveur n'est appelé que pour ces deux services.
 

@@ -3,12 +3,16 @@
 # Le serveur (cv-worker/, route /contacts) cherche des profils LinkedIn publics via le moteur Tavily, en entonnoir :
 #   1. même poste que l'offre, dans la même ville        2. même poste en France (si trop peu de résultats)
 #   3. managers de l'équipe                               4. recrutement / talent acquisition
+#   5. anciens de l'Institut Agro Rennes-Angers / Agrocampus Ouest dans l'entreprise (toujours cherchés)
 # Il lit sans IA le nom, le poste actuel, le lieu et l'école de chaque résultat, et ne garde que les personnes qui
 # travaillent AUJOURD'HUI dans l'entreprise. La page les classe avec ce barème, du critère le plus utile pour une
-# demande de recommandation sur cette offre au moins utile. LinkedIn n'est pas aspiré : ce sont les résultats
+# demande de recommandation sur cette offre au moins utile. Un·e ancien·ne de l'école passe en premier : c'est la
+# personne la plus susceptible de répondre et de recommander. LinkedIn n'est pas aspiré : ce sont les résultats
 # publics d'un moteur de recherche.
 # =====================================================================
 criteria:
+  - {id: same_school, points: 40, label: "Ancien·ne de l'Institut Agro Rennes-Angers"}
+  - {id: agro_school, points: 20, label: "Ancien·ne d'une école agro"}
   - {id: same_team, points: 30, label: "Même équipe ou entité que l'offre"}
   - {id: same_role, points: 25, label: "Même métier que l'offre"}
   - {id: manager, points: 20, label: "Manage l'équipe"}
@@ -17,6 +21,4 @@ criteria:
   - {id: same_region, points: 10, label: "Même région que l'offre"}
   - {id: in_france, points: 5, label: "En France"}
   - {id: data_role, points: 8, label: "Métier data"}          # seulement si le métier n'est pas déjà le même
-  - {id: same_school, points: 10, label: "Ancien·ne de l'Institut Agro Rennes-Angers"}
-  - {id: agro_school, points: 5, label: "Ancien·ne d'une école agro"}
   - {id: abroad, points: -20, label: "À l'étranger"}

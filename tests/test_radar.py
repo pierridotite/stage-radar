@@ -7,7 +7,9 @@ from unittest import mock
 
 import yaml
 
-from radar.filters import prepare
+from radar import geocode
+from radar.filters import REGIONS, prepare, zone
+from radar.geocode import candidates
 from radar.fit import FitLexicon
 from radar.models import Offer
 from radar.scoring import Scorer
@@ -47,6 +49,30 @@ class ScoringTest(unittest.TestCase):
     def test_date_hors_contexte_ignoree(self):
         o = offer("Stage Data Scientist 6 mois", "Équipe renforcée depuis septembre 2026. Python, SQL, statistiques.")
         self.assertNotEqual(self.scorer.score(o)["calendar"], "hors_calendrier")
+
+
+class LieuTest(unittest.TestCase):
+    def test_france_ou_etranger(self):
+        for loc, expected in [("91300, MASSY, 91", "france"), ("Paris, FR, 75015", "france"), ("Tarn (81)", "france"),
+                              ("FRA-Bas-Rhin-Haguenau", "france"), ("Madrid, ES, 28042", "etranger"),
+                              ("Sesto San Giovanni, Milan, IT, 20099", "etranger"), ("La Pocatiere, CA", "etranger"),
+                              ("MEX-Queretaro-Queretaro", "etranger"), ("Remote", "inconnu")]:
+            self.assertEqual(zone("", loc), expected, loc)
+
+    def test_villes_candidates_pour_la_carte(self):
+        self.assertEqual(candidates("91300, MASSY, 91"), ("91300", ["massy"]))
+        self.assertEqual(candidates("11ème Arrondissement, Paris")[1][0], "paris")
+        self.assertEqual(candidates("FR_REN_RSAS - Guyancourt")[1][0], "guyancourt")
+        self.assertEqual(candidates("Paris La Défense")[1][0], "puteaux")
+        self.assertEqual(candidates("Occitanie")[1], [])
+        self.assertEqual(candidates("94150, RUNGIS, 94 Val-de-Marne")[1], ["rungis"])
+
+    def test_carte_projection_dans_le_cadre(self):
+        w, h = geocode.MAP["proj"]["width"], geocode.MAP["proj"]["height"]
+        for lon, lat in [(2.35, 48.86), (-4.49, 48.39), (7.75, 48.58), (9.45, 42.7)]:   # Paris, Brest, Strasbourg, Corse
+            x, y = geocode.project(lon, lat)
+            self.assertTrue(0 <= x <= w and 0 <= y <= h, (lon, lat, x, y))
+        self.assertEqual({r["name"] for r in geocode.MAP["regions"]}, set(REGIONS))
 
 
 class FitTest(unittest.TestCase):
