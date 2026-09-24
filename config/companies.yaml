@@ -178,7 +178,6 @@ companies:
   - {name: Brevo, sector: data, size: eti, ats: lever, id: brevo}
   - {name: CNP Assurances, sector: data, size: eti, ats: unsupported, url: 'https://cnp-recrute.talent-soft.com/', platform: talentsoft}
   - {name: Carbon4 Finance, sector: data, size: startup, ats: wttj, id: carbon4-finance}
-  - {name: Carrefour, sector: data, size: grande, ats: unsupported, url: 'https://recrute.carrefour.fr/', platform: custom}
   - {name: Circana, sector: data, size: grande, ats: unsupported, url: 'https://jobs.circana.com/careers', platform: eightfold}
   - {name: Covéa, sector: data, size: grande, ats: smartrecruiters, id: COVEA1}
   - {name: Craft AI, sector: data, size: startup, ats: wttj, id: craft-ai}
@@ -234,7 +233,6 @@ companies:
   - {name: Numberly, sector: data, size: pme, ats: smartrecruiters, id: numberly}
   - {name: OVHcloud, sector: data, size: eti, ats: unsupported, url: 'https://careers.ovhcloud.com', platform: successfactors}
   - {name: Ogury, sector: data, size: pme, ats: smartrecruiters, id: ogury}
-  - {name: Orange, sector: data, size: grande, ats: unsupported, url: 'https://orange.jobs/site/fr-stages/index.htm', platform: phenom}
   - {name: Ornikar, sector: data, size: startup, ats: teamtailor, id: ornikar}
   - {name: Owkin, sector: data, size: startup, ats: ashby, id: owkin}
   - {name: Pasqal, sector: data, size: startup, ats: teamtailor, id: pasqal}
@@ -335,7 +333,6 @@ companies:
   - {name: Betclic, sector: sport, size: eti, ats: breezy, id: betclic-group}
   - {name: Boardriders (Quiksilver), sector: sport, size: grande, ats: unsupported, url: 'https://career5.successfactors.eu/careers?company=NAPALIDP', platform: successfactors}
   - {name: Catapult, sector: sport, size: eti, ats: greenhouse, id: catapultsports}
-  - {name: Club Med, sector: sport, size: grande, ats: unsupported, url: 'https://www.clubmed.fr', platform: radancy}
   - {name: Coros, sector: sport, size: pme, ats: smartrecruiters, id: coros}
   - {name: Decathlon, sector: sport, size: grande, ats: digitalrecruiters, id: joinus.decathlon.fr}
   - {name: Decathlon Technology, sector: sport, size: grande, ats: greenhouse, id: decathlontechnology}
@@ -707,7 +704,29 @@ companies:
   - {name: Shine (Société Générale), sector: data, size: pme, ats: teamtailor, id: shine}
   - {name: Bouygues Immobilier, sector: industrie, size: grande, ats: sf_rss, url: 'https://recrutement.bouygues-immobilier-corporate.com/services/rss/job/?locale=fr_FR&keywords={q}'}
   - {name: Colas, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.colasjobs.com/services/rss/job/?locale=fr_FR&keywords={q}'}
-  - {name: VINCI Airports, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=71&keywords={q}'}
-  - {name: VINCI Autoroutes, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=583&keywords={q}'}
-  - {name: VINCI Construction, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=6&keywords={q}'}
-  - {name: VINCI Energies, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=2&keywords={q}'}
+  - {name: VINCI Airports, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=71&keywords={q}', enabled: false}  # remplacé par le flux Radancy "VINCI" (couverture complète)
+  - {name: VINCI Autoroutes, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=583&keywords={q}', enabled: false}  # remplacé par le flux Radancy "VINCI" (couverture complète)
+  - {name: VINCI Construction, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=6&keywords={q}', enabled: false}  # remplacé par le flux Radancy "VINCI" (couverture complète)
+  - {name: VINCI Energies, sector: industrie, size: grande, ats: talentsoft, url: 'https://vinci-groupe.profils.org/handlers/offerRss.ashx?LCID=1036&filterentityid=2&keywords={q}', enabled: false}  # remplacé par le flux Radancy "VINCI" (couverture complète)
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-24
+  - {name: Clariane, sector: data, size: grande, ats: digitalrecruiters, id: nousrejoindre.clariane.com}
+  - {name: Emeis, sector: data, size: grande, ats: talentsoft, url: 'https://emeis-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Generali France, sector: data, size: grande, ats: sf_rss, url: 'https://carrieres.generali.fr/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Groupe Casino, sector: data, size: grande, ats: digitalrecruiters, id: recrute.groupe-casino.fr}
+  - {name: Intermarché (Les Mousquetaires), sector: data, size: grande, ats: smartrecruiters, id: GroupementMousquetaires}
+  - {name: Kiabi, sector: data, size: grande, ats: smartrecruiters, id: KIABI}
+  - {name: Lagardère Travel Retail (Relay), sector: data, size: grande, ats: rss, url: 'https://careers.lagardere-tr.fr/jobs.rss'}
+  - {name: MACIF (Aéma Groupe), sector: data, size: grande, ats: talentsoft, url: 'https://macif-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Quadient, sector: data, size: grande, ats: smartrecruiters, id: Quadient1}
+  - {name: Showroomprivé, sector: data, size: eti, ats: rss, url: 'https://talents.showroomprivegroup.com/jobs.rss'}
+  - {name: Viridien, sector: data, size: grande, ats: workday, host: cgg.wd103.myworkdayjobs.com, site: viridiencareers}
+  - {name: Eutelsat, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.eutelsat.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Groupe ADP, sector: industrie, size: grande, ats: talentsoft, url: 'https://groupeadp-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: ID Logistics, sector: industrie, size: grande, ats: talentsoft, url: 'https://idlogistics-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-24
+  - {name: Carrefour, sector: data, size: grande, ats: icims, id: recrute1-carrefour.icims.com, country: fr}
+  - {name: Orange, sector: data, size: grande, ats: phenom, host: orange.jobs, ref: OYVOCZGB, lang: fr_fr, job_url: 'https://orange.jobs/jobs/fr/job/{id}'}
+  - {name: VINCI, sector: industrie, size: grande, ats: radancy, host: jobs.vinci.com, lang: fr}
+  - {name: Club Med, sector: sport, size: grande, ats: radancy, host: www.clubmedjobs.com, lang: fr}

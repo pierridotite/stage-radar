@@ -534,7 +534,150 @@ def oracle_hcm(cfg: dict, s) -> list[Offer]:
     return offers
 
 
+# --------------------------------------------------------------------------- Phenom (Orange, Allianz, McCain...)
+def phenom(cfg: dict, s) -> list[Offer]:
+    """Recherche publique des sites carrières Phenom (POST /widgets, celle qu'appelle la page de résultats).
+    cfg : host, ref (refNum du site), lang (fr_fr), country (valeur de la facette pays ; lue sur le site si absente),
+    job_url (modèle d'adresse d'une offre, avec {id})."""
+    api = f"https://{cfg['host']}/widgets"
+    base = {"lang": cfg.get("lang", "fr_fr"), "deviceType": "desktop", "country": "fr", "refNum": cfg["ref"],
+            "siteType": "external"}
+    search = {**base, "pageName": "search-results", "ddoKey": "refineSearch", "all_fields": ["country"],
+              "global": True, "locationData": {}, "sortBy": "", "subsearch": "", "clearAll": False,
+              "jdsource": "facets", "isSliderEnable": False}
+    # la valeur de la facette pays varie selon les sites ("FRANCE", "France") : on la lit dans les agrégations
+    country = cfg.get("country")
+    if not country:
+        aggs = s.post(api, json={**search, "from": 0, "size": 1, "jobs": False, "counts": True, "keywords": "",
+                                 "selected_fields": {}}).json().get("refineSearch", {}).get("data", {}).get("aggregations", [])
+        values = next((a.get("value", {}) for a in aggs if a.get("field") == "country"), {})
+        country = max((v for v in values if v.strip().lower() == "france"), key=lambda v: values[v], default=None)
+    jobs: dict[str, dict] = {}
+    for q in SEARCH_TERMS:
+        start = 0
+        while start < 500:
+            body = {**base, "pageName": "search-results", "ddoKey": "refineSearch", "from": start, "size": 100,
+                    "jobs": True, "counts": False, "all_fields": ["country"], "keywords": q, "global": True,
+                    "selected_fields": {"country": [country]} if country else {}, "locationData": {},
+                    "sortBy": "", "subsearch": "", "clearAll": False, "jdsource": "facets", "isSliderEnable": False}
+            rs = s.post(api, json=body).json().get("refineSearch", {})
+            batch = (rs.get("data") or {}).get("jobs", [])
+            for j in batch:
+                jobs[j["jobId"]] = j
+            start += 100
+            if not batch or start >= rs.get("totalHits", 0):
+                break
+    offers = []
+    items = [j for j in jobs.values() if looks_like_internship(j.get("title", ""), j.get("contractType", ""))]
+    items.sort(key=lambda j: not DATA_HINT.search(j.get("title", "")))
+    for n, j in enumerate(items):
+        desc = j.get("descriptionTeaser", "")
+        if n < MAX_DETAILS:
+            try:
+                d = s.post(api, json={**base, "pageName": "job", "ddoKey": "jobDetail", "jobId": j["jobId"]}).json()
+                desc = strip_html(((d.get("jobDetail") or {}).get("data") or {}).get("job", {}).get("description")) or desc
+            except Exception as e:
+                log.debug("détail Phenom %s: %s", j["jobId"], e)
+        offers.append(_offer(
+            cfg, source="phenom", title=j["title"], url=cfg["job_url"].format(id=j["jobId"]),
+            location=j.get("cityStateCountry") or j.get("location", ""),
+            country="fr" if (j.get("country") or "").strip().lower() == "france" else "",
+            description=desc, posted_at=j.get("postedDate", ""), contract_hint=j.get("contractType", ""),
+        ))
+    return offers
+
+
+# --------------------------------------------------------------------------- Radancy / TalentBrew (VINCI, FDJ...)
+_RADANCY_ITEM = re.compile(r'<a[^>]+href="(/[a-z]{2}/[^"]+/\d+/\d+)"[^>]*>(.*?)</a>', re.S)
+
+
+def radancy(cfg: dict, s) -> list[Offer]:
+    """Résultats de recherche des sites Radancy (GET /<lang>/search-jobs/results, JSON contenant le HTML de la liste).
+    cfg : host, lang (fr). Le détail vient du JSON-LD JobPosting de la page de l'offre."""
+    from .boards import _jobposting, _ld_location
+    host, lang = cfg["host"], cfg.get("lang", "fr")
+    headers = {"Accept": "application/json, text/javascript, */*; q=0.01", "X-Requested-With": "XMLHttpRequest"}
+    found: dict[str, str] = {}
+    for q in ("stage", "stagiaire", "internship"):
+        page = 1
+        while page <= 30:
+            data = s.get(f"https://{host}/{lang}/search-jobs/results", headers=headers, params={
+                "CurrentPage": page, "RecordsPerPage": 100, "Keywords": q, "Location": "", "SearchType": 5,
+                "ActiveFacetID": 0, "ShowRadius": "False", "IsPagination": "False", "SortCriteria": 0,
+                "SortDirection": 0, "SearchResultsModuleName": "Search Results",
+                "SearchFiltersModuleName": "Search Filters", "OrganizationIds": "", "FacetFilters": ""}).json()
+            html = data.get("results") or ""
+            items = _RADANCY_ITEM.findall(html)
+            for href, inner in items:
+                found.setdefault(href, strip_html(inner))
+            pages = re.search(r'data-total-pages="(\d+)"', html)
+            if not items or page >= int(pages.group(1) if pages else 1):
+                break
+            page += 1
+    offers = []
+    # l'intitulé de la liste contient titre, lieu et catégorie : on garde les stages, "data" d'abord
+    items = [(h, t) for h, t in found.items() if looks_like_internship(t) or "/stage" in h]
+    items.sort(key=lambda it: not DATA_HINT.search(it[1]))
+    for n, (href, text) in enumerate(items[: MAX_DETAILS * 2]):
+        url = f"https://{host}{href}"
+        title, location, desc, posted = text, "", "", ""
+        if n < MAX_DETAILS:
+            try:
+                jp = _jobposting(s.get(url, headers={"Accept": "text/html"}).text)
+                title = strip_html(jp.get("title")) or title
+                location = _ld_location(jp)
+                desc = strip_html(strip_html(jp.get("description")))
+                posted = jp.get("datePosted", "")
+            except Exception as e:
+                log.debug("détail Radancy %s: %s", href, e)
+        if not looks_like_internship(title, "stage" if "/stage" in href else ""):
+            continue
+        offers.append(_offer(cfg, source="radancy", title=title, url=url, location=location or href.split("/")[3],
+                             description=desc, posted_at=posted))
+    return offers
+
+
+# --------------------------------------------------------------------------- iCIMS (Carrefour, Garmin...)
+# lien d'une offre : l'intitulé complet est dans l'attribut title ("146748 - Intitulé du poste")
+_ICIMS_LINK = re.compile(r'href="(https://[^"]+/jobs/(\d+)/[^"/]+/job)[^"]*"[^>]*title="\d+ - ([^"]+)"')
+
+
+def icims(cfg: dict, s) -> list[Offer]:
+    """Pages de recherche publiques d'un portail iCIMS (id = sous-domaine, ex. recrute1-carrefour.icims.com)."""
+    from .boards import _jobposting, _ld_location
+    host = cfg["id"]
+    found: dict[str, tuple[str, str]] = {}
+    for q in ("stage", "stagiaire", "intern"):
+        for page in range(0, 20):
+            html = s.get(f"https://{host}/jobs/search", headers={"Accept": "text/html"},
+                         params={"ss": "1", "searchKeyword": q, "in_iframe": "1", "pr": page}).text
+            links = _ICIMS_LINK.findall(html)
+            new = [l for l in links if l[1] not in found]
+            for url, jid, title in links:
+                found.setdefault(jid, (url, strip_html(title)))
+            if not new:
+                break
+    offers = []
+    items = [(jid, u, t) for jid, (u, t) in found.items() if looks_like_internship(t)]
+    items.sort(key=lambda it: not DATA_HINT.search(it[2]))
+    for n, (jid, url, title) in enumerate(items):
+        location, desc, posted = "", "", ""
+        if n < MAX_DETAILS:
+            try:
+                jp = _jobposting(s.get(url, params={"in_iframe": "1"}, headers={"Accept": "text/html"}).text)
+                location, posted = _ld_location(jp), jp.get("datePosted", "")
+                desc = strip_html(strip_html(jp.get("description")))
+            except Exception as e:
+                log.debug("détail iCIMS %s: %s", jid, e)
+        offers.append(_offer(cfg, source="icims", title=title, url=url, location=location, country=cfg.get("country", ""),
+                             description=desc, posted_at=posted))
+    return offers
+
+
 FETCHERS = {
+    "phenom": phenom,
+    "radancy": radancy,
+    "icims": icims,
     "digitalrecruiters": digitalrecruiters,
     "oracle_hcm": oracle_hcm,
     "rss": rss,
