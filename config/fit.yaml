@@ -1,21 +1,25 @@
 # =====================================================================
-# Dictionnaire du "fit CV" : le même vocabulaire sert à lire les offres (Python, à la collecte)
-# et le CV déposé (navigateur, sur l'ordinateur de l'élève : le CV n'est envoyé nulle part).
+# Dictionnaire du "fit CV" : le même vocabulaire sert à lire les offres (Python, à la collecte, sans IA)
+# et le profil tiré du CV (par le petit modèle du serveur, ou par les règles si le serveur est indisponible).
 # Termes en minuscules SANS accents ; '*' final = préfixe.
 #
-# fit = compétences exigées (50) + appréciées (5) + domaine (25) + métier visé (20)
-#       - compétences bloquantes manquantes - langue manquante
+# fit = compétences exigées (40) + appréciées (5) + mots-clés précis du profil (25) + secteur (15) + métier (15)
+#       + région (5) - compétences bloquantes manquantes - langue manquante      (calculé dans le navigateur, sans IA)
 # =====================================================================
 
 weights:
-  skills: 50          # part des compétences EXIGÉES par l'offre que le CV contient
-  nice: 5             # compétences appréciées (offres analysées par l'IA) présentes dans le CV
+  skills: 40          # part des compétences EXIGÉES par l'offre que le CV contient (lissée, voir ci-dessous)
   skills_neutral: 0.5 # offre qui ne cite aucune compétence : couverture supposée de 50 %
-  skills_smoothing: 2 # lissage : 2/2 compétences (75 %) compte moins que 7/7 (89 %), peu d'indices = moins de certitude
-  domain: 25          # l'offre est dans un domaine où le CV a de l'expérience
-  role: 20            # l'intitulé correspond au métier que le CV vise
-  role_generic: 8     # intitulé data générique quand le CV ne précise pas de métier
-  hard_missing: -5    # par compétence "bloquante" demandée et absente du CV (max -15)
+  skills_smoothing: 2 # lissage : 2/2 compétences (75 %) compte moins que 7/7 (89 %)
+  nice: 5             # compétences appréciées ("un plus", "idéalement"...) présentes dans le CV
+  keywords: 25        # mots-clés précis du profil (extraits du CV par l'IA) trouvés dans l'annonce :
+  keyword_title: 12   #   +12 par mot-clé présent dans l'intitulé,
+  keyword_text: 7     #   +7 par mot-clé présent dans le texte, plafonné à 25
+  sector: 15          # le secteur de l'offre fait partie de ceux visés par le profil (3 au plus)
+  role: 15            # l'intitulé correspond au métier visé par le CV
+  role_generic: 6     # pas d'indication de métier d'un côté ou de l'autre, ou métier data voisin
+  region: 5           # l'offre est dans une région indiquée dans le CV
+  hard_missing: -5    # par compétence "bloquante" exigée et absente du CV (max -15)
   hard_missing_cap: -15
   language_missing: -15
 

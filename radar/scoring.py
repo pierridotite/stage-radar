@@ -176,47 +176,15 @@ class Scorer:
             return "B"
         return "C" if score >= g["C"] else "D"
 
-    # ------------------------------------------------------------ axes issus de l'analyse IA (radar/llm.py)
-    def ai_calendar(self, ai: dict) -> tuple[str, list] | None:
-        """Calendrier d'après la date de début et la durée extraites par le modèle ; None si non précisées."""
-        start, months = ai.get("start_month"), ai.get("duration_months")
-        k = self.cfg["calendar"]
-        if months is not None and months <= 4:
-            return "hors_calendrier", [[0, f"Stage de {months} mois : pas un stage de fin d'études", [], "calendrier"]]
-        if not start or len(start) < 7:
-            return None
-        if start < "2027-01":
-            return "hors_calendrier", [[0, f"Début annoncé en {start} : avant la fin des cours", [], "calendrier"]]
-        if start <= "2027-04":
-            return "compatible", [[k["points"]["compatible"], f"Début {start} : compatible avec février 2027", [],
-                                   "calendrier"]]
-        return "a_verifier", [[0, f"Début {start} : plus tard que prévu, à vérifier", [], "calendrier"]]
-
-    def score(self, o: Offer, ai: dict | None = None) -> dict | None:
-        """Renvoie None si l'offre n'est pas un stage data (écartée du tableau de bord).
-
-        Avec une fiche IA : les axes Data et Profil et, si elle est connue, la date de début viennent du modèle ;
-        la concurrence (listes d'entreprises) et l'ancienneté de l'annonce restent calculées par les règles."""
+    def score(self, o: Offer) -> dict | None:
+        """Renvoie None si l'offre n'est pas un stage data (écartée du tableau de bord)."""
         title, text = prepare(o.title), prepare(o.description)
-        if ai:
-            if not ai["is_internship"] or (not ai["is_data_role"] and ai["data_intensity"] < self.d_keep):
-                return None
-            data = max(0, min(100, int(ai["data_intensity"])))
-            profile = max(0, min(100, int(ai["accessibility"])))
-            if data < self.d_keep:
-                return None
-            r_data = [[0, f"Analyse IA : {ai['data_reason']}", [], "data"]]
-            r_prof = [[0, f"Analyse IA : {ai['accessibility_reason']}", [], "profil"]]
-        else:
-            data, r_data = self.data_axis(title, text)
-            if data < self.d_keep:
-                return None
-            profile, r_prof = self.profile_axis(o, title, text)
+        data, r_data = self.data_axis(title, text)
+        if data < self.d_keep:
+            return None
+        profile, r_prof = self.profile_axis(o, title, text)
         comp, r_comp = self.competition_axis(o, text)
         cal, r_cal = self.calendar_axis(o, title, text)
-        if ai and (ai_cal := self.ai_calendar(ai)):
-            stale = [r for r in r_cal if "peut-être pourvue" in r[1]]
-            cal, r_cal = ai_cal[0], ai_cal[1] + stale
         score = max(0, min(100, round((data + profile) / 2 + sum(r[0] for r in r_comp + r_cal))))
         return {
             "score": score, "grade": self.grade(score, data, profile, cal),

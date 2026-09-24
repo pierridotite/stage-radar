@@ -27,7 +27,7 @@ Résultats :
 |---|---|---|
 | Sites carrières des entreprises (Workday, SmartRecruiters, Lever, Greenhouse, Ashby, Teamtailor, Workable, Recruitee, Personio, Breezy, DigitalRecruiters, Oracle Recruiting, Phenom, Radancy, iCIMS, SuccessFactors/Talentsoft en RSS, Eightfold, Jibe, recherche LVMH, API Capgemini) | flux publics que les pages carrières appellent elles-mêmes, liste dans `config/companies.yaml` | aucune |
 | Jobboards de niche : PASS (stages de la fonction publique), INRAE, Apecita, iQuesta, Sport Jobs Hunter, Vitijob, Jobagri, Emploi-Environnement | flux RSS officiels, API publiques ou sitemap, statut juridique vérifié ; liste dans `config/sources.yaml` | aucune |
-| Adzuna | API officielle d'agrégation (couvre une grande partie des jobboards français) | gratuite sur developer.adzuna.com, variables `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` |
+| Adzuna | API officielle d'agrégation (couvre une grande partie des jobboards français), requêtes par mots-clés et par grand groupe inaccessible | gratuite sur developer.adzuna.com, variables `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` |
 | Ajouts manuels | `data/manual_offers.csv` : offres repérées sur LinkedIn, JobTeaser, le forum école… | aucune |
 
 **France uniquement** : une offre est gardée si son lieu est en France (ville, code postal, département ou pays),
@@ -58,9 +58,9 @@ un vrai stage data ? ». Elle combine trois axes indépendants, chacun détaill�
 
 | Note | Condition |
 |---|---|
-| **A** | score ≥ 75, **et** Data ≥ 70, **et** Profil ≥ 65 : vrai poste data où notre profil colle |
-| **B** | score ≥ 62 et Data ≥ 55 |
-| **C** | score ≥ 50 |
+| **A** | score ≥ 72, **et** Data ≥ 60, **et** Profil ≥ 60 : vrai poste data où notre profil colle |
+| **B** | score ≥ 60 et Data ≥ 50 |
+| **C** | score ≥ 48 |
 | **D** | en dessous |
 | **— hors calendrier** | début en 2026 ou stage court, quelle que soit la note |
 
@@ -70,66 +70,60 @@ dans l'intitulé, pour qu'une actualité (« renforcée depuis septembre 2026 »
 commerce le sont. Enrichir `network_companies` avec les entreprises où la promo a déjà fait des stages est ce qui
 améliorera le plus la note.
 
-## Analyse par IA (OpenAI, modèle nano)
-
-Chaque offre plausible (pré-filtre par les règles, ~800 sur ~4 000 stages) est lue par `gpt-5-nano` (le moins cher,
-repli automatique sur `gpt-4.1-nano`) qui remplit une fiche au **schéma JSON strict** (`radar/llm.py`) : stage ou non,
-poste data ou non, métier, domaine, compétences exigées et appréciées (uniquement celles du dictionnaire
-`config/fit.yaml`), formation visée, date de début, durée, langues exigées, intensité data et accessibilité pour un·e
-élève de l'Institut Agro (chacune avec une phrase de justification), résumé de la mission.
-
-Avec cette fiche, les axes **Data** et **Profil** de la note et la **date de début** viennent du modèle ; la
-**concurrence** reste calculée par les règles (listes d'entreprises). Sans fiche (pas de clé, erreur), la notation par
-règles s'applique. Les fiches sont gardées en cache dans la base : seules les offres nouvelles ou modifiées sont
-réanalysées. Chaque exécution journalise le nombre d'appels et le coût (environ 0,0003 $ par offre : ~0,25 $ la
-première fois, quelques centimes par jour ensuite). Réglages et prix dans `config/llm.yaml`.
-
-**La clé n'est jamais dans le dépôt** : elle est lue dans la variable d'environnement `OPENAI_API_KEY`, déclarée comme
-secret GitHub (*Settings → Secrets and variables → Actions → New repository secret*, nom `OPENAI_API_KEY`).
-Mettre aussi une limite de dépense mensuelle sur le compte OpenAI.
-
-Tests (API simulée, aucun appel réel) : `python -m unittest discover tests` et `node --test cv-worker/test/worker.test.mjs`.
-
 ## Fit avec son CV
 
-Dans le tableau de bord, « Déposer mon CV » (PDF, Word ou texte) calcule un **fit** avec chaque offre et permet de
-trier par fit. **Le CV est lu dans le navigateur et n'est envoyé nulle part** : le site est statique, sans serveur.
-Seule la liste des compétences et domaines repérés est gardée sur l'ordinateur (localStorage), jamais le texte du CV.
+Dans le tableau de bord, « Déposer mon CV » (PDF, Word ou texte) affiche un **fit en %** sur chaque offre et trie
+la liste par fit. Sans CV, seule la note A-D s'affiche.
 
-**Affiner avec l'IA** (facultatif, sur clic de l'élève) : si le petit serveur `cv-worker/` est déployé (voir
-`cv-worker/README.md`), le texte du CV lui est envoyé ; il demande au modèle la typologie du profil, les compétences,
-domaines (avec leur force) et métiers visés, dans les identifiants du dictionnaire, puis renvoie la fiche sans rien
-stocker. Le site statique ne peut pas appeler OpenAI lui-même : la clé y serait publique.
+1. **Lecture** : le texte du CV est extrait dans le navigateur (pdf.js, mammoth).
+2. **Filtres du profil, par IA** : ce texte est envoyé au petit serveur `cv-worker/` (voir son README), qui demande à
+   `gpt-5-nano` les filtres utiles, au **schéma JSON strict** : typologie, compétences et métiers visés (identifiants du
+   dictionnaire `config/fit.yaml` uniquement), secteurs (data, agro, luxe, sport, conseil, industrie), régions, langues
+   et jusqu'à 12 **thèmes précis** avec leurs synonymes (« maintenance prédictive », « nutrition animale », « trail »...).
+   Environ 0,001 $ par CV, **rien n'est stocké** sur le serveur. Si le serveur ne répond pas, les mêmes filtres sont
+   repérés par les règles du dictionnaire (sans thèmes précis).
+3. **Fit, sans IA** : calculé dans le navigateur en comparant ces filtres au texte complet de chaque offre (compétences
+   exigées et appréciées extraites à la collecte par `radar/fit.py`, mêmes règles).
 
-Le même dictionnaire, `config/fit.yaml`, sert à lire les offres (à la collecte, `radar/fit.py`) et le CV (dans la page) :
+Seuls les filtres sont gardés sur l'ordinateur de l'élève (localStorage), jamais le texte du CV. Les secteurs, thèmes
+et régions du profil s'affichent en boutons pour filtrer la liste.
 
 | Composante | Points |
 |---|---|
-| Compétences demandées par l'offre présentes dans le CV (lissé : 2/2 compte moins que 7/7) | jusqu'à 55 |
-| Domaine de l'offre (agro, sport, industrie, luxe...) présent dans le CV | jusqu'à 25 |
-| Métier de l'intitulé (data scientist, analyst, biostatisticien, R&D...) visé par le CV | 20 (8 si non précisé) |
-| Compétence "bloquante" demandée et absente (Spark, cloud, Java, C++...) | −5 chacune, max −15 |
-| Langue exigée absente du CV | −15 |
+| Compétences **exigées** par l'offre présentes dans le profil (lissé : 2/2 compte moins que 7/7) | jusqu'à 40 |
+| Compétences **appréciées** (« un plus », « idéalement »...) présentes | jusqu'à 5 |
+| Thèmes précis du profil trouvés dans l'intitulé (12) ou l'annonce (7) | jusqu'à 25 |
+| Secteur de l'offre parmi les secteurs visés (3 au plus) | 15 |
+| Métier de l'intitulé visé par le profil | 15 (6 si non précisé ou métier data voisin) |
+| Région visée | 5 |
+| Compétence "bloquante" exigée et absente (Spark, cloud, Java, C++...) | −5 chacune, max −15 |
+| Langue exigée absente du profil | −15 |
 
-Très bon fit ≥ 75, bon ≥ 60, moyen ≥ 45. Le détail de chaque offre liste les compétences présentes (✓) et manquantes (✗).
+Très bon fit ≥ 75, bon ≥ 60, moyen ≥ 45. Le détail de chaque offre liste les compétences présentes (✓) et manquantes
+(✗) et les thèmes retrouvés. Poids modifiables dans `config/fit.yaml`.
 
-## Networking : qui contacter ?
+**Les offres, elles, sont notées sans IA** (règles ci-dessus) : aucun coût par offre.
 
-Dans le détail de chaque offre, « Qui contacter ? » propose des recherches LinkedIn classées par priorité : anciens de
-l'Institut Agro Rennes-Angers qui font de la data dans l'entreprise, anciens de l'école, anciens d'AgroParisTech et de
-l'Institut Agro Montpellier, l'équipe qui recrute (nommée par l'analyse IA), l'équipe data, le recrutement. Elles
-s'ouvrent dans le compte LinkedIn de l'élève (outil « Anciens élèves » des pages école, filtré par entreprise) :
-**LinkedIn interdit la collecte automatique de profils, l'outil ne récupère donc aucun nom.**
+## Trouver des contacts
 
-**Recherche automatique** (si le serveur `cv-worker/` est déployé, voir son README) : « Trouver des contacts
-automatiquement » lance 3 recherches sur le moteur Tavily (gratuit, 1 000 recherches / mois) limitées aux profils
-LinkedIn publics ; le modèle décrit chaque personne (poste, entité, école, rôle data, recruteur) et la page les classe
-par score de match. Rien n'est conservé sur le serveur ; les résultats restent 7 jours dans le navigateur de l'élève.
+Dans le détail d'une offre, **« Trouver des contacts »** interroge le serveur `cv-worker/` : 3 recherches sur le moteur
+Tavily (gratuit, 1 000 recherches / mois) limitées aux profils LinkedIn publics (anciens agro dans l'entreprise,
+équipe data ou entité qui recrute, recrutement). Le nom, le poste, l'entreprise et l'école sont lus **sans IA** dans les
+résultats ; la page classe les personnes par score :
 
-« Mes contacts » garde, sur l'ordinateur de l'élève, les personnes repérées ; les critères cochés (même école, autre
-école agro, même entité, même équipe, manager ou recruteur, diplômé récent, relation commune) donnent un score de
-match qui classe qui contacter en premier, et « Message » prépare une note d'invitation de moins de 300 caractères.
-Critères, points, recherches et messages : `config/network.yaml`.
+| Critère | Points |
+|---|---|
+| Ancien·ne de l'Institut Agro Rennes-Angers / Agrocampus Ouest | 40 |
+| Ancien·ne d'une autre école agro | 25 |
+| Dans l'entité qui recrute (sinon dans l'entreprise : 15) | 20 |
+| Métier data | 20 |
+| Recrute ou manage l'équipe | 15 |
+
+LinkedIn n'est pas aspiré : ce sont les résultats publics d'un moteur de recherche. Rien n'est conservé sur le serveur ;
+les résultats restent 7 jours dans le navigateur de l'élève. Barème : `config/network.yaml`.
+
+Tests (OpenAI, Tavily et Adzuna simulés, aucun appel réel) : `python -m unittest discover tests` et
+`node --test cv-worker/test/worker.test.mjs`.
 
 ## Ajouter une entreprise
 
@@ -143,7 +137,7 @@ Critères, points, recherches et messages : `config/network.yaml`.
 **GitHub Actions** : le workflow `.github/workflows/daily.yml` tourne chaque matin à 7h30 (heure de Paris),
 collecte, score et publie le tableau de bord sur GitHub Pages. L'historique `data/radar.db` est gardé d'un jour
 à l'autre dans le cache Actions (pas de commit quotidien). Lancer à la main : onglet *Actions → radar-quotidien →
-Run workflow*. Pour Adzuna : *Settings → Secrets and variables → Actions*, ajouter `ADZUNA_APP_ID` et `ADZUNA_APP_KEY`, et `OPENAI_API_KEY` pour l'analyse IA.
+Run workflow*. Pour Adzuna : *Settings → Secrets and variables → Actions*, ajouter `ADZUNA_APP_ID` et `ADZUNA_APP_KEY`. La collecte n'utilise aucune clé OpenAI : celle-ci n'est que dans le serveur `cv-worker/`.
 
 **Sur un PC Windows** : Planificateur de tâches, action `python -m radar`, dossier de départ = ce dossier.
 
@@ -152,8 +146,9 @@ Run workflow*. Pour Adzuna : *Settings → Secrets and variables → Actions*, a
 `companies.yaml` recense ~690 entreprises, dont ~380 collectées. Pour le CAC 40, la plupart des groupes sont collectés
 (parfois via leurs filiales). Restent hors d'atteinte, car leur site carrières est protégé contre les robots
 (Cloudflare, Akamai) ou sans flux public : BNP Paribas, Société Générale, Saint-Gobain, Safran, L'Oréal, Equans,
-Dassault Systèmes. Leur contournement n'est pas envisagé ; leurs offres arrivent par **Adzuna** (agrégateur officiel,
-secrets `ADZUNA_APP_ID` / `ADZUNA_APP_KEY`), qui indexe les jobboards où ces groupes publient.
+Dassault Systèmes. Leur contournement n'est pas envisagé : **Adzuna** (agrégateur officiel, secrets `ADZUNA_APP_ID` /
+`ADZUNA_APP_KEY`) est interrogé pour chacun (« stage <groupe> », liste `adzuna_companies` de `config/sources.yaml`)
+et seules les annonces publiées par le groupe lui-même sont gardées.
 
 Plateformes encore non gérées parmi les entreprises recensées : sites maison, Avature, Taleo, Cornerstone, Flatchr,
 WeRecruit, Beetween. Les flux Talentsoft et SuccessFactors renvoient au plus 20 offres par mot-clé : la collecte

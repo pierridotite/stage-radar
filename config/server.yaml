@@ -1,0 +1,9 @@
+# =====================================================================
+# Petit serveur Cloudflare (cv-worker/) appelé par le tableau de bord, à la demande de l'élève :
+#   /cv        le texte du CV est lu par un petit modèle (gpt-5-nano) qui en extrait les filtres du profil
+#              (compétences, mots-clés précis, secteurs, métiers visés, régions, langues) ; rien n'est stocké
+#   /contacts  recherche de profils LinkedIn publics via le moteur Tavily, classés sans IA
+# Les clés sont des secrets Cloudflare (voir cv-worker/README.md). Les offres, elles, sont notées sans IA.
+# Vide = CV lu localement par les règles, pas de recherche de contacts.
+# =====================================================================
+worker_url: "https://radar-stages.radar-stages-institut-agro.workers.dev"

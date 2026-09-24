@@ -10,9 +10,8 @@
 # plus un filtre CALENDRIER (compatible / à vérifier / hors calendrier) pour un début en février 2027.
 #
 #   score = (DATA + PROFIL) / 2 + ajustement concurrence + ajustement calendrier
-#   A : score >= 75, avec DATA >= 70 et PROFIL >= 65      B : score >= 62, avec DATA >= 55
-#   C : score >= 50                                       D : en dessous
-#   (seuils recalés le 24/09/2026 sur les notes de l'analyse IA : ~27 % de A, ~45 % de B)
+#   A : score >= 72, avec DATA >= 60 et PROFIL >= 60      B : score >= 60, avec DATA >= 50
+#   C : score >= 48                                       D : en dessous
 #   Hors calendrier : début en 2026 ou stage court, quelle que soit la note (affiché à part)
 # =====================================================================
 
@@ -164,6 +163,6 @@ calendar:
   stale_points: -6
 
 grades:
-  A: {score: 75, min_data: 70, min_profile: 65}
-  B: {score: 62, min_data: 55}
-  C: 50
+  A: {score: 72, min_data: 60, min_profile: 60}
+  B: {score: 60, min_data: 50}
+  C: 48

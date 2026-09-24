@@ -1,5 +1,5 @@
 <title>Radar Stages Agro</title>
-<meta name="description" content="Offres de stage de fin d'études data, agrégées chaque jour et notées pour l'Institut Agro Rennes-Angers.">
+<meta name="description" content="Offres de stage de fin d'études data, agrégées chaque jour, avec un score de fit selon ton CV.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -15,7 +15,6 @@
   --line: #dcdcd6;
   --accent: #1f7f69;
   --accent-soft: #d8f1ea;
-  --on-accent: #ffffff;
   --brand-green: #3fb498;
   --gold: #f8ac00;
   --gold-soft: #fff0cc;
@@ -35,7 +34,7 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --ground: #1b1c1c; --surface: #242525; --sunken: #2f3131; --ink: #f3f3ef; --ink-2: #c1c3c0; --ink-3: #8d908c;
-    --line: #3a3c3b; --accent: #3fb498; --accent-soft: #173a31; --on-accent: #1b1c1c; --brand-green: #3fb498;
+    --line: #3a3c3b; --accent: #3fb498; --accent-soft: #173a31; --brand-green: #3fb498;
     --gold: #f8ac00; --gold-soft: #3a2c08; --on-gold: #282929; --chip-on: #f3f3ef; --on-chip-on: #1b1c1c;
     --g-a: #6fd6bb; --g-a-bg: #173a31; --g-b: #f8ac00; --g-b-bg: #3a2c08;
     --g-c: #c1c3c0; --g-c-bg: #2f3131; --g-d: #f08a7a; --g-d-bg: #3d1d18; --pos: #6fd6bb; --neg: #f08a7a;
@@ -44,7 +43,7 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   --ground: #1b1c1c; --surface: #242525; --sunken: #2f3131; --ink: #f3f3ef; --ink-2: #c1c3c0; --ink-3: #8d908c;
-  --line: #3a3c3b; --accent: #3fb498; --accent-soft: #173a31; --on-accent: #1b1c1c; --brand-green: #3fb498;
+  --line: #3a3c3b; --accent: #3fb498; --accent-soft: #173a31; --brand-green: #3fb498;
   --gold: #f8ac00; --gold-soft: #3a2c08; --on-gold: #282929; --chip-on: #f3f3ef; --on-chip-on: #1b1c1c;
   --g-a: #6fd6bb; --g-a-bg: #173a31; --g-b: #f8ac00; --g-b-bg: #3a2c08;
   --g-c: #c1c3c0; --g-c-bg: #2f3131; --g-d: #f08a7a; --g-d-bg: #3d1d18; --pos: #6fd6bb; --neg: #f08a7a;
@@ -52,48 +51,50 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 body { background: var(--ground); color: var(--ink); font: 15.5px/1.5 var(--body); margin: 0; border-top: 6px solid var(--gold); }
-.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 26px 64px; }
+@media (max-width: 560px) { .wrap { padding-inline: 16px; } }
 a { color: inherit; }
 button, input, select { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* En-tête */
-header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
 .brand { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
 .logo-plate { background: #ffffff; border-radius: 10px; padding: 10px 14px; line-height: 0; box-shadow: 0 1px 0 var(--line); }
 .logo-plate img { height: 48px; width: auto; display: block; }
-h1 { font: 800 clamp(28px, 4.2vw, 44px)/1.02 var(--display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+h1 { font: 800 clamp(28px, 4.2vw, 44px)/1.02 var(--display); letter-spacing: -.02em; margin: 0; }
 h1 em { font-style: normal; background: linear-gradient(transparent 62%, var(--gold) 62%, var(--gold) 92%, transparent 92%); padding-inline: 2px; }
 .sub { color: var(--ink-2); margin: 10px 0 0; max-width: 62ch; }
 .unofficial { font-size: 12px; color: var(--ink-3); margin: 4px 0 0; }
 .kpis { display: flex; gap: 26px; flex-wrap: wrap; }
 .kpi b { display: block; font: 700 30px/1 var(--display); font-variant-numeric: tabular-nums; }
 .kpi span { font-size: 12.5px; color: var(--ink-3); }
-.kpi.a b { color: var(--g-a); }
 
-/* Dépôt du CV */
-.cv { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 16px; margin-bottom: 14px;
-  background: var(--surface); border: 1.5px dashed var(--line); border-radius: 12px; }
+/* CV */
+.cv { display: grid; gap: 10px; padding: 14px 16px; margin-bottom: 14px; background: var(--surface);
+  border: 1.5px dashed var(--line); border-radius: 12px; }
 .cv.drag { border-color: var(--brand-green); background: var(--accent-soft); }
 .cv.loaded { border-style: solid; }
-.cv-btn { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; background: var(--chip-on); color: var(--on-chip-on);
-  border: 0; border-radius: 999px; padding: 8px 16px; font-weight: 600; }
+.cv-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.cv-btn { position: relative; display: inline-flex; align-items: center; cursor: pointer; background: var(--chip-on); color: var(--on-chip-on);
+  border-radius: 999px; padding: 8px 16px; font-weight: 600; }
 .cv-btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .cv-btn input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-.cv-text { flex: 1 1 280px; min-width: 0; font-size: 13.5px; color: var(--ink-2); }
+.cv-text { flex: 1 1 300px; min-width: 0; font-size: 13.5px; color: var(--ink-2); }
 .cv-text b { color: var(--ink); }
 .cv-text small { display: block; color: var(--ink-3); font-size: 12px; }
 .linkish { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-size: 13px; }
-.cv-skills { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 5px; }
-.pill { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--sunken); color: var(--ink-2); }
-.pill.dom { background: var(--gold-soft); }
-.cv-ai { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
-.cv-ai small { color: var(--ink-3); font-size: 12px; flex: 1 1 260px; }
-.typology { display: block; margin-top: 2px; }
+.filters { display: grid; gap: 6px; }
+.frow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; }
+.frow > span:first-child { color: var(--ink-3); min-width: 88px; }
+.pill { font-size: 12.5px; padding: 2px 9px; border-radius: 999px; background: var(--sunken); color: var(--ink-2); }
+.hint { margin: 0; font-size: 12px; color: var(--ink-3); }
+.frow .chip { font-size: 12.5px; padding: 2px 9px; }
+@media (max-width: 560px) { .frow.skills { display: none; } .frow > span:first-child { min-width: 0; width: 100%; } }
 
-/* Barre de filtres */
-.controls { background: var(--ground); padding-block: 10px; border-bottom: 1px solid var(--line);
-  display: grid; grid-template-columns: minmax(0, 1fr); gap: 9px; }
+/* Filtres */
+.controls { background: var(--ground); padding-block: 10px; border-bottom: 1px solid var(--line); display: grid;
+  grid-template-columns: minmax(0, 1fr); gap: 8px; }
 @media (min-width: 900px) { .controls { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; } }
 .row { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
 .search { flex: 1 1 100%; min-width: 0; padding: 12px 16px; font-size: 16px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); }
@@ -104,31 +105,32 @@ select { padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; b
 .chip small { opacity: .6; font-family: var(--mono); margin-left: 4px; }
 .sep { width: 1px; height: 20px; background: var(--line); margin-inline: 4px; }
 
-/* Mise en page */
-.layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 32px; margin-top: 16px; }
-@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+/* Liste */
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 30px; margin-top: 16px; }
+@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } aside { display: none; } }
 .count { font-size: 13px; color: var(--ink-3); margin: 0 0 8px; }
-
-/* Offres : une ligne d'info, le détail sur demande */
 .list { display: grid; gap: 8px; }
-.offer { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 14px; align-items: start;
+.offer { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 4px 14px; align-items: start;
   background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
-.grade { width: 40px; height: 40px; border-radius: 9px; display: grid; place-items: center; font: 800 20px/1 var(--display); }
+.grade { width: 38px; height: 38px; border-radius: 9px; display: grid; place-items: center; font: 800 19px/1 var(--display); }
 .grade.A { background: var(--g-a-bg); color: var(--g-a); } .grade.B { background: var(--g-b-bg); color: var(--g-b); }
 .grade.C { background: var(--g-c-bg); color: var(--g-c); } .grade.D { background: var(--g-d-bg); color: var(--g-d); }
-.grade.X { background: var(--sunken); color: var(--ink-3); font-size: 16px; }
-.o-title { font: 600 16px/1.3 var(--body); margin: 0; text-wrap: pretty; }
+.grade.X { background: var(--sunken); color: var(--ink-3); font-size: 15px; }
+.o-title { font: 600 16px/1.3 var(--body); margin: 0; text-wrap: pretty; overflow-wrap: anywhere; }
 .o-title a { text-decoration: none; }
 .o-title a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .meta { font-size: 13.5px; color: var(--ink-2); margin-top: 2px; }
 .meta .co { font-weight: 600; color: var(--ink); }
-.tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; font-size: 12.5px; }
 .tag { padding: 2px 8px; border-radius: 5px; background: var(--sunken); color: var(--ink-2); }
 .tag.new { background: var(--gold); color: var(--on-gold); font-weight: 600; }
 .tag.warn { background: var(--g-d-bg); color: var(--g-d); }
-.tag.ok { background: var(--accent-soft); color: var(--accent); }
+.find { border: 1px solid var(--brand-green); background: var(--accent-soft); color: var(--accent); border-radius: 5px;
+  padding: 1px 9px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.contacts:empty { display: none; }
+.find:hover { background: var(--brand-green); color: #0f2a23; }
 .side { display: flex; align-items: center; gap: 6px; }
-.fit { font: 600 13px/1 var(--display); padding: 6px 9px; border-radius: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fit { font: 700 14px/1 var(--display); padding: 7px 10px; border-radius: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .fit.l3 { background: var(--brand-green); color: #0f2a23; } .fit.l2 { background: var(--accent-soft); color: var(--accent); }
 .fit.l1 { background: var(--gold-soft); color: var(--g-b); } .fit.l0 { background: var(--sunken); color: var(--ink-3); }
 .star { background: none; border: 0; cursor: pointer; font-size: 19px; line-height: 1; color: var(--ink-3); padding: 2px 4px; }
@@ -139,54 +141,32 @@ details.more-info summary::-webkit-details-marker { display: none; }
 details.more-info summary::before { content: "+ "; }
 details.more-info[open] summary::before { content: "− "; }
 .detail { display: grid; gap: 10px; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
-.detail h4 { font: 600 12px/1 var(--display); color: var(--ink); margin: 0 0 4px; }
+.detail h4 { font: 600 13px/1.2 var(--display); color: var(--ink); margin: 0 0 3px; }
 .detail p { margin: 0; }
-.detail ul { margin: 0; padding-left: 18px; }
-.detail .muted { color: var(--ink-3); }
+.muted { color: var(--ink-3); }
 .plus { color: var(--pos); } .minus { color: var(--neg); }
-.excerpt { max-width: 75ch; }
-.net { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.net li { display: grid; grid-template-columns: 34px 1fr; gap: 8px; align-items: baseline; }
-.nscore { font: 600 12px/1 var(--mono); color: var(--accent); text-align: right; }
-.net a { color: var(--ink); font-weight: 600; }
-.net small { display: block; color: var(--ink-3); }
-.contacts { display: grid; gap: 6px; margin: 4px 0 8px; }
-.contact { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 8px; background: var(--sunken); border-radius: 8px; }
-.contact .cscore { font: 700 13px/1 var(--display); padding: 4px 7px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
-.contact .cname { font-weight: 600; color: var(--ink); flex: 1 1 140px; min-width: 0; }
-.contact select { padding: 3px 6px; font-size: 12.5px; }
-.contact-form { display: grid; gap: 6px; padding: 8px; border: 1px dashed var(--line); border-radius: 8px; }
-.contact-form .two { display: flex; flex-wrap: wrap; gap: 6px; }
-.contact-form input[type=text], .contact-form input[type=url] { flex: 1 1 180px; min-width: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
-.crit { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 2px 12px; font-size: 12.5px; }
-.crit label { display: flex; gap: 6px; align-items: baseline; }
-.mini { font-size: 12.5px; padding: 3px 9px; }
-.msgbox { width: 100%; min-height: 70px; font: 13px/1.4 var(--body); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
-.tag.net-tag { background: var(--accent-soft); color: var(--accent); }
-.found { display: grid; gap: 6px; margin: 6px 0; }
-.person { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 7px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
-.person .cscore { font: 700 13px/1 var(--display); padding: 5px 0; text-align: center; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
-.person .who a { font-weight: 600; color: var(--ink); }
-.person .who small { display: block; color: var(--ink-2); }
-.person .why-chips { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
-.person .why-chips span { font-size: 11.5px; padding: 1px 7px; border-radius: 999px; background: var(--gold-soft); color: var(--ink-2); }
-.person .acts { display: flex; gap: 6px; }
+.people { display: grid; gap: 6px; margin-top: 6px; }
+.person { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 2px 10px; align-items: center; padding: 7px 8px; background: var(--sunken); border-radius: 8px; }
+.person .ps { font: 700 13px/1 var(--display); padding: 5px 0; text-align: center; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.person a { font-weight: 600; color: var(--ink); }
+.person small { display: block; color: var(--ink-2); }
+.person .why { grid-column: 2; display: flex; flex-wrap: wrap; gap: 4px; }
+.person .why span { font-size: 11.5px; padding: 1px 7px; border-radius: 999px; background: var(--gold-soft); color: var(--ink-2); }
 .empty { padding: 40px 20px; text-align: center; color: var(--ink-3); border: 1px dashed var(--line); border-radius: 10px; }
 .more { margin: 14px auto 0; display: block; }
 
 /* Colonne latérale */
-aside { display: grid; gap: 24px; align-content: start; }
+aside { display: grid; gap: 22px; align-content: start; }
 aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
-.dist { display: grid; gap: 7px; font-size: 13.5px; }
-.dist div { display: grid; grid-template-columns: 70px 1fr 32px; gap: 8px; align-items: center; }
-.dist .track { height: 7px; background: var(--sunken); border-radius: 4px; overflow: hidden; }
-.dist .track i { display: block; height: 100%; background: var(--ink-2); border-radius: 4px; }
-.dist b { font: 500 12.5px var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 .legend { font-size: 13px; color: var(--ink-2); display: grid; gap: 6px; }
 .legend p { margin: 0; }
 .legend .g { display: inline-block; width: 20px; font: 800 13px var(--display); }
 .note { font-size: 12.5px; color: var(--ink-3); line-height: 1.45; }
-@media (max-width: 900px) { aside .dist-block { display: none; } }
+.dist { display: grid; gap: 7px; font-size: 13.5px; }
+.dist div { display: grid; grid-template-columns: 64px 1fr 32px; gap: 8px; align-items: center; }
+.dist .track { height: 7px; background: var(--sunken); border-radius: 4px; overflow: hidden; }
+.dist .track i { display: block; height: 100%; background: var(--ink-2); border-radius: 4px; }
+.dist b { font: 500 12.5px var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 560px) {
   .offer { grid-template-columns: 34px minmax(0, 1fr); }
   .grade { width: 34px; height: 34px; font-size: 17px; }
@@ -202,30 +182,21 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
         <div class="logo-plate"><img src="__LOGO__" alt="Institut Agro Rennes-Angers" width="217" height="74"></div>
         <h1>Radar <em>Stages</em></h1>
       </div>
-      <p class="sub">Les stages de fin d'études data du jour, agrégés depuis les sites carrières et notés selon leur accessibilité pour notre école. <span id="updated"></span></p>
+      <p class="sub">Les stages de fin d'études data du jour, agrégés depuis les sites carrières. Dépose ton CV pour voir ton fit avec chaque offre. <span id="updated"></span></p>
       <p class="unofficial">Outil réalisé par des élèves de la promo, non officiel : il n'engage pas l'Institut Agro Rennes-Angers.</p>
     </div>
     <div class="kpis">
       <div class="kpi"><b id="k-total">–</b><span>stages data actifs</span></div>
       <div class="kpi"><b id="k-new">–</b><span>nouveaux aujourd'hui</span></div>
-      <div class="kpi a"><b id="k-a">–</b><span>notés A</span></div>
     </div>
   </header>
 
   <section class="cv" id="cv" aria-label="Mon CV">
-    <label class="cv-btn">
-      <input id="cv-file" type="file" accept=".pdf,.docx,.txt,application/pdf">
-      <span id="cv-btn-label">Déposer mon CV</span>
-    </label>
-    <div class="cv-text" id="cv-text">
-      <b>Calcule ton fit avec chaque offre.</b> PDF, Word ou texte ; glisse-le ici.
-      <small>Ton CV est lu dans ton navigateur et n'est envoyé nulle part.</small>
+    <div class="cv-head">
+      <label class="cv-btn"><input id="cv-file" type="file" accept=".pdf,.docx,.txt,application/pdf"><span id="cv-btn-label">Déposer mon CV</span></label>
+      <div class="cv-text" id="cv-text" aria-live="polite"></div>
     </div>
-    <div class="cv-skills" id="cv-skills" hidden></div>
-    <div class="cv-ai" id="cv-ai" hidden>
-      <button class="chip" id="cv-ai-btn">Affiner avec l'IA</button>
-      <small>Le texte de ton CV est alors envoyé au modèle d'OpenAI via notre serveur pour en extraire ton profil ; rien n'est conservé.</small>
-    </div>
+    <div class="filters" id="cv-filters" hidden></div>
   </section>
 
   <div class="controls">
@@ -234,8 +205,8 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     </div>
     <div class="row">
       <select id="sort" aria-label="Tri">
-        <option value="grade">Trier par note</option>
         <option value="fit" disabled>Trier par fit avec mon CV</option>
+        <option value="grade">Trier par note</option>
         <option value="recent">Trier par date</option>
       </select>
       <select id="region" aria-label="Région"><option value="">Toute la France</option></select>
@@ -261,28 +232,19 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     </main>
     <aside>
       <section>
-        <h2>Lire la note</h2>
+        <h2>Lire la page</h2>
         <div class="legend">
-          <p><span class="g" style="color:var(--g-a)">A</span>Vrai poste data, profil qui colle : en priorité.</p>
-          <p><span class="g" style="color:var(--g-b)">B</span>Poste data accessible, un point à vérifier.</p>
-          <p><span class="g" style="color:var(--g-c)">C</span>Possible, mais peu data ou écart de profil.</p>
-          <p><span class="g" style="color:var(--g-d)">D</span>Pari : très concurrentiel ou hors cursus.</p>
-          <p><span class="g" style="color:var(--ink-3)">—</span>Hors calendrier : début 2026 ou stage court.</p>
+          <p><b>Fit %</b> : ton adéquation avec l'offre, calculée d'après ton CV.</p>
+          <p><span class="g" style="color:var(--g-a)">A</span>poste data accessible à la promo</p>
+          <p><span class="g" style="color:var(--g-b)">B</span>accessible, un point à vérifier</p>
+          <p><span class="g" style="color:var(--g-c)">C</span>peu data ou écart de profil</p>
+          <p><span class="g" style="color:var(--g-d)">D</span>pari : très concurrentiel ou hors cursus</p>
+          <p><span class="g" style="color:var(--ink-3)">—</span>hors calendrier (début trop tôt, stage court)</p>
         </div>
       </section>
-      <section class="note">
-        <b>Note</b> : est-ce un vrai poste data, et une ou un élève data science de l'Institut Agro colle-t-il au profil demandé ? Elle vaut pour toute la promo.
-        <br><br><b>Fit</b> : la part des compétences demandées que ton CV contient, ton domaine d'expérience et le métier que tu vises. Il n'apparaît qu'une fois ton CV déposé.
-        <br><br>Cliquer sur « + détails » d'une offre montre le calcul complet.
-      </section>
-      <section class="dist-block">
-        <h2>Par secteur</h2>
-        <div class="dist" id="dist"></div>
-      </section>
-      <section class="dist-block">
-        <h2>Par taille d'entreprise</h2>
-        <div class="dist" id="dist-size"></div>
-      </section>
+      <section class="note">Le fit compare les compétences, tes thèmes précis, le secteur, le métier et la région de ton profil avec le texte complet de chaque annonce, sans IA. La note A-D vaut pour toute la promo.</section>
+      <section><h2>Par secteur</h2><div class="dist" id="dist"></div></section>
+      <section><h2>Par taille</h2><div class="dist" id="dist-size"></div></section>
     </aside>
   </div>
 </div>
@@ -291,9 +253,13 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
 (() => {
   const SECTORS = { data: "Data / tech", agro: "Agro", luxe: "Luxe & cosmétique", sport: "Sport", conseil: "Conseil", industrie: "Industrie" };
   const SIZES = { startup: "Startup", pme: "PME", eti: "ETI", grande: "Grand groupe", public: "Public & recherche" };
-  const GRADE_ORDER = { A: 0, B: 1, C: 2, D: 3, X: 4 };
-  const AXES = { data: "Poste data", profil: "Profil école", concurrence: "Concurrence", calendrier: "Calendrier" };
+  // domaines du dictionnaire -> secteurs du site (profil lu par les règles, quand le serveur ne répond pas)
+  const DOMAIN_SECTOR = { agro_food: "agro", agri: "agro", env: "agro", sport: "sport", luxe: "luxe", industry: "industrie",
+    energy: "industrie", consulting: "conseil", tech: "data" };
+  const DATA_ROLES = new Set(["ds", "da", "de", "stat"]);
+  const GRADE_ORDER ={ A: 0, B: 1, C: 2, D: 3, X: 4 };
   const PAGE = 40;
+  const WEEK = 7 * 24 * 3600 * 1000;
   const $ = (id) => document.getElementById(id);
   const store = {
     get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
@@ -301,31 +267,35 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   };
   const fold = (s) => (s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   const state = { q: "", sectors: new Set(), sizes: new Set(), grades: new Set(), region: store.get("radar.region", ""),
-    onlyNew: false, onlyFav: false, sort: "grade", shown: PAGE };
-  let favs = new Set(store.get("radar.favs", []));
+    onlyNew: false, onlyFav: false, kw: new Set(), sort: "grade", shown: PAGE };
+  const favs = new Set(store.get("radar.favs", []));
   let data = { offers: [], stats: {} };
-  let lex = null;          // dictionnaire du fit (compétences, domaines, métiers, langues)
-  let cv = store.get("radar.cv", null);   // profil extrait du CV : listes d'identifiants, jamais le texte du CV
-  let cvText = "";                        // texte du dernier CV lu : en mémoire seulement, oublié au rechargement
-  let contacts = store.get("radar.contacts", {});   // {id d'offre: [contacts notés par l'élève]}, sur cet ordinateur
+  let lex = null;
+  let cv = store.get("radar.profile", null);   // filtres tirés du CV (jamais le texte du CV)
+  const found = store.get("radar.found", {});   // contacts trouvés, gardés 7 jours sur cet ordinateur
+  for (const [k, v] of Object.entries(found)) if (!v.at || Date.now() - v.at > WEEK) delete found[k];
 
-  // ------------------------------------------------------------------ dictionnaire (même règles qu'en Python)
-  function compileTerms(terms) {
-    const parts = terms.map((t) => t.endsWith("*")
-      ? t.slice(0, -1).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\w*"
-      : t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-    return new RegExp("(?<![\\w+#])(?:" + parts.join("|") + ")(?![\\w+#])", "g");
-  }
-  function prepareLexicon(l) {
-    const c = (items, key = "terms") => items.map((i) => ({ ...i, rx: compileTerms(i[key]) }));
-    return { ...l, skills: c(l.skills), domains: c(l.domains), roles: c(l.roles), languages: c(l.languages, "cv") };
+  // ------------------------------------------------------------------ dictionnaire (mêmes règles qu'en Python)
+  function compileTerms(terms, plural = false) {
+    const parts = terms.filter(Boolean).map((t) => t.endsWith("*") ? reEsc(t.slice(0, -1)) + "\\w*" : reEsc(t) + (plural ? "s?" : ""));
+    return new RegExp("(?<![\\w+#])(?:" + parts.join("|") + ")(?![\\w+#])");
   }
   const prep = (t) => fold(t).replace(/\br\s?&\s?d\b|\brecherche et developpement\b/g, " rnd ");
-  const hits = (rx, t) => new Set((t.match(rx) || []));
+  const label = (list, id) => list.find((x) => x.id === id)?.label || id;
 
-  // ------------------------------------------------------------------ lecture du CV (dans le navigateur)
+  // ------------------------------------------------------------------ lecture du CV
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)?.dataset.loaded) return resolve();
+      const s = document.createElement("script");
+      s.src = src; s.onload = () => { s.dataset.loaded = "1"; resolve(); };
+      s.onerror = () => reject(new Error("impossible de charger le lecteur de fichiers, vérifie ta connexion"));
+      document.head.appendChild(s);
+    });
+  }
   async function readCvText(file) {
     const ext = file.name.toLowerCase().split(".").pop();
     if (ext === "txt") return file.text();
@@ -334,8 +304,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       return (await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() })).value;
     }
     if (ext === "pdf") {
-      // pdf.js n'est chargé qu'ici, au premier CV déposé. Son "worker" est chargé comme simple script :
-      // il tourne alors dans la page, sans autre téléchargement.
+      // pdf.js n'est chargé qu'au premier CV ; son "worker" tourne dans la page (chargé comme simple script)
       await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js");
       await loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");
       const pdf = await window.pdfjsLib.getDocument({ data: await file.arrayBuffer(), isEvalSupported: false,
@@ -347,87 +316,119 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       }
       return text;
     }
-    throw new Error("Format non pris en charge : dépose un PDF, un .docx ou un .txt.");
+    throw new Error("format non pris en charge : dépose un PDF, un .docx ou un .txt");
   }
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      if (document.querySelector(`script[src="${src}"]`)?.dataset.loaded) return resolve();
-      const s = document.createElement("script");
-      s.src = src; s.onload = () => { s.dataset.loaded = "1"; resolve(); };
-      s.onerror = () => reject(new Error("Impossible de charger le lecteur de fichiers. Vérifie ta connexion."));
-      document.head.appendChild(s);
-    });
-  }
-  function profileFromText(name, raw) {
+  // Repli sans serveur : compétences, secteurs, métiers et langues repérés par les règles du dictionnaire
+  function localProfile(name, raw) {
     const t = prep(raw);
-    const skills = lex.skills.filter((s) => hits(s.rx, t).size).map((s) => s.id);
-    const domains = {};
-    for (const d of lex.domains) {
-      const n = hits(d.rx, t).size;
-      if (n) domains[d.id] = Math.min(1, n / 3);   // 3 termes distincts ou plus = domaine bien établi
+    const doms = lex.domains.map((d) => [d.id, (t.match(new RegExp(d.rx.source, "g")) || []).length])
+      .filter(([, n]) => n).sort((a, b) => b[1] - a[1]);
+    return { v: 2, source: "regles", name, typology: "", summary: "",
+      skills: lex.skills.filter((s) => s.rx.test(t)).map((s) => s.id), keywords: [],
+      sectors: [...new Set(doms.map(([d]) => DOMAIN_SECTOR[d]).filter(Boolean))].slice(0, 3),
+      roles: lex.roles.filter((r) => r.rx.test(t)).map((r) => r.id), regions: [],
+      langs: lex.languages.filter((l) => l.rx.test(t)).map((l) => l.id) };
+  }
+  async function aiProfile(name, raw) {
+    const r = await fetch(`${data.worker_url}/cv`, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: raw.slice(0, 15000), lexicon: {
+        skills: lex.skills.map((s) => s.id), roles: lex.roles.map((r) => r.id), sectors: Object.keys(SECTORS),
+        languages: lex.languages.map((l) => l.id), regions: data.regions || [] } }) });
+    const out = await r.json().catch(() => ({}));
+    if (!r.ok || !out.profile) throw new Error(out.error || `erreur ${r.status}`);
+    const p = out.profile, keep = (list, allowed) => (list || []).filter((x) => allowed.includes(x));
+    return { v: 2, source: "ia", name, typology: p.typology || "", summary: p.summary || "",
+      skills: keep(p.skills, lex.skills.map((s) => s.id)),
+      keywords: (p.keywords || []).filter((k) => k.term?.trim())
+        .map((k) => ({ term: k.term.trim(), synonyms: (k.synonyms || []).filter((s) => s?.trim()) })),
+      sectors: keep(p.sectors, Object.keys(SECTORS)), roles: keep(p.target_roles, lex.roles.map((r) => r.id)),
+      regions: keep(p.regions, data.regions || []), langs: keep(p.languages, lex.languages.map((l) => l.id)) };
+  }
+  // thèmes trop larges pour distinguer une offre, ou déjà comptés comme compétences : ignorés dans le fit
+  const GENERIC = new Set(["data", "donnees", "analyse", "analyse de donnees", "analyse statistique", "statistique",
+    "statistiques", "production", "automatisation", "automation", "qualite", "dashboard", "dashboards", "reporting",
+    "pipeline", "tests", "modelisation", "modelisation statistique", "nettoyage de donnees", "nettoyage donnees",
+    "data cleaning", "ia", "ai", "intelligence artificielle", "innovation", "recherche", "optimisation"]);
+  function compileProfile() {
+    if (!cv) return;
+    const isSkill = (t) => lex.skills.some((s) => s.rx.test(t) && t.replace(s.rx, "").trim().length < 3);
+    cv._kw = (cv.keywords || []).filter((k) => !GENERIC.has(fold(k.term)) && !isSkill(fold(k.term)))
+      .map((k) => ({ ...k, rx: compileTerms([k.term, ...k.synonyms].map(fold).filter((t) => !GENERIC.has(t)), true) }));
+  }
+  async function loadCv(file) {
+    if (!file || !lex) return;
+    renderCv(`Lecture de <b>${esc(file.name)}</b>…`);
+    try {
+      const raw = await readCvText(file);
+      if (!raw || raw.trim().length < 80) throw new Error("ce fichier ne contient presque pas de texte (CV scanné en image ?). Essaie l'export PDF de ton traitement de texte");
+      let profile = null, note = "";
+      if (data.worker_url) {
+        renderCv("Analyse de ton profil par l'IA (quelques secondes)…");
+        try { profile = await aiProfile(file.name, raw); }
+        catch (e) { note = `L'analyse IA n'a pas abouti (${e.message}) : profil lu par les règles.`; }
+      }
+      cv = profile || localProfile(file.name, raw);
+      cv.note = note;
+      store.set("radar.profile", cv);
+      compileProfile();
+      state.sort = "fit"; state.kw.clear(); state.shown = PAGE;
+      renderCv(); render();
+    } catch (e) {
+      renderCv(`<b>Lecture impossible</b> : ${esc(e.message)}.`);
     }
-    const roles = lex.roles.filter((r) => hits(r.rx, t).size).map((r) => r.id);
-    const langs = lex.languages.filter((l) => hits(l.rx, t).size).map((l) => l.id);
-    return { v: 1, name, skills, domains, roles, langs };
   }
 
-  // ------------------------------------------------------------------ calcul du fit
+  // ------------------------------------------------------------------ fit (sans IA, barème de config/fit.yaml)
   function fitOf(o) {
     if (!cv || !lex || !o.fit) return null;
-    const W = lex.weights, f = o.fit, have = new Set(cv.skills);
-    const label = (list, id) => list.find((x) => x.id === id)?.label || id;
+    const W = lex.weights, f = o.fit, have = new Set(cv.skills), parts = [];
     const asked = f.skills, got = asked.filter((s) => have.has(s)), miss = asked.filter((s) => !have.has(s));
-    const k = W.skills_smoothing, cov = (got.length + k * W.skills_neutral) / (asked.length + k);
-    const parts = [];
-    let score = W.skills * cov;
-    parts.push([Math.round(W.skills * cov), asked.length
-      ? `${got.length}/${asked.length} compétences exigées`
-      : "L'offre ne cite pas de compétence exigée"]);
-    const nice = (f.nice || []).filter((s) => !asked.includes(s)), niceGot = nice.filter((s) => have.has(s));
-    if (niceGot.length) {
-      const pts = Math.round(W.nice * niceGot.length / nice.length);
-      score += pts; parts.push([pts, `Appréciées : ${niceGot.map((s) => label(lex.skills, s)).join(", ")}`]);
+    // compétences exigées : couverture lissée (une annonce qui cite peu d'outils reste proche du neutre)
+    const k = W.skills_smoothing;
+    let score = W.skills * (got.length + k * W.skills_neutral) / (asked.length + k);
+    const nice = f.nice || [], niceGot = nice.filter((s) => have.has(s));
+    if (nice.length) score += W.nice * niceGot.length / nice.length;
+    // thèmes précis du profil cherchés dans l'intitulé puis dans l'annonce complète
+    const title = fold(o.title);
+    const kwHits = (cv._kw || []).map((kw) => ({ term: kw.term,
+      where: kw.rx.test(title) ? "title" : kw.rx.test(o._hay) ? "text" : "" })).filter((h) => h.where);
+    if ((cv._kw || []).length) {
+      score += Math.min(W.keywords, kwHits.reduce((a, h) => a + (h.where === "title" ? W.keyword_title : W.keyword_text), 0));
+    } else {
+      score *= 100 / (100 - W.keywords);   // profil sans thèmes (lu par les règles) : on rééchelonne
     }
-    const dom = f.domains.filter((d) => cv.domains[d]);
-    if (dom.length) {
-      const w = Math.max(...dom.map((d) => cv.domains[d]));
-      const pts = Math.round(W.domain * (0.6 + 0.4 * w));
-      score += pts; parts.push([pts, `Domaine que tu connais : ${dom.map((d) => label(lex.domains, d)).join(", ")}`]);
-    } else parts.push([0, "Domaine absent de ton CV"]);
-    if (!cv.roles.length || !f.roles.length) {
-      score += W.role_generic; parts.push([W.role_generic, "Métier : pas de correspondance précise"]);
-    } else if (f.roles.some((r) => cv.roles.includes(r))) {
-      score += W.role; parts.push([W.role, `Métier visé : ${label(lex.roles, f.roles.find((r) => cv.roles.includes(r)))}`]);
-    } else parts.push([0, `Métier différent : ${f.roles.map((r) => label(lex.roles, r)).join(", ")}`]);
+    if ((cv.sectors || []).includes(o.sector)) { score += W.sector; parts.push(`Secteur visé : ${SECTORS[o.sector]}`); }
+    const role = f.roles.find((r) => cv.roles.includes(r));
+    if (role) { score += W.role; parts.push(`Métier visé : ${label(lex.roles, role)}`); }
+    else if (!cv.roles.length || !f.roles.length || (f.roles.some((r) => DATA_ROLES.has(r)) && cv.roles.some((r) => DATA_ROLES.has(r))))
+      score += W.role_generic;   // métier non précisé, ou métier data voisin (analyst / scientist / engineer / stat)
+    if ((cv.regions || []).includes(o.region)) { score += W.region; parts.push(`Région : ${o.region}`); }
     const hard = miss.filter((s) => lex.skills.find((x) => x.id === s)?.hard);
-    if (hard.length) {
-      const pts = Math.max(W.hard_missing * hard.length, W.hard_missing_cap);
-      score += pts; parts.push([pts, `Compétences difficiles à rattraper : ${hard.map((s) => label(lex.skills, s)).join(", ")}`]);
-    }
+    if (hard.length) score += Math.max(W.hard_missing * hard.length, W.hard_missing_cap);
     const langs = f.langs.filter((l) => !cv.langs.includes(l));
-    if (langs.length) {
-      score += W.language_missing; parts.push([W.language_missing, `Langue demandée absente du CV : ${langs.map((l) => label(lex.languages, l)).join(", ")}`]);
-    }
+    if (langs.length) { score += W.language_missing; parts.push(`Langue demandée : ${langs.map((l) => label(lex.languages, l)).join(", ")}`); }
     score = Math.max(0, Math.min(100, Math.round(score)));
     const lvl = lex.levels.findIndex((l) => score >= l.min);
-    return { score, level: lex.levels.length - 1 - lvl, label: lex.levels[lvl].label, parts,
+    return { score, level: lex.levels.length - 1 - lvl, label: lex.levels[lvl].label, parts, kwHits,
       got: got.map((s) => label(lex.skills, s)), miss: miss.map((s) => label(lex.skills, s)) };
   }
 
-  // ------------------------------------------------------------------ filtres et tri
+  // ------------------------------------------------------------------ filtres, tri
   function haystack(o) {
     return o._hay ??= fold([o.title, o.company, o.location, o.region, SECTORS[o.sector], o.sector, SIZES[o.size], o.size,
       o.text || o.excerpt].join(" "));
   }
   function filtered() {
     const words = fold(state.q).split(/[\s,;]+/).filter(Boolean);
+    const kws = (cv?._kw || []).filter((k) => state.kw.has(k.term));
     const items = data.offers.filter((o) =>
       (!state.sectors.size || state.sectors.has(o.sector)) &&
       (!state.sizes.size || state.sizes.has(o.size)) &&
       (!state.grades.size || state.grades.has(o.grade)) &&
       (!state.region || o.region === state.region) &&
       (!state.onlyNew || o.new) && (!state.onlyFav || favs.has(o.id)) &&
-      words.every((w) => haystack(o).includes(w)));
+      words.every((w) => o._hay.includes(w)) &&
+      (!kws.length || kws.some((k) => k.rx.test(o._hay))));
     const byGrade = (a, b) => GRADE_ORDER[a.grade] - GRADE_ORDER[b.grade] || b.score - a.score;
     if (state.sort === "recent") items.sort((a, b) => (b.first_seen + b.posted_at).localeCompare(a.first_seen + a.posted_at));
     else if (state.sort === "fit" && cv) items.sort((a, b) => (a.grade === "X") - (b.grade === "X") || b._fit.score - a._fit.score || byGrade(a, b));
@@ -435,195 +436,86 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     return items;
   }
 
-  // ------------------------------------------------------------------ rendu
-  function tagsFor(o) {
-    const t = [];
-    if (o.new) t.push('<span class="tag new">Nouveau</span>');
-    if (o.grade === "X") t.push('<span class="tag warn">Hors calendrier</span>');
-    else if (o.calendar === "compatible") t.push('<span class="tag ok">Début compatible</span>');
-    if (o.competition === "forte") t.push('<span class="tag warn">Très demandé</span>');
-    t.push(`<span class="tag">${esc(SECTORS[o.sector] || o.sector)}</span>`);
-    if (SIZES[o.size]) t.push(`<span class="tag">${SIZES[o.size]}</span>`);
-    const n = (contacts[o.id] || []).length;
-    if (n) t.push(`<span class="tag net-tag">${n} contact${n > 1 ? "s" : ""}</span>`);
-    return t.join("");
-  }
-  function detailFor(o, fit) {
-    const byAxis = Object.keys(AXES).map((axis) => {
-      const rows = o.reasons.filter((r) => r[3] === axis && (r[0] !== 0 || axis === "concurrence" || axis === "calendrier"));
-      if (!rows.length) return "";
-      const head = axis === "data" ? ` ${o.data}/100` : axis === "profil" ? ` ${o.profile}/100` : axis === "concurrence" ? ` ${o.competition}` : "";
-      return `<li><b>${AXES[axis]}${head}</b> : ${rows.map(([pts, lbl]) =>
-        `${esc(lbl)}${pts ? ` <span class="${pts > 0 ? "plus" : "minus"}">${pts > 0 ? "+" : ""}${pts}</span>` : ""}`).join(" · ")}</li>`;
-    }).join("");
-    const fitBlock = fit ? `<div><h4>Fit avec ton CV : ${fit.score} % (${fit.label.toLowerCase()})</h4>
-        <p>${fit.got.length ? `<span class="plus">✓ ${esc(fit.got.join(", "))}</span>` : ""}${fit.got.length && fit.miss.length ? " · " : ""}${fit.miss.length ? `<span class="minus">✗ ${esc(fit.miss.join(", "))}</span>` : ""}</p>
-        <ul>${fit.parts.slice(1).map(([pts, lbl]) => `<li>${esc(lbl)}${pts ? ` <span class="${pts > 0 ? "plus" : "minus"}">${pts > 0 ? "+" : ""}${pts}</span>` : ""}</li>`).join("")}</ul></div>` : "";
-    const mission = o.ai ? `<p><b>Mission</b> : ${esc(o.ai.summary)}${o.ai.other_skills?.length ? ` <span class="muted">(aussi : ${esc(o.ai.other_skills.join(", "))})</span>` : ""}</p>` : "";
-    return `<div class="detail">${mission}${fitBlock}${networkFor(o)}
-      <div><h4>Note ${o.grade === "X" ? "hors calendrier" : o.grade} (score ${o.score})</h4><ul>${byAxis}</ul></div>
-      ${o.excerpt ? `<p class="excerpt muted">${esc(o.excerpt.slice(0, 420))}…</p>` : ""}</div>`;
-  }
-  // ------------------------------------------------------------------ networking (recherches LinkedIn + mes contacts)
-  const LI_SCHOOL = (slug, kw) => `https://www.linkedin.com/school/${slug}/people/?keywords=${encodeURIComponent(kw)}`;
-  const LI_PEOPLE = (kw) => `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(kw)}`;
-  function orgOf(o) {
-    const [base, sub] = o.company.split(" · ");
-    const entity = o.ai?.entity || (o.size === "public" ? "" : sub || "");
-    return { base, org: entity || base, entity };
-  }
-  function searchesFor(o) {
-    const N = data.network, { org } = orgOf(o), team = o.ai?.team || "";
-    const home = N.schools.home;
-    const links = {
-      alumni_data: [[home.label, LI_SCHOOL(home.slug, `${org} data`)]],
-      alumni: [[home.label, LI_SCHOOL(home.slug, org)]],
-      alumni_other: N.schools.others.map((s) => [s.label, LI_SCHOOL(s.slug, org)]),
-      team: team ? [["LinkedIn", LI_PEOPLE(`${org} ${team}`)]] : null,
-      data_people: [["LinkedIn", LI_PEOPLE(`${org} data scientist`)]],
-      recruiters: [["LinkedIn", LI_PEOPLE(`${org} talent acquisition`)]],
-    };
-    return N.searches.filter((s) => links[s.id]).map((s) => ({ ...s, links: links[s.id],
-      label: s.label.replace("{company}", org).replace("{team}", team) }));
-  }
-  const contactScore = (c) => Math.min(100, data.network.criteria.filter((k) => c.crit.includes(k.id)).reduce((a, k) => a + k.points, 0));
-  function messageFor(o, c) {
-    const M = data.network.messages;
-    const kind = c.crit.some((k) => k === "same_school" || k === "agro_school") ? "alumni"
-      : c.crit.includes("decision") ? "recruiter" : "team";
-    const first = (c.name || "").trim().split(/\s+/)[0] || "";
-    const fill = (title) => M[kind].replace("{first}", first).replace("{company}", orgOf(o).org).replace("{title}", title);
-    let title = o.title, msg = fill(title);
-    // note d'invitation LinkedIn : 300 caractères au plus, on raccourcit l'intitulé si besoin
-    while (msg.length > 300 && title.length > 20) { title = title.slice(0, title.length - 8).trimEnd() + "…"; msg = fill(title); }
-    return msg;
-  }
-  const safeUrl = (u) => /^https:\/\/([a-z]+\.)?linkedin\.com\//i.test(u || "") ? u : "";
-  function contactsHTML(o) {
-    const list = (contacts[o.id] || []).map((c, i) => ({ ...c, i, score: contactScore(c) })).sort((a, b) => b.score - a.score);
-    const status = { todo: "À contacter", sent: "Message envoyé", replied: "A répondu" };
-    const rows = list.map((c) => `<div class="contact">
-        <span class="cscore" title="Score de match">${c.score}</span>
-        <span class="cname">${safeUrl(c.url) ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}</a>` : esc(c.name)}</span>
-        <select data-status="${o.id}:${c.i}" aria-label="Statut">${Object.entries(status).map(([k, v]) =>
-          `<option value="${k}"${c.status === k ? " selected" : ""}>${v}</option>`).join("")}</select>
-        <button class="chip mini" data-msg="${o.id}:${c.i}">Message</button>
-        <button class="linkish" data-del="${o.id}:${c.i}">retirer</button>
-      </div>`).join("");
-    const crit = data.network.criteria.map((k) =>
-      `<label><input type="checkbox" name="crit" value="${k.id}"> ${esc(k.label)} <span class="muted">+${k.points}</span></label>`).join("");
-    return `<div class="contacts">${rows || '<p class="muted">Aucun contact noté pour cette offre.</p>'}</div>
-      <form class="contact-form" data-offer="${o.id}">
-        <div class="two"><input type="text" name="name" placeholder="Prénom Nom" required aria-label="Nom du contact">
-          <input type="url" name="url" placeholder="Lien du profil LinkedIn (facultatif)" aria-label="Profil LinkedIn"></div>
-        <div class="crit">${crit}</div>
-        <div><button class="chip mini" type="submit">Ajouter le contact</button></div>
-      </form>`;
-  }
-  // ------------------------------------------------------------------ recherche automatique de contacts (serveur /contacts)
-  const FOUND_TTL = 7 * 24 * 3600 * 1000;   // résultats gardés 7 jours sur l'ordinateur : moins de recherches consommées
-  let found = store.get("radar.found", {});
-  for (const [k, v] of Object.entries(found)) if (!v.at || Date.now() - v.at > FOUND_TTL) delete found[k];
-  function critFromPerson(p) {
-    const c = [];
-    if (p.school === "home") c.push("same_school"); else if (p.school === "agro") c.push("agro_school");
-    if (p.in_entity) c.push("same_entity"); else if (p.works_at_target) c.push("same_company");
-    if (p.same_team || p.data_role) c.push("same_team");
-    if (p.decision) c.push("decision");
-    if (p.recent_grad === "oui") c.push("recent");
-    return c;
-  }
-  function foundHTML(o) {
-    const f = found[o.id];
-    if (!data.worker_url) return "";
-    if (!f) return `<button class="chip" data-find="${o.id}">Trouver des contacts automatiquement</button>
-      <p class="muted">Cherche des profils LinkedIn publics (anciens agro dans l'entreprise, équipe data, recrutement) et calcule leur score de match. Rien n'est conservé sur le serveur.</p>`;
-    if (f.error) return `<p class="minus">${esc(f.error)}</p><button class="chip mini" data-find="${o.id}">Réessayer</button>`;
-    if (f.loading) return `<p class="muted">Recherche en cours…</p>`;
-    const crit = Object.fromEntries(data.network.criteria.map((k) => [k.id, k]));
-    const people = f.people.map((p) => ({ ...p, crit: critFromPerson(p) })).map((p) => ({ ...p, score: contactScore(p) }))
-      .sort((a, b) => b.score - a.score);
-    if (!people.length) return `<p class="muted">Aucun profil public trouvé pour cette entreprise. Essaie les recherches LinkedIn ci-dessus.</p>`;
-    const mine = new Set((contacts[o.id] || []).map((c) => c.url));
-    return `<div class="found">${people.map((p, i) => `<div class="person">
-        <span class="cscore" title="Score de match">${p.score}</span>
-        <span class="who"><a href="${esc(safeUrl(p.url))}" target="_blank" rel="noopener">${esc(p.name)}</a><small>${esc(p.headline)}</small></span>
-        <span class="acts">${mine.has(p.url) ? '<span class="muted">dans mes contacts</span>'
-          : `<button class="chip mini" data-adopt="${o.id}:${f.people.indexOf(f.people.find((x) => x.url === p.url))}">Ajouter</button>`}</span>
-        <span class="why-chips">${p.crit.map((k) => `<span>${esc(crit[k].label.split(" (")[0])}</span>`).join("")}</span>
-      </div>`).join("")}</div>
-      <p class="muted">Trouvé le ${new Date(f.at).toLocaleDateString("fr-FR")} · profils publics issus d'un moteur de recherche, à vérifier sur LinkedIn.
-        <button class="linkish" data-find="${o.id}">relancer</button></p>`;
-  }
-  function renderFound(offerId) {
-    const box = document.querySelector(`.found-box[data-offer="${offerId}"]`);
-    const o = data.offers.find((x) => x.id === offerId);
-    if (box && o) box.innerHTML = foundHTML(o);
-  }
-  async function findContacts(offerId) {
-    const o = data.offers.find((x) => x.id === offerId);
-    const { base, entity } = orgOf(o);
-    found[offerId] = { loading: true }; renderFound(offerId);
-    try {
-      const r = await fetch(`${data.worker_url}/contacts`, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company: base, entity, team: o.ai?.team || "", title: o.title }) });
-      const out = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(out.error || `erreur ${r.status}`);
-      found[offerId] = { at: Date.now(), people: out.people.filter((p) => safeUrl(p.url)) };
-    } catch (e) {
-      found[offerId] = { error: `Recherche impossible : ${e.message}` };
-    }
-    if (!found[offerId].error) store.set("radar.found", found);
-    renderFound(offerId);
-  }
-
-  function networkFor(o) {
-    if (!data.network) return "";
-    const rows = searchesFor(o).map((s) => `<li><span class="nscore">${s.score}</span><span>
-        ${s.links.map(([lbl, url], i) => `<a href="${url}" target="_blank" rel="noopener">${i === 0 ? esc(s.label) : esc(lbl)}</a>`).join(" · ")}
-        <small>${esc(s.why)}</small></span></li>`).join("");
-    return `<div><h4>Qui contacter ?</h4><div class="found-box" data-offer="${o.id}">${foundHTML(o)}</div>
-      <p class="muted" style="margin-top:8px">Ou chercher toi-même :</p><ol class="net">${rows}</ol>
-      <p class="muted">Les recherches s'ouvrent dans ton LinkedIn. Note ci-dessous les personnes repérées : le score classe qui contacter en premier.</p></div>
-      <div class="my-contacts" data-offer="${o.id}"><h4>Mes contacts</h4>${contactsHTML(o)}</div>`;
-  }
-  function saveContacts(offerId) {
-    store.set("radar.contacts", contacts);
-    const box = document.querySelector(`.my-contacts[data-offer="${offerId}"]`);
-    const o = data.offers.find((x) => x.id === offerId);
-    if (box && o) box.innerHTML = `<h4>Mes contacts</h4>${contactsHTML(o)}`;
-    const tags = box?.closest(".offer")?.querySelector(".tags");
-    if (tags && o) tags.innerHTML = tagsFor(o);
-  }
-  function showMessage(o, c, anchor) {
-    const msg = messageFor(o, c);
-    anchor.closest(".contact").insertAdjacentHTML("afterend",
-      `<textarea class="msgbox" readonly aria-label="Message à copier">${esc(msg)}</textarea>`);
-    const box = anchor.closest(".contact").nextElementSibling;
-    Promise.resolve(navigator.clipboard?.writeText(msg)).then(() => { anchor.textContent = "Copié"; })
-      .catch(() => { box.select(); anchor.textContent = "Sélectionné"; });
-  }
-
+  // ------------------------------------------------------------------ cartes
   function offerHTML(o) {
     const fit = o._fit;
     const posted = o.posted_at ? new Date(o.posted_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : "";
-    const place = o.location || o.region;
+    const tags = [o.new ? '<span class="tag new">Nouveau</span>' : "", o.grade === "X" ? '<span class="tag warn">Hors calendrier</span>' : "",
+      `<span class="tag">${esc(SECTORS[o.sector] || o.sector)}</span>`].join("");
     return `<article class="offer">
       <div class="grade ${o.grade}" title="${o.grade === "X" ? "Hors calendrier" : "Note " + o.grade}">${o.grade === "X" ? "—" : o.grade}</div>
       <div>
         <h3 class="o-title"><a href="${esc(o.url)}" target="_blank" rel="noopener">${esc(o.title)}</a></h3>
-        <div class="meta"><span class="co">${esc(o.company)}</span>${place ? ` · ${esc(place)}` : ""}${posted ? ` · ${posted}` : ""}</div>
-        <div class="tags">${tagsFor(o)}</div>
+        <div class="meta"><span class="co">${esc(o.company)}</span>${o.location || o.region ? ` · ${esc(o.location || o.region)}` : ""}${posted ? ` · ${posted}` : ""}</div>
+        <div class="tags">${tags}${data.worker_url ? `<button class="find" data-find="${esc(o.id)}">Trouver des contacts</button>` : ""}</div>
       </div>
       <div class="side">
-        ${fit ? `<span class="fit l${fit.level}" title="${esc(fit.label)}">Fit ${fit.score} %</span>` : ""}
-        <button class="star" data-fav="${o.id}" aria-pressed="${favs.has(o.id)}" aria-label="Ajouter à ma liste">★</button>
+        ${fit ? `<span class="fit l${fit.level}" title="${esc(fit.label)}">${fit.score} %</span>` : ""}
+        <button class="star" data-fav="${esc(o.id)}" aria-pressed="${favs.has(o.id)}" aria-label="Ajouter à ma liste">★</button>
       </div>
-      <details class="more-info" data-id="${o.id}"><summary>détails</summary></details>
+      <details class="more-info" data-id="${esc(o.id)}"><summary>détails</summary></details>
     </article>`;
   }
+  function detailHTML(o) {
+    const fit = o._fit;
+    const fitBlock = fit ? `<div><h4>Ton fit : ${fit.score} % (${esc(fit.label.toLowerCase())})</h4>
+      ${fit.got.length || fit.miss.length ? `<p>${fit.got.length ? `<span class="plus">✓ ${esc(fit.got.join(", "))}</span>` : ""}${fit.miss.length ? ` <span class="minus">✗ ${esc(fit.miss.join(", "))}</span>` : ""}</p>` : ""}
+      ${fit.kwHits.length ? `<p>Tes thèmes dans l'annonce : <span class="plus">${esc(fit.kwHits.map((h) => h.term).join(", "))}</span></p>` : ""}
+      ${fit.parts.length ? `<p class="muted">${esc(fit.parts.join(" · "))}</p>` : ""}</div>` : "";
+    const why = (o.reasons || []).filter((r) => r[0] !== 0).sort((a, b) => Math.abs(b[0]) - Math.abs(a[0])).slice(0, 3)
+      .map(([pts, lbl]) => `${esc(lbl)} <span class="${pts > 0 ? "plus" : "minus"}">${pts > 0 ? "+" : ""}${pts}</span>`).join(" · ");
+    return `<div class="detail">
+      ${data.worker_url ? `<div class="contacts" data-offer="${esc(o.id)}">${contactsHTML(o)}</div>` : ""}${fitBlock}
+      <p class="muted">Note ${o.grade === "X" ? "hors calendrier" : o.grade}${why ? " : " + why : ""}</p>
+      ${o.excerpt ? `<p>${esc(o.excerpt.slice(0, 480))}${o.excerpt.length > 480 ? "…" : ""}</p>` : ""}</div>`;
+  }
+
+  // ------------------------------------------------------------------ contacts (serveur /contacts, sans IA)
+  function contactsHTML(o) {
+    const f = found[o.id];
+    if (!f) return "";
+    if (f.loading) return `<p class="muted">Recherche de profils en cours…</p>`;
+    if (f.error) return `<p class="minus">${esc(f.error)}</p><button class="chip" data-find="${esc(o.id)}">Réessayer</button>`;
+    const C = Object.fromEntries((data.network?.criteria || []).map((c) => [c.id, c]));
+    const people = f.people.map((p) => {
+      const crit = [p.school === "home" ? "same_school" : p.school === "agro" ? "agro_school" : "",
+        p.in_entity ? "same_entity" : p.works_at_target ? "same_company" : "", p.data_role ? "data_role" : "",
+        p.decision ? "decision" : ""].filter((c) => c && C[c]);
+      return { ...p, crit, score: Math.min(100, crit.reduce((a, c) => a + C[c].points, 0)) };
+    }).sort((a, b) => b.score - a.score);
+    // d'abord les personnes dont le profil cite l'entreprise ; les anciens de l'école ailleurs viennent ensuite
+    const inside = people.filter((p) => p.works_at_target).slice(0, 10);
+    const alumni = people.filter((p) => !p.works_at_target).slice(0, 4);
+    if (!inside.length && !alumni.length) return `<p class="muted">Aucun profil public trouvé pour cette entreprise.</p>`;
+    const list = (ps) => `<div class="people">${ps.map((p) => `<div class="person">
+        <span class="ps" title="Score de pertinence">${p.score}</span>
+        <span><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a>${p.headline ? `<small>${esc(p.headline)}</small>` : ""}</span>
+        <span class="why">${p.crit.map((c) => `<span>${esc(C[c].label)}</span>`).join("")}</span></div>`).join("")}</div>`;
+    return (inside.length ? `<h4>Dans l'entreprise</h4>${list(inside)}` : "")
+      + (alumni.length ? `<h4 style="margin-top:8px">Anciens agro, entreprise à vérifier</h4>${list(alumni)}` : "")
+      + `<p class="muted">Profils publics trouvés par un moteur de recherche : vérifie-les sur LinkedIn avant d'écrire.</p>`;
+  }
+  async function findContacts(id) {
+    const o = data.offers.find((x) => x.id === id);
+    const [company, entity] = o.company.split(" · ");
+    found[id] = { loading: true }; renderContacts(id);
+    try {
+      const r = await fetch(`${data.worker_url}/contacts`, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company, entity: entity || "" }) });
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(r.status === 429 ? "trop de recherches d'un coup, réessaie dans une minute" : out.error || `erreur ${r.status}`);
+      found[id] = { at: Date.now(), people: (out.people || []).filter((p) => /^https:\/\/([a-z]+\.)?linkedin\.com\/in\//.test(p.url)) };
+      store.set("radar.found", Object.fromEntries(Object.entries(found).filter(([, v]) => v.at)));
+    } catch (e) { found[id] = { error: `Recherche impossible : ${e.message}` }; }
+    renderContacts(id);
+  }
+  function renderContacts(id) {
+    const box = document.querySelector(`.contacts[data-offer="${CSS.escape(id)}"]`);
+    if (box) box.innerHTML = contactsHTML(data.offers.find((x) => x.id === id));
+  }
+
+  // ------------------------------------------------------------------ rendu
   function render() {
-    for (const o of data.offers) o._fit = fitOf(o);
     const items = filtered();
     $("count").textContent = `${items.length} offre${items.length > 1 ? "s" : ""}` +
       (state.sort === "fit" && cv ? " · triées par fit avec ton CV" : state.sort === "recent" ? " · les plus récentes d'abord" : " · triées par note");
@@ -631,78 +523,41 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       : `<div class="empty">Aucune offre avec ces filtres. Retire un filtre ou élargis la recherche.</div>`;
     $("more").hidden = items.length <= state.shown;
   }
+  function computeFits() { for (const o of data.offers) o._fit = fitOf(o); }
   function renderCv(message) {
-    const box = $("cv"), txt = $("cv-text"), sk = $("cv-skills"), sortFit = $("sort").querySelector('option[value="fit"]');
-    // l'analyse IA n'est proposée que si le service est configuré et qu'un CV vient d'être lu dans cette session
-    $("cv-ai").hidden = !(cv && cvText && data.worker_url && cv.source !== "ia");
-    box.classList.toggle("loaded", !!cv);
-    sortFit.disabled = !cv;
-    if (message) { txt.innerHTML = message; sk.hidden = true; return; }
+    const txt = $("cv-text"), box = $("cv-filters");
+    $("cv").classList.toggle("loaded", !!cv && !message);
+    $("sort").querySelector('option[value="fit"]').disabled = !cv;
+    if (message) { txt.innerHTML = message; box.hidden = true; return; }
+    computeFits();
+    $("sort").value = state.sort;
+    const privacy = data.worker_url
+      ? "Ton CV est lu dans ton navigateur, puis son texte est analysé par une IA (OpenAI) via notre serveur, sans être conservé."
+      : "Ton CV est lu dans ton navigateur et n'est envoyé nulle part.";
     if (!cv) {
       $("cv-btn-label").textContent = "Déposer mon CV";
-      txt.innerHTML = `<b>Calcule ton fit avec chaque offre.</b> PDF, Word ou texte ; glisse-le ici.
-        <small>Ton CV est lu dans ton navigateur et n'est envoyé nulle part.</small>`;
-      sk.hidden = true;
-      if (state.sort === "fit") { state.sort = "grade"; $("sort").value = "grade"; }
+      txt.innerHTML = `<b>Dépose ton CV pour voir ton fit avec chaque offre.</b> PDF, Word ou texte, ou glisse-le ici.<small>${privacy}</small>`;
+      box.hidden = true;
       return;
     }
-    const label = (list, id) => list.find((x) => x.id === id)?.label || id;
-    const doms = Object.entries(cv.domains).sort((a, b) => b[1] - a[1]).map(([d]) => label(lex.domains, d));
     $("cv-btn-label").textContent = "Changer de CV";
-    txt.innerHTML = `<b>${esc(cv.name)}</b> : ${cv.skills.length} compétences, ${doms.length} domaine${doms.length > 1 ? "s" : ""} repérés${cv.source === "ia" ? " par l'IA" : ""}.
-      ${cv.typology ? `<span class="typology">Profil : <b>${esc(cv.typology)}</b>${cv.summary ? ` · ${esc(cv.summary)}` : ""}</span>` : ""}
-      <button class="linkish" id="cv-toggle">${sk.hidden ? "voir" : "masquer"}</button> · <button class="linkish" id="cv-clear">retirer le CV</button>
-      <small>Seule cette liste est gardée sur cet ordinateur, pas ton CV.</small>`;
-    sk.innerHTML = cv.skills.map((s) => `<span class="pill">${esc(label(lex.skills, s))}</span>`).join("") +
-      doms.map((d) => `<span class="pill dom">${esc(d)}</span>`).join("") +
-      cv.roles.map((r) => `<span class="pill dom">${esc(label(lex.roles, r))}</span>`).join("");
+    txt.innerHTML = `<b>${esc(cv.typology || "Profil lu par les règles")}</b>${cv.summary ? ` : ${esc(cv.summary)}` : ""}
+      <button class="linkish" id="cv-clear">retirer le CV</button>
+      <small>${cv.note ? esc(cv.note) + " " : ""}Seuls ces filtres sont gardés sur cet ordinateur, pas ton CV.</small>`;
+    const chips = (list, attr, lbl, pressed) => list.map((v) =>
+      `<button class="chip" data-${attr}="${esc(v)}" aria-pressed="${pressed(v)}">${esc(lbl(v))}</button>`).join("");
+    box.hidden = false;
+    box.innerHTML = [
+      cv.sectors?.length ? `<div class="frow"><span>Secteurs</span>${chips(cv.sectors, "s", (v) => SECTORS[v], (v) => state.sectors.has(v))}</div>` : "",
+      cv._kw?.length ? `<div class="frow"><span>Tes thèmes</span>${chips(cv._kw.map((k) => k.term), "kw", (v) => v, (v) => state.kw.has(v))}</div>` : "",
+      cv.regions?.length ? `<div class="frow"><span>Régions</span>${chips(cv.regions, "reg", (v) => v, (v) => state.region === v)}</div>` : "",
+      cv.skills?.length ? `<div class="frow skills"><span>Compétences</span>${cv.skills.map((s) => `<span class="pill">${esc(label(lex.skills, s))}</span>`).join("")}</div>` : "",
+    ].join("") + `<p class="hint">Clique sur un secteur, un thème ou une région pour filtrer les offres ; le tri par fit reste actif.</p>`;
   }
-  async function loadCv(file) {
-    if (!file || !lex) return;
-    renderCv(`<b>Lecture de ${esc(file.name)}…</b>`);
-    try {
-      const raw = await readCvText(file);
-      if (!raw || raw.trim().length < 80) throw new Error("Ce fichier ne contient presque pas de texte (CV scanné en image ?). Essaie l'export PDF de ton traitement de texte.");
-      cvText = raw.slice(0, 15000);
-      cv = profileFromText(file.name, raw);
-      store.set("radar.cv", cv);
-      state.sort = "fit"; $("sort").value = "fit";
-      renderCv(); render();
-    } catch (e) {
-      cv = null;
-      renderCv(`<b>Lecture impossible.</b> ${esc(e.message)}`);
-    }
-  }
-
-  async function refineWithAI() {
-    if (!cvText || !data.worker_url) return;
-    const btn = $("cv-ai-btn");
-    btn.disabled = true; btn.textContent = "Analyse en cours…";
-    try {
-      const r = await fetch(`${data.worker_url}/cv`, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: cvText, lexicon: {
-          skills: lex.skills.map((s) => s.id), domains: lex.domains.map((d) => d.id),
-          roles: lex.roles.map((r) => r.id), languages: lex.languages.map((l) => l.id) } }) });
-      const out = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(out.error || `erreur ${r.status}`);
-      const p = out.profile, strength = { forte: 1, moyenne: 0.66, faible: 0.33 }, ids = (list, src) => list.filter((x) => src.some((y) => y.id === x));
-      cv = { v: 1, source: "ia", name: cv.name, typology: p.typology, summary: p.summary,
-        skills: ids(p.skills, lex.skills),
-        domains: Object.fromEntries(p.domains.filter((d) => lex.domains.some((x) => x.id === d.id)).map((d) => [d.id, strength[d.strength] || 0.5])),
-        roles: ids(p.target_roles, lex.roles), langs: ids(p.languages, lex.languages) };
-      store.set("radar.cv", cv);
-      renderCv(); render();
-    } catch (e) {
-      btn.disabled = false; btn.textContent = "Réessayer l'analyse IA";
-      $("cv-ai").querySelector("small").textContent = `Analyse IA indisponible (${e.message}). Le fit reste calculé localement.`;
-    }
-  }
-
   function renderStatic() {
     const s = data.stats;
     $("k-total").textContent = s.offers ?? 0;
     $("k-new").textContent = s.new ?? 0;
-    $("k-a").textContent = s.by_grade?.A ?? 0;
     if (data.generated_at) $("updated").textContent = `Mis à jour le ${new Date(data.generated_at).toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "short" })}.`;
     const dist = (id, labels, counts) => {
       const max = Math.max(1, ...Object.values(counts));
@@ -723,73 +578,56 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     if (![...reg.options].some((o) => o.value === state.region)) state.region = "";
     reg.value = state.region;
   }
+  function syncPressed() {
+    document.querySelectorAll("[data-s]").forEach((b) => b.setAttribute("aria-pressed", state.sectors.has(b.dataset.s)));
+    document.querySelectorAll("[data-kw]").forEach((b) => b.setAttribute("aria-pressed", state.kw.has(b.dataset.kw)));
+    document.querySelectorAll("[data-reg]").forEach((b) => b.setAttribute("aria-pressed", state.region === b.dataset.reg));
+    $("region").value = state.region;
+  }
 
   // ------------------------------------------------------------------ interactions
-  function toggle(set, v, btn) { set.has(v) ? set.delete(v) : set.add(v); btn.setAttribute("aria-pressed", set.has(v)); }
+  const toggle = (set, v) => (set.has(v) ? set.delete(v) : set.add(v));
   document.addEventListener("click", (e) => {
     const t = e.target.closest("button");
     if (!t) return;
-    if (t.id === "cv-clear") { cv = null; store.set("radar.cv", null); renderCv(); render(); return; }
-    if (t.id === "cv-ai-btn") { refineWithAI(); return; }
-    if (t.dataset.find) { findContacts(t.dataset.find); return; }
-    if (t.dataset.adopt) {
-      const [id, i] = t.dataset.adopt.split(":"), p = found[id].people[+i];
-      (contacts[id] ||= []).push({ name: p.name, url: p.url, crit: critFromPerson(p), status: "todo" });
-      saveContacts(id); renderFound(id); return;
+    if (t.id === "cv-clear") {
+      cv = null; store.set("radar.profile", null); state.sort = "grade"; state.kw.clear();
+      renderCv(); render(); return;
     }
-    if (t.dataset.del) {
-      const [id, i] = t.dataset.del.split(":");
-      contacts[id].splice(+i, 1);
-      if (!contacts[id].length) delete contacts[id];
-      saveContacts(id); return;
+    if (t.dataset.find) {
+      // ouvre le détail de l'offre, où s'affichent les contacts (déjà trouvés : pas de nouvelle recherche)
+      const id = t.dataset.find, d = document.querySelector(`details.more-info[data-id="${CSS.escape(id)}"]`);
+      if (d && !d.open) d.open = true;
+      if (d && !d.dataset.built) { d.insertAdjacentHTML("beforeend", detailHTML(data.offers.find((x) => x.id === id))); d.dataset.built = "1"; }
+      if (!found[id]?.at && !found[id]?.loading) findContacts(id);
+      d?.querySelector(".contacts")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      return;
     }
-    if (t.dataset.msg) {
-      const [id, i] = t.dataset.msg.split(":");
-      const o = data.offers.find((x) => x.id === id), next = t.closest(".contact").nextElementSibling;
-      if (next?.classList.contains("msgbox")) { next.remove(); t.textContent = "Message"; return; }
-      showMessage(o, contacts[id][+i], t); return;
+    if (t.dataset.fav) {
+      const id = t.dataset.fav; toggle(favs, id);
+      store.set("radar.favs", [...favs]); t.setAttribute("aria-pressed", favs.has(id)); return;
     }
-    if (t.id === "cv-toggle") { $("cv-skills").hidden = !$("cv-skills").hidden; t.textContent = $("cv-skills").hidden ? "voir" : "masquer"; return; }
-    if (t.dataset.s) toggle(state.sectors, t.dataset.s, t);
-    else if (t.dataset.size) toggle(state.sizes, t.dataset.size, t);
-    else if (t.dataset.g) toggle(state.grades, t.dataset.g, t);
+    if (t.id === "more") { state.shown += PAGE; render(); return; }
+    if (t.dataset.s) toggle(state.sectors, t.dataset.s);
+    else if (t.dataset.kw) toggle(state.kw, t.dataset.kw);
+    else if (t.dataset.reg) { state.region = state.region === t.dataset.reg ? "" : t.dataset.reg; store.set("radar.region", state.region); }
+    else if (t.dataset.size) { toggle(state.sizes, t.dataset.size); t.setAttribute("aria-pressed", state.sizes.has(t.dataset.size)); }
+    else if (t.dataset.g) { toggle(state.grades, t.dataset.g); t.setAttribute("aria-pressed", state.grades.has(t.dataset.g)); }
     else if (t.id === "only-new") { state.onlyNew = !state.onlyNew; t.setAttribute("aria-pressed", state.onlyNew); }
     else if (t.id === "only-fav") { state.onlyFav = !state.onlyFav; t.setAttribute("aria-pressed", state.onlyFav); }
-    else if (t.dataset.fav) {
-      const id = t.dataset.fav; favs.has(id) ? favs.delete(id) : favs.add(id);
-      store.set("radar.favs", [...favs]); t.setAttribute("aria-pressed", favs.has(id)); return;
-    } else if (t.id === "more") { state.shown += PAGE; render(); return; }
     else return;
-    state.shown = PAGE; render();
+    syncPressed(); state.shown = PAGE; render();
   });
   // le détail n'est construit qu'à l'ouverture : la liste reste légère
   $("list").addEventListener("toggle", (e) => {
     const d = e.target;
     if (!d.matches?.("details.more-info") || !d.open || d.dataset.built) return;
-    const o = data.offers.find((x) => x.id === d.dataset.id);
-    d.insertAdjacentHTML("beforeend", detailFor(o, o._fit));
+    d.insertAdjacentHTML("beforeend", detailHTML(data.offers.find((x) => x.id === d.dataset.id)));
     d.dataset.built = "1";
   }, true);
-  $("list").addEventListener("submit", (e) => {
-    const f = e.target.closest("form.contact-form");
-    if (!f) return;
-    e.preventDefault();
-    const id = f.dataset.offer, fd = new FormData(f);
-    const name = String(fd.get("name") || "").trim().slice(0, 80);
-    if (!name) return;
-    (contacts[id] ||= []).push({ name, url: String(fd.get("url") || "").trim().slice(0, 300), crit: fd.getAll("crit"), status: "todo" });
-    saveContacts(id);
-  });
-  $("list").addEventListener("change", (e) => {
-    const s = e.target.closest("select[data-status]");
-    if (!s) return;
-    const [id, i] = s.dataset.status.split(":");
-    contacts[id][+i].status = s.value;
-    store.set("radar.contacts", contacts);
-  });
   $("q").addEventListener("input", (e) => { state.q = e.target.value; state.shown = PAGE; render(); });
   $("sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
-  $("region").addEventListener("change", (e) => { state.region = e.target.value; store.set("radar.region", state.region); state.shown = PAGE; render(); });
+  $("region").addEventListener("change", (e) => { state.region = e.target.value; store.set("radar.region", state.region); syncPressed(); state.shown = PAGE; render(); });
   $("cv-file").addEventListener("change", (e) => { loadCv(e.target.files[0]); e.target.value = ""; });
   const box = $("cv");
   ["dragenter", "dragover"].forEach((ev) => box.addEventListener(ev, (e) => { e.preventDefault(); box.classList.add("drag"); }));
@@ -800,11 +638,12 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then((d) => {
       data = d;
-      lex = d.fit_lexicon ? prepareLexicon(d.fit_lexicon) : null;
-      if (cv && lex && cv.v !== 1) cv = null;  // profil enregistré par une ancienne version : on le redemande
-      renderStatic(); renderCv();
-      if (cv) { state.sort = "fit"; $("sort").value = "fit"; }
-      render();
+      const L = d.fit_lexicon, c = (items, key = "terms") => items.map((i) => ({ ...i, rx: compileTerms(i[key]) }));
+      lex = { ...L, skills: c(L.skills), domains: c(L.domains), roles: c(L.roles), languages: c(L.languages, "cv") };
+      for (const o of data.offers) haystack(o);
+      if (cv && cv.v !== 2) { cv = null; store.set("radar.profile", null); }   // profil d'une ancienne version
+      if (cv) { compileProfile(); state.sort = "fit"; }
+      renderStatic(); renderCv(); render();
     })
     .catch(() => { $("list").innerHTML = `<div class="empty">Le fichier des offres (data/offers.json) est introuvable. Lance <code>python -m radar</code> pour le générer.</div>`; });
 })();

@@ -16,6 +16,18 @@ adzuna_queries:
   - stage fin d'etudes data
   - stage maintenance predictive
 
+# Grands groupes dont le site carrière bloque les robots (protection anti-bot) ou n'a pas d'API publique :
+# on cherche "stage <name>" sur Adzuna et on garde les annonces dont l'éditeur commence par un des termes de match.
+# Budget : 13 requêtes + 7 groupes, 1 à 2 pages chacun = ~40 appels/jour (offre gratuite : 250/jour, 2 500/mois).
+adzuna_companies:
+  - {name: Safran, match: [safran], sector: industrie, size: grande}
+  - {name: "L'Oréal", match: [oreal, loreal], sector: luxe, size: grande}
+  - {name: BNP Paribas, match: [bnp paribas], sector: data, size: grande}
+  - {name: Société Générale, match: [societe generale], sector: data, size: grande}
+  - {name: Saint-Gobain, match: [saint-gobain, saint gobain], sector: industrie, size: grande}
+  - {name: Equans, match: [equans], sector: industrie, size: grande}
+  - {name: Dassault Systèmes, match: [dassault systemes], sector: data, size: grande}
+
 # Jobboards de niche (radar/sources/boards.py) : canaux officiels ou autorisés, statut vérifié le 23/09/2026.
 # Mettre enabled: false pour en couper un.
 boards:

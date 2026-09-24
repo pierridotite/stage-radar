@@ -5,8 +5,10 @@ Cloudflare pour ce volume) garde les clés en secret et rend deux services, **un
 
 | Service | Ce qu'il fait | Coût |
 |---|---|---|
-| `POST /cv` (« Affiner avec l'IA ») | reçoit le texte du CV extrait dans le navigateur, demande à `gpt-5-nano` la typologie du profil, les compétences, domaines et métiers visés (schéma JSON strict, identifiants de `config/fit.yaml`) | ~0,001 $ par CV |
-| `POST /contacts` (« Trouver des contacts automatiquement ») | construit 3 recherches à partir de l'offre (anciens agro dans l'entreprise, équipe data ou équipe de l'offre, recrutement), interroge le moteur **Tavily** limité aux profils LinkedIn publics, puis `gpt-5-nano` décrit chaque personne (poste, entité, école, rôle data, recruteur) ; la page calcule le score de match avec `config/network.yaml` | 3 recherches Tavily (1 000 gratuites / mois) + ~0,001 $ |
+| `POST /cv` (au dépôt du CV) | reçoit le texte du CV extrait dans le navigateur et demande à `gpt-5-nano` les filtres du profil : typologie, compétences, métiers, secteurs, régions, langues (identifiants fournis par la page, schéma JSON strict) et jusqu'à 12 thèmes précis avec synonymes | ~0,001 $ par CV |
+| `POST /contacts` (« Trouver des contacts ») | construit 3 recherches à partir de l'offre (anciens agro dans l'entreprise, équipe data ou entité, recrutement), interroge le moteur **Tavily** limité aux profils LinkedIn publics et lit **sans IA** le nom, le poste, l'entreprise et l'école de chaque résultat ; la page calcule le score avec `config/network.yaml` | 3 recherches Tavily (1 000 gratuites / mois), pas d'OpenAI |
+
+Le score de fit et la note des offres sont calculés sans IA ; ce serveur n'est appelé que pour ces deux services.
 
 **Rien n'est stocké ni journalisé** côté serveur. LinkedIn n'est pas aspiré : les profils viennent de l'index public
 d'un moteur de recherche, comme une recherche Google faite à la main. Les résultats restent 7 jours dans le navigateur
@@ -29,8 +31,8 @@ npx wrangler secret put TAVILY_API_KEY    # colle la clé Tavily
 npx wrangler deploy                       # affiche l'adresse du service : https://radar-stages.<compte>.workers.dev
 ```
 
-3. Reporter cette adresse dans `config/llm.yaml` (`worker_url: "https://radar-stages.<compte>.workers.dev"`) et
-   pousser : les boutons « Affiner avec l'IA » et « Trouver des contacts automatiquement » apparaissent au prochain
-   passage du workflow.
+3. Reporter cette adresse dans `config/server.yaml` (`worker_url: "https://radar-stages.<compte>.workers.dev"`) et
+   pousser : l'analyse du CV par l'IA et le bouton « Trouver des contacts » sont actifs au prochain passage du workflow.
+4. Après chaque modification de `src/index.js` : `npx wrangler deploy` (les secrets sont conservés).
 
-Tests (OpenAI et Tavily simulés) : `npm test`.
+Tests (OpenAI et Tavily simulés, aucun appel réel) : `npm test`.

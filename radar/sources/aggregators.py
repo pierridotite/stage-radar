@@ -9,44 +9,63 @@ from __future__ import annotations
 import csv
 import logging
 import os
+import re
 from pathlib import Path
 
 from ..filters import looks_like_internship
 from ..models import Offer
-from ..text import strip_html
+from ..text import fold, strip_html
 
 log = logging.getLogger(__name__)
 
 
-def adzuna(queries: list[str], s, pages: int = 2) -> list[Offer]:
+def _adzuna_search(s, what: str, pages: int):
+    """Résultats bruts d'une recherche Adzuna France (30 derniers jours), page par page."""
     app_id, app_key = os.getenv("ADZUNA_APP_ID"), os.getenv("ADZUNA_APP_KEY")
-    if not (app_id and app_key):
+    for page in range(1, pages + 1):
+        r = s.get(f"https://api.adzuna.com/v1/api/jobs/fr/search/{page}", params={
+            "app_id": app_id, "app_key": app_key, "what": what, "results_per_page": 50,
+            "max_days_old": 30, "content-type": "application/json",
+        })
+        if r.status_code != 200:
+            log.warning("Adzuna %r page %s : HTTP %s", what, page, r.status_code)
+            return
+        results = r.json().get("results", [])
+        yield from results
+        if len(results) < 50:
+            return
+
+
+def _adzuna_offer(p: dict) -> Offer | None:
+    title = strip_html(p.get("title"))
+    desc = strip_html(p.get("description"))
+    if not looks_like_internship(title, p.get("contract_type") or "", desc[:300]):
+        return None
+    return Offer(source="adzuna", company=(p.get("company") or {}).get("display_name", "?"),
+                 title=title, url=p.get("redirect_url", ""),
+                 location=(p.get("location") or {}).get("display_name", ""), country="fr",
+                 description=desc, posted_at=p.get("created", ""))
+
+
+def adzuna(queries: list[str], companies: list[dict], s, pages: int = 2) -> list[Offer]:
+    """queries : recherches par mots-clés. companies : grands groupes dont le site carrière bloque les robots ;
+    on cherche "stage <nom>" et on ne garde que les annonces publiées par l'entreprise elle-même."""
+    if not (os.getenv("ADZUNA_APP_ID") and os.getenv("ADZUNA_APP_KEY")):
         log.info("Adzuna ignoré : définir ADZUNA_APP_ID et ADZUNA_APP_KEY (gratuit sur developer.adzuna.com)")
         return []
-    offers = []
-    for q in queries:
-        for page in range(1, pages + 1):
-            r = s.get(f"https://api.adzuna.com/v1/api/jobs/fr/search/{page}", params={
-                "app_id": app_id, "app_key": app_key, "what": q, "results_per_page": 50,
-                "max_days_old": 30, "content-type": "application/json",
-            })
-            if r.status_code != 200:
-                log.warning("Adzuna %r page %s : HTTP %s", q, page, r.status_code)
-                break
-            results = r.json().get("results", [])
-            for p in results:
-                title = strip_html(p.get("title"))
-                desc = strip_html(p.get("description"))
-                if not looks_like_internship(title, p.get("contract_type") or "", desc[:300]):
-                    continue
-                offers.append(Offer(
-                    source="adzuna", company=(p.get("company") or {}).get("display_name", "?"),
-                    title=title, url=p.get("redirect_url", ""),
-                    location=(p.get("location") or {}).get("display_name", ""), country="fr",
-                    description=desc, posted_at=p.get("created", ""),
-                ))
-            if len(results) < 50:
-                break
+    offers = [o for q in queries for p in _adzuna_search(s, q, pages) if (o := _adzuna_offer(p))]
+    for c in companies:
+        # l'éditeur doit COMMENCER par le nom ("Safran Aircraft Engines" oui, "Cabinet X pour Safran" non)
+        own = re.compile(r"(groupe |l['’] ?)?(" + "|".join(re.escape(fold(m)) for m in c["match"]) + r")(?![a-z0-9])")
+        kept = 0
+        for p in _adzuna_search(s, f"stage {c['name']}", pages):
+            publisher = fold((p.get("company") or {}).get("display_name", ""))
+            if not own.match(publisher) or not (o := _adzuna_offer(p)):
+                continue
+            o.company, o.sector, o.size = c["name"], c.get("sector", ""), c.get("size", "")
+            offers.append(o)
+            kept += 1
+        log.info("Adzuna %-20s %3d stage(s)", c["name"][:20], kept)
     return offers
 
 

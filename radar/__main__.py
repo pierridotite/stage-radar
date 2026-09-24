@@ -20,9 +20,8 @@ from pathlib import Path
 import yaml
 
 from .company_size import enrich
-from .filters import classify_sector, in_france, prepare, region
+from .filters import REGIONS, classify_sector, in_france, region
 from .fit import FitLexicon
-from .llm import LLM
 from .http import PoliteSession
 from .scoring import Scorer
 from .sources.aggregators import adzuna, manual
@@ -77,8 +76,8 @@ def collect(store: Store, today: date, only: str | None) -> None:
             store.log_run(today, "jobboard", b["name"], len(found), err)
             log.info("%-28s %-15s %3d stage(s) %s", b["name"][:28], "jobboard", len(found), err and "ERREUR " + err)
             offers += found
-        s = PoliteSession(delay=1.0)
-        extra = adzuna(sources.get("adzuna_queries", []), s)
+        s = PoliteSession(delay=2.6)   # offre gratuite Adzuna : 25 requêtes par minute au plus
+        extra = adzuna(sources.get("adzuna_queries", []), sources.get("adzuna_companies", []), s)
         store.log_run(today, "adzuna", "*", len(extra))
         extra += manual(ROOT / "data" / "manual_offers.csv")
         offers += extra
@@ -98,38 +97,21 @@ def collect(store: Store, today: date, only: str | None) -> None:
     log.info("%d stages collectés, %d nouveaux, %d retirés", len(unique), new, gone)
 
 
-def ai_fit(ai: dict, sector: str) -> dict:
-    """Caractéristiques de l'offre pour le fit CV, d'après la fiche IA (mêmes identifiants que config/fit.yaml)."""
-    from .fit import SECTOR_DOMAINS
-    domains = sorted({ai["domain"], *SECTOR_DOMAINS.get(sector, [])} - {"other"})
-    return {"skills": ai["required_skills"], "nice": ai["nice_to_have_skills"], "domains": domains,
-            "roles": [] if ai["role"] == "other" else [ai["role"]], "langs": ai["languages_required"]}
-
-
-def export(store: Store, today: date, use_llm: bool = True) -> None:
+def export(store: Store, today: date) -> None:
+    """Note les offres actives par les règles (config/scoring.yaml), sans IA, et publie docs/."""
     scoring_cfg = load("scoring.yaml")
     scorer = Scorer(scoring_cfg, today)
     lexicon = FitLexicon(load("fit.yaml"))
-    llm_cfg = load("llm.yaml")
     rows = [(row, offer_from_row(row)) for row in store.active()]
     rows = [(row, o) for row, o in rows if in_france(o)]
 
-    # Analyse IA des offres plausibles (pré-filtre par les règles pour limiter le coût), avec cache en base
-    ai = {}
-    if use_llm:
-        llm = LLM(llm_cfg, load("fit.yaml"), scoring_cfg["school"])
-        threshold = llm_cfg["offers"]["prefilter_min_data"]
-        candidates = [o for _, o in rows if scorer.data_axis(prepare(o.title), prepare(o.description))[0] >= threshold]
-        ai = llm.analyze_offers(store.db, candidates)
-
     items = []
     for row, o in rows:
-        a = ai.get(o.key)
-        sc = scorer.score(o, a)
+        sc = scorer.score(o)
         if sc is None:
             continue
         title, text = sc.pop("_title"), sc.pop("_text")
-        fit = ai_fit(a, o.sector) if a else lexicon.offer_features(title, text, o.sector)
+        fit = lexicon.offer_features(title, text, o.sector)
         items.append({
             "id": row["key"], "company": o.company, "title": o.title, "url": o.url, "location": o.location,
             "sector": o.sector, "size": o.size, "region": region(o.location), "source": o.source, "posted_at": o.posted_at[:10],
@@ -137,9 +119,6 @@ def export(store: Store, today: date, use_llm: bool = True) -> None:
             "excerpt": o.description[:600],
             # texte de recherche du tableau de bord : annonce complète, repliée (minuscules, sans accents)
             "text": fold(o.description)[:6000], "fit": fit, **sc,
-            **({"ai": {"summary": a["summary"], "other_skills": a["other_skills"][:5], "degree": a["degree_target"],
-                       "entity": a.get("entity", ""), "team": a.get("team", "")}}
-               if a else {}),
         })
     order = {"A": 0, "B": 1, "C": 2, "D": 3, "X": 4}
     items.sort(key=lambda x: (order[x["grade"]], -x["score"], -x["data"]))
@@ -150,15 +129,15 @@ def export(store: Store, today: date, use_llm: bool = True) -> None:
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "school": load("scoring.yaml")["school"],
         "fit_lexicon": lexicon.export(),
-        "worker_url": llm_cfg.get("worker_url", "").rstrip("/"),
+        "worker_url": (load("server.yaml").get("worker_url") or "").rstrip("/"),
         "network": load("network.yaml"),
+        "regions": list(REGIONS),
         "stats": {
             "offers": len(items), "new": sum(i["new"] for i in items),
             "by_sector": Counter(i["sector"] for i in items), "by_size": Counter(i["size"] or "?" for i in items),
             "by_region": Counter(i["region"] or "?" for i in items),
             "by_grade": Counter(i["grade"] for i in items),
             "by_calendar": Counter(i["calendar"] for i in items),
-            "ai_analyzed": sum(1 for i in items if "ai" in i),
             "companies_ok": sum(1 for r in runs if not r["error"]),
             "companies_error": [r["company"] for r in runs if r["error"]],
         },
@@ -194,7 +173,6 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog="radar")
     ap.add_argument("--only", help="n'interroger que les entreprises dont le nom contient ce texte")
     ap.add_argument("--no-fetch", action="store_true", help="re-scorer sans rien télécharger")
-    ap.add_argument("--no-llm", action="store_true", help="ne pas appeler le modèle (fiches en cache ignorées)")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO, format="%(message)s",
@@ -206,7 +184,7 @@ def main(argv=None):
     store = Store(ROOT / "data" / "radar.db")
     if not args.no_fetch:
         collect(store, today, args.only)
-    export(store, today, use_llm=not args.no_llm)
+    export(store, today)
 
 
 if __name__ == "__main__":
