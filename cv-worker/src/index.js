@@ -41,7 +41,9 @@ async function openai(env, schemaName, schema, system, user, maxTokens = 1500) {
   let r = await call(model);
   if (r.status === 404 && env.FALLBACK_MODEL) { model = env.FALLBACK_MODEL; r = await call(model); }
   if (!r.ok) throw new Error("Le service d'analyse ne répond pas, réessaie plus tard.");
-  const msg = (await r.json()).choices?.[0]?.message;
+  const choice = (await r.json()).choices?.[0];
+  const msg = choice?.message;
+  if (choice?.finish_reason === "length") throw new Error("Réponse trop longue, réessaie.");
   if (!msg?.content || msg.refusal) throw new Error("Analyse impossible.");
   return { result: JSON.parse(msg.content), model };
 }
@@ -62,11 +64,11 @@ listées) ; n'invente rien et ne déduis pas une compétence d'un simple centre 
 - experience_months : nombre total de mois de stages ou d'emplois liés à la donnée ou à la recherche.`;
 
 function cvSchema(lex) {
-  const arr = (e) => ({ type: "array", items: { type: "string", enum: e } });
+  const arr = (e, n) => ({ type: "array", items: { type: "string", enum: e }, maxItems: n });
   const props = {
     typology: { type: "string" },
     summary: { type: "string" },
-    skills: arr(lex.skills),
+    skills: arr(lex.skills, 30),
     domains: {
       type: "array",
       items: {
@@ -74,10 +76,11 @@ function cvSchema(lex) {
         properties: { id: { type: "string", enum: lex.domains }, strength: { type: "string", enum: ["forte", "moyenne", "faible"] } },
         required: ["id", "strength"], additionalProperties: false,
       },
+      maxItems: 8,
     },
-    target_roles: arr(lex.roles),
-    languages: arr(lex.languages),
-    experience_months: { type: "integer" },
+    target_roles: arr(lex.roles, 4),
+    languages: arr(lex.languages, 4),
+    experience_months: { type: "integer", minimum: 0, maximum: 240 },
   };
   return { type: "object", properties: props, required: Object.keys(props), additionalProperties: false };
 }
@@ -130,7 +133,7 @@ function contactsSchema(urls) {
   };
   return {
     type: "object",
-    properties: { people: { type: "array", items: { type: "object", properties: props, required: Object.keys(props), additionalProperties: false } } },
+    properties: { people: { type: "array", maxItems: 25, items: { type: "object", properties: props, required: Object.keys(props), additionalProperties: false } } },
     required: ["people"], additionalProperties: false,
   };
 }

@@ -93,7 +93,8 @@ class TestLLM(unittest.TestCase):
         body = session.calls[0]
         self.assertEqual(body["response_format"]["type"], "json_schema")
         self.assertTrue(body["response_format"]["json_schema"]["strict"])
-        self.assertEqual(body["reasoning_effort"], "minimal")
+        self.assertEqual(body["reasoning_effort"], "low")
+        self.assertEqual(body["response_format"]["json_schema"]["schema"]["properties"]["required_skills"]["maxItems"], 8)
         self.assertNotIn("temperature", body)  # non accepté par les modèles gpt-5
 
     def test_cache_avoids_second_call_and_cost_is_logged(self):
@@ -113,6 +114,22 @@ class TestLLM(unittest.TestCase):
         llm._call("Intitulé : test")
         self.assertEqual(llm.model, "gpt-4.1-nano")
         self.assertNotIn("reasoning_effort", session.calls[-1])
+
+    def test_guards_dedupe_and_cap(self):
+        from radar.llm import clean
+        f = clean(fiche(required_skills=["python", "python", "sql"], nice_to_have_skills=["sql", "git", "git"],
+                        role="biz", data_intensity=90, team="Stage - Business Analyst"))
+        self.assertEqual(f["required_skills"], ["python", "sql"])
+        self.assertEqual(f["nice_to_have_skills"], ["git"])
+        self.assertEqual(f["data_intensity"], 50)
+        self.assertEqual(f["team"], "")
+
+    def test_truncated_answer_is_an_error(self):
+        llm, session = make_llm(fiche())
+        session.post = lambda *a, **k: FakeResponse(200, {"choices": [{"message": {"content": "{\"is_int"},
+                                                                       "finish_reason": "length"}]})
+        with self.assertRaises(ValueError):
+            llm._call("Intitulé : test")
 
     def test_no_key_means_no_call(self):
         llm, session = make_llm(fiche())

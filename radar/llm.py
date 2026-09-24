@@ -16,6 +16,7 @@ import logging
 import os
 import threading
 import time
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
@@ -36,6 +37,22 @@ SCHEMA_TABLE = """CREATE TABLE IF NOT EXISTS llm_offers (
     tokens_in INTEGER, tokens_cached INTEGER, tokens_out INTEGER, created TEXT)"""
 
 
+def clean(fiche: dict) -> dict:
+    """Garde-fous appliqués à chaque fiche : listes sans doublon, notes bornées, cohérence métier / intensité data."""
+    uniq = lambda xs: list(dict.fromkeys(xs))
+    fiche["required_skills"] = uniq(fiche["required_skills"])
+    fiche["nice_to_have_skills"] = [s for s in uniq(fiche["nice_to_have_skills"]) if s not in fiche["required_skills"]]
+    for k in ("data_intensity", "accessibility"):
+        fiche[k] = max(0, min(100, int(fiche[k])))
+    # un poste business / finance / contrôle de gestion n'est pas un poste de data science, quoi qu'en dise le modèle
+    cap = {"biz": 50, "other": 35}.get(fiche["role"])
+    if cap is not None:
+        fiche["data_intensity"] = min(fiche["data_intensity"], cap)
+    if fiche.get("team", "").strip().lower().startswith(("stage", "stagiaire", "internship", "intern ")):
+        fiche["team"] = ""
+    return fiche
+
+
 def text_hash(*parts: str) -> str:
     return hashlib.sha1("\x1f".join(parts).encode()).hexdigest()[:16]
 
@@ -48,6 +65,7 @@ class LLM:
         self.session = requests.Session()
         self._lock = threading.Lock()
         self.usage = {"calls": 0, "errors": 0, "in": 0, "cached": 0, "out": 0, "cost": 0.0}
+        self.error_kinds: Counter = Counter()
         self.skill_ids = [s["id"] for s in fit_cfg["skills"]]
         self.domain_ids = [d["id"] for d in fit_cfg["domains"]] + ["other"]
         self.lang_ids = [l["id"] for l in fit_cfg["languages"]]
@@ -80,8 +98,9 @@ Réponds uniquement avec le JSON demandé. Règles :
 {roles}
 - domain : le domaine d'activité de l'entreprise ou du sujet, parmi :
 {domains}
-- required_skills / nice_to_have_skills : compétences explicitement demandées (exigées / appréciées), uniquement
-  parmi ces identifiants ; ne rien inventer, ne rien déduire du seul intitulé :
+- required_skills / nice_to_have_skills : compétences EXPLICITEMENT écrites dans l'annonce (exigées / appréciées),
+  uniquement parmi ces identifiants, chacune une seule fois, en général 2 à 6 ; une liste vide si l'annonce n'en
+  cite aucune. N'invente rien, ne déduis rien de l'intitulé ou du secteur :
 {skills}
 - other_skills : autres compétences techniques demandées absentes de la liste (5 au plus, en quelques mots).
 - degree_target : formation visée. "ingenieur_ou_master" si école d'ingénieur, master ou équivalent sont cités
@@ -92,38 +111,47 @@ Réponds uniquement avec le JSON demandé. Règles :
 - duration_months : durée du stage en mois si indiquée, sinon null.
 - languages_required : langues EXIGÉES autres que le français et l'anglais, parmi :
 {langs}
-- data_intensity (0-100) : part du travail quotidien consacrée à la data. 90-100 : data scientist, ML, statisticien ;
-  60-85 : analyste avec SQL / Python / statistique réguliers ; 30-55 : poste métier avec reporting Excel / Power BI ;
-  moins de 30 : pas un poste data.
+- data_intensity (0-100) : part du travail quotidien consacrée à l'analyse de données, la statistique, le ML ou
+  l'ingénierie des données. Sois exigeant ; repères :
+    95 data scientist / machine learning / statisticien qui modélise ;
+    80 data engineer, ou data analyst qui code en SQL / Python au quotidien ;
+    60 analyste qui produit des analyses et tableaux de bord (Power BI, SQL) avec une part métier ;
+    40 contrôle de gestion, business analyst, supply chain ou CRM avec du reporting Excel / Power BI ;
+    25 marketing, communication, projet ou R&D de laboratoire avec quelques données ;
+    10 aucune analyse de données.
 - accessibility (0-100) : chances réelles d'un·e élève de ce profil face aux autres candidats, d'après les
-  compétences et la formation demandées. 80-100 : profil agro / bio / statistique explicitement bienvenu et
-  compétences alignées ; 60-79 : bon alignement, petits écarts ; 40-59 : écarts notables (génie logiciel poussé,
-  préférence école de commerce, sélection très élitiste) ; moins de 40 : doctorat exigé, profil commerce uniquement,
-  compétences très éloignées. Ne tiens compte NI du prestige de l'entreprise NI des dates : ils sont évalués à part.
+  compétences et la formation demandées. Sois exigeant ; repères :
+    90 sujet agro / bio / environnement / statistique appliquée, compétences demandées toutes maîtrisées ;
+    75 poste data généraliste (Python, SQL, statistique, ML) ouvert aux ingénieurs ;
+    55 écarts notables : génie logiciel poussé (cloud, Spark, Kubernetes, Java), finance de marché, marketing pur ;
+    40 profil école de commerce préféré, ou métier sans lien avec la formation ;
+    20 doctorat exigé ou profil commerce uniquement.
+  Ne tiens compte NI du prestige de l'entreprise NI des dates : ils sont évalués à part.
 - data_reason, accessibility_reason : une phrase de 15 mots au plus, en français, qui justifie la note.
 - entity : la filiale, marque ou maison qui recrute si elle diffère du groupe (ex. « Christian Dior Couture »,
   « Capgemini Invent »), sinon chaîne vide.
-- team : l'équipe ou le service d'accueil tel que nommé dans l'annonce (ex. « équipe Data Science R&D »,
-  « Direction Supply Chain »), sinon chaîne vide. Jamais de nom de personne.
+- team : l'équipe ou le service d'accueil tel que nommé dans le texte de l'annonce (ex. « équipe Data Science R&D »,
+  « Direction Supply Chain »), sinon chaîne vide. Jamais l'intitulé du poste, jamais de nom de personne.
 - summary : la mission en une phrase de 25 mots au plus, en français."""
 
     def _schema(self) -> dict:
-        arr = lambda enum: {"type": "array", "items": {"type": "string", "enum": enum}}
+        arr = lambda enum, n: {"type": "array", "items": {"type": "string", "enum": enum}, "maxItems": n}
+        score = {"type": "integer", "minimum": 0, "maximum": 100}
         props = {
             "is_internship": {"type": "boolean"},
             "is_data_role": {"type": "boolean"},
             "role": {"type": "string", "enum": list(ROLE_LABELS)},
             "domain": {"type": "string", "enum": self.domain_ids},
-            "required_skills": arr(self.skill_ids),
-            "nice_to_have_skills": arr(self.skill_ids),
-            "other_skills": {"type": "array", "items": {"type": "string"}},
+            "required_skills": arr(self.skill_ids, 8),
+            "nice_to_have_skills": arr(self.skill_ids, 6),
+            "other_skills": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
             "degree_target": {"type": "string", "enum": DEGREES},
-            "start_month": {"type": ["string", "null"]},
-            "duration_months": {"type": ["integer", "null"]},
-            "languages_required": arr(self.lang_ids),
-            "data_intensity": {"type": "integer"},
+            "start_month": {"type": ["string", "null"], "pattern": "^20[0-9]{2}-(0[1-9]|1[0-2])$"},
+            "duration_months": {"type": ["integer", "null"], "minimum": 1, "maximum": 24},
+            "languages_required": arr(self.lang_ids, 3),
+            "data_intensity": score,
             "data_reason": {"type": "string"},
-            "accessibility": {"type": "integer"},
+            "accessibility": score,
             "accessibility_reason": {"type": "string"},
             "entity": {"type": "string"},
             "team": {"type": "string"},
@@ -143,7 +171,7 @@ Réponds uniquement avec le JSON demandé. Règles :
         if self.model.startswith("gpt-5") and self.cfg.get("reasoning_effort"):
             body["reasoning_effort"] = self.cfg["reasoning_effort"]
         headers = {"Authorization": f"Bearer {self.key}", "Content-Type": "application/json"}
-        for attempt in range(5):
+        for attempt in range(7):
             r = self.session.post(API_URL, json=body, headers=headers, timeout=60)
             if r.status_code == 404 and self.model != self.cfg.get("fallback_model"):
                 log.warning("modèle %s indisponible, bascule sur %s", self.model, self.cfg["fallback_model"])
@@ -152,15 +180,18 @@ Réponds uniquement avec le JSON demandé. Règles :
                 body["model"] = self.model
                 body.pop("reasoning_effort", None)
                 continue
-            if r.status_code in (429, 500, 502, 503) and attempt < 4:
-                time.sleep(min(float(r.headers.get("retry-after", 0) or 2 ** attempt * 2), 30))
+            if r.status_code in (429, 500, 502, 503) and attempt < 6:
+                time.sleep(min(float(r.headers.get("retry-after", 0) or 2 ** attempt * 2), 60))
                 continue
             r.raise_for_status()
             data = r.json()
-            msg = data["choices"][0]["message"]
+            choice = data["choices"][0]
+            msg = choice["message"]
+            if choice.get("finish_reason") == "length":
+                raise ValueError("réponse tronquée (limite de longueur)")
             if msg.get("refusal") or not msg.get("content"):
-                raise ValueError(f"réponse vide ou refus : {msg.get('refusal') or data['choices'][0].get('finish_reason')}")
-            return json.loads(msg["content"]), data.get("usage", {})
+                raise ValueError(f"réponse vide ou refus : {msg.get('refusal') or choice.get('finish_reason')}")
+            return clean(json.loads(msg["content"])), data.get("usage", {})
         raise RuntimeError("trop de tentatives")
 
     def _account(self, usage: dict) -> tuple[int, int, int]:
@@ -209,6 +240,7 @@ Réponds uniquement avec le JSON demandé. Règles :
             except Exception as e:
                 with self._lock:
                     self.usage["errors"] += 1
+                    self.error_kinds[f"{type(e).__name__}: {e}"[:90]] += 1
                 return o, h, None, (0, 0, 0), f"{type(e).__name__}: {e}"[:200]
 
         now = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -224,4 +256,6 @@ Réponds uniquement avec le JSON demandé. Règles :
         u = self.usage
         log.info("analyse IA : %d appels, %d erreurs, %d jetons en entrée (%d en cache), %d en sortie, coût %.4f $",
                  u["calls"], u["errors"], u["in"], u["cached"], u["out"], u["cost"])
+        for kind, n in self.error_kinds.most_common(3):
+            log.info("analyse IA : erreur x%d : %s", n, kind)
         return cached
