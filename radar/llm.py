@@ -101,6 +101,10 @@ Réponds uniquement avec le JSON demandé. Règles :
   préférence école de commerce, sélection très élitiste) ; moins de 40 : doctorat exigé, profil commerce uniquement,
   compétences très éloignées. Ne tiens compte NI du prestige de l'entreprise NI des dates : ils sont évalués à part.
 - data_reason, accessibility_reason : une phrase de 15 mots au plus, en français, qui justifie la note.
+- entity : la filiale, marque ou maison qui recrute si elle diffère du groupe (ex. « Christian Dior Couture »,
+  « Capgemini Invent »), sinon chaîne vide.
+- team : l'équipe ou le service d'accueil tel que nommé dans l'annonce (ex. « équipe Data Science R&D »,
+  « Direction Supply Chain »), sinon chaîne vide. Jamais de nom de personne.
 - summary : la mission en une phrase de 25 mots au plus, en français."""
 
     def _schema(self) -> dict:
@@ -121,6 +125,8 @@ Réponds uniquement avec le JSON demandé. Règles :
             "data_reason": {"type": "string"},
             "accessibility": {"type": "integer"},
             "accessibility_reason": {"type": "string"},
+            "entity": {"type": "string"},
+            "team": {"type": "string"},
             "summary": {"type": "string"},
         }
         return {"type": "object", "properties": props, "required": list(props), "additionalProperties": False}

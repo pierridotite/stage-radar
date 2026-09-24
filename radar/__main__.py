@@ -137,7 +137,8 @@ def export(store: Store, today: date, use_llm: bool = True) -> None:
             "excerpt": o.description[:600],
             # texte de recherche du tableau de bord : annonce complète, repliée (minuscules, sans accents)
             "text": fold(o.description)[:6000], "fit": fit, **sc,
-            **({"ai": {"summary": a["summary"], "other_skills": a["other_skills"][:5], "degree": a["degree_target"]}}
+            **({"ai": {"summary": a["summary"], "other_skills": a["other_skills"][:5], "degree": a["degree_target"],
+                       "entity": a.get("entity", ""), "team": a.get("team", "")}}
                if a else {}),
         })
     order = {"A": 0, "B": 1, "C": 2, "D": 3, "X": 4}

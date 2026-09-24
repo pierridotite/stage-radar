@@ -23,7 +23,7 @@ def fiche(**over) -> dict:
             "degree_target": "ingenieur_ou_master", "start_month": "2027-02", "duration_months": 6,
             "languages_required": [], "data_intensity": 90, "data_reason": "Modélisation statistique quotidienne.",
             "accessibility": 82, "accessibility_reason": "Profil agro et statistique recherché.",
-            "summary": "Construire des modèles de prévision des ventes."}
+            "entity": "", "team": "équipe Data Science", "summary": "Construire des modèles de prévision des ventes."}
     return {**base, **over}
 
 
