@@ -4,8 +4,8 @@ Outil de la promo **Data science, Institut Agro Rennes-Angers** : chaque matin, 
 de fin d'études publiées sur les sites carrières de ~360 entreprises (data, agro, luxe, sport, conseil, industrie ;
 startups, PME, ETI et grands groupes) et sur 8 jobboards spécialisés,
 garde les postes data **situés en France**, classe l'entreprise par taille (startup, PME, ETI, grand groupe)
-et donne à chacun une **note d'accessibilité pour notre école** (A à D, score sur 100)
-ainsi qu'un **match par profil** d'élève.
+et donne à chacun une **note d'accessibilité pour notre école** (A à D). Chaque élève peut aussi déposer
+son CV pour obtenir un **fit personnel** avec chaque offre.
 
 ## Lancer
 
@@ -70,30 +70,28 @@ dans l'intitulé, pour qu'une actualité (« renforcée depuis septembre 2026 »
 commerce le sont. Enrichir `network_companies` avec les entreprises où la promo a déjà fait des stages est ce qui
 améliorera le plus la note.
 
-## Ajouter un profil ou une entreprise
+## Fit avec son CV
 
-- **Profil** : un bloc dans `config/profiles.yaml` (secteurs visés, mots-clés). Sans toucher au code, le
-  tableau de bord a aussi un mode « mon profil » où chacun tape ses mots-clés.
+Dans le tableau de bord, « Déposer mon CV » (PDF, Word ou texte) calcule un **fit** avec chaque offre et permet de
+trier par fit. **Le CV est lu dans le navigateur et n'est envoyé nulle part** : le site est statique, sans serveur.
+Seule la liste des compétences et domaines repérés est gardée sur l'ordinateur (localStorage), jamais le texte du CV.
+
+Le même dictionnaire, `config/fit.yaml`, sert à lire les offres (à la collecte, `radar/fit.py`) et le CV (dans la page) :
+
+| Composante | Points |
+|---|---|
+| Compétences demandées par l'offre présentes dans le CV (lissé : 2/2 compte moins que 7/7) | jusqu'à 55 |
+| Domaine de l'offre (agro, sport, industrie, luxe...) présent dans le CV | jusqu'à 25 |
+| Métier de l'intitulé (data scientist, analyst, biostatisticien, R&D...) visé par le CV | 20 (8 si non précisé) |
+| Compétence "bloquante" demandée et absente (Spark, cloud, Java, C++...) | −5 chacune, max −15 |
+| Langue exigée absente du CV | −15 |
+
+Très bon fit ≥ 75, bon ≥ 60, moyen ≥ 45. Le détail de chaque offre liste les compétences présentes (✓) et manquantes (✗).
+
+## Ajouter une entreprise
+
 - **Entreprises** : lister nom, secteur, taille et page carrières dans un CSV (`name,sector,size,url`), puis
   `python -m radar.discover liste.csv`. Le détecteur lit la page, reconnaît la plateforme de recrutement et
   imprime les lignes vérifiées à coller dans `config/companies.yaml`. Vérifier ensuite avec
   `python -m radar --only <nom>`.
 
-## Automatiser chaque jour
-
-**GitHub Actions** : le workflow `.github/workflows/daily.yml` tourne chaque matin à 7h30 (heure de Paris),
-collecte, score et publie le tableau de bord sur GitHub Pages. L'historique `data/radar.db` est gardé d'un jour
-à l'autre dans le cache Actions (pas de commit quotidien). Lancer à la main : onglet *Actions → radar-quotidien →
-Run workflow*. Pour Adzuna : *Settings → Secrets and variables → Actions*, ajouter `ADZUNA_APP_ID` et `ADZUNA_APP_KEY`.
-
-**Sur un PC Windows** : Planificateur de tâches, action `python -m radar`, dossier de départ = ce dossier.
-
-## Couverture et prochaines étapes
-
-`companies.yaml` recense ~665 entreprises : ~360 collectées, les autres gardées pour mémoire avec leur plateforme
-(`ats: unsupported`, `platform: ...`). Plateformes les plus fréquentes parmi les non collectées, donc prochains
-connecteurs utiles : sites maison (~64), SuccessFactors sans flux RSS (~24), Flatchr (~18, coopératives et instituts
-techniques de l'Ouest, Petzl, FFR), Talentsoft (~14), WeRecruit (~13), Cornerstone (~12).
-
-Les flux Talentsoft ne renvoient que les 20 offres les plus récentes : pour les gros recruteurs (EDF, Dassault
-Aviation), une partie des stages peut manquer.

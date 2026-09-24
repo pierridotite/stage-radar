@@ -1,0 +1,96 @@
+# =====================================================================
+# Dictionnaire du "fit CV" : le même vocabulaire sert à lire les offres (Python, à la collecte)
+# et le CV déposé (navigateur, sur l'ordinateur de l'élève : le CV n'est envoyé nulle part).
+# Termes en minuscules SANS accents ; '*' final = préfixe.
+#
+# fit = compétences (55) + domaine (25) + métier visé (20) - manques bloquants - langue manquante
+# =====================================================================
+
+weights:
+  skills: 55          # part des compétences demandées par l'offre que le CV contient
+  skills_neutral: 0.5 # offre qui ne cite aucune compétence : couverture supposée de 50 %
+  skills_smoothing: 2 # lissage : 2/2 compétences (75 %) compte moins que 7/7 (89 %), peu d'indices = moins de certitude
+  domain: 25          # l'offre est dans un domaine où le CV a de l'expérience
+  role: 20            # l'intitulé correspond au métier que le CV vise
+  role_generic: 8     # intitulé data générique quand le CV ne précise pas de métier
+  hard_missing: -5    # par compétence "bloquante" demandée et absente du CV (max -15)
+  hard_missing_cap: -15
+  language_missing: -15
+
+levels:               # libellés affichés
+  - {min: 75, label: "Très bon fit"}
+  - {min: 60, label: "Bon fit"}
+  - {min: 45, label: "Fit moyen"}
+  - {min: 0, label: "Fit faible"}
+
+# hard: true = compétence difficile à acquérir en cours de stage : son absence pénalise
+skills:
+  - {id: python, label: Python, terms: [python]}
+  - {id: r, label: R, terms: [r, rstudio, "r markdown", quarto]}
+  - {id: sql, label: SQL, terms: [sql, mysql, postgresql, postgres, "bases de donnees", "base de donnees", database*]}
+  - {id: excel, label: Excel, terms: [excel]}
+  - {id: vba, label: VBA, terms: [vba, macros, "macro vba"]}
+  - {id: powerbi, label: Power BI, terms: ["power bi", powerbi]}
+  - {id: git, label: Git, terms: [git, github, gitlab]}
+  - {id: pandas, label: pandas / NumPy, terms: [pandas, numpy]}
+  - {id: sklearn, label: scikit-learn, terms: ["scikit-learn", sklearn, "scikit learn"]}
+  - {id: tidyverse, label: tidyverse / ggplot2, terms: [tidyverse, ggplot*, dplyr]}
+  - {id: shiny, label: Shiny, terms: [shiny]}
+  - {id: ml, label: Machine learning, terms: ["machine learning", "apprentissage automatique", "apprentissage statistique", "random forest*", "forets aleatoires", xgboost, lightgbm, "gradient boosting", classification, clustering]}
+  - {id: dl, label: Deep learning, terms: ["deep learning", "reseaux de neurones", "reseau de neurones", "neural network*", cnn, transformers]}
+  - {id: pytorch, label: PyTorch / TensorFlow, terms: [pytorch, tensorflow, keras]}
+  - {id: nlp, label: NLP, terms: [nlp, "traitement du langage", "natural language"]}
+  - {id: llm, label: LLM / IA générative, terms: [llm*, rag, langchain, ollama, genai, "gen ai", "ia generative", "generative ai", "intelligence artificielle generative", "hugging face", huggingface]}
+  - {id: cv, label: Vision par ordinateur, terms: ["computer vision", "vision par ordinateur", opencv, "traitement d'image*", "image processing"]}
+  - {id: stats, label: Statistique, terms: [statisti*, "modele lineaire", "modeles lineaires", regression, inference, "tests statistiques"]}
+  - {id: mixed, label: Modèles mixtes / GLM, terms: ["modeles mixtes", "modele mixte", "mixed model*", lme4, glm, glmm]}
+  - {id: doe, label: Plans d'expériences / ANOVA, terms: ["plan d'experience*", "plans d'experience*", "design of experiment*", doe, anova, tukey]}
+  - {id: multivar, label: Analyse multivariée, terms: [acp, pca, "analyse multivariee", "analyse factorielle", factominer, afc, acm]}
+  - {id: timeseries, label: Séries temporelles / prévision, terms: ["series temporelles", "serie temporelle", "time series", forecast*, "prevision des ventes", "previsions"]}
+  - {id: dataviz, label: Dataviz, terms: [dataviz, "data visualization", "data visualisation", "visualisation de donnees", "tableau de bord", "tableaux de bord", dashboard*]}
+  - {id: gis, label: SIG / données spatiales, terms: [qgis, sig, gis, arcgis, "donnees spatiales", "modelisation spatiale", geospati*, teledetection, "remote sensing"]}
+  - {id: sas, label: SAS / SPSS / JMP, terms: ["logiciel sas", "sas enterprise", "sas/stat", spss, jmp, minitab]}
+  - {id: dataiku, label: Dataiku / KNIME, terms: [dataiku, knime, alteryx]}
+  - {id: api, label: API / FastAPI, terms: [fastapi, flask, "api rest", django]}
+  - {id: docker, label: Docker, terms: [docker, "docker compose", conteneur*]}
+  - {id: mlops, label: MLOps / CI, terms: [mlops, mlflow, "github actions", "ci/cd", pytest, airflow]}
+  - {id: spark, label: Spark / big data, terms: [spark, pyspark, hadoop, "big data"], hard: true}
+  - {id: databricks, label: Databricks / Snowflake, terms: [databricks, snowflake, bigquery, dbt], hard: true}
+  - {id: cloud, label: Cloud (AWS, Azure, GCP), terms: [aws, azure, gcp, "google cloud", "amazon web services"], hard: true}
+  - {id: kubernetes, label: Kubernetes, terms: [kubernetes, k8s, terraform], hard: true}
+  - {id: java, label: Java / Scala, terms: [java, scala, kotlin], hard: true}
+  - {id: cpp, label: C / C++ / embarqué, terms: ["c++", "langage c", "embedded c", "logiciel embarque", "systemes embarques", "informatique embarquee", fpga], hard: true}
+  - {id: web, label: JavaScript / web, terms: [javascript, typescript, react, angular, "vue.js", "full stack", fullstack, frontend], hard: true}
+  - {id: matlab, label: Matlab, terms: [matlab, simulink]}
+  - {id: sap, label: SAP / ERP, terms: [sap, erp]}
+  - {id: salesforce, label: CRM / Salesforce, terms: [salesforce, crm]}
+
+domains:
+  - {id: agro_food, label: Agroalimentaire, terms: [agroalimentaire, "industrie alimentaire", food, alimentaire, aliments, boulanger*, chocolat*, laiti*, dairy, fromage*, boisson*, "sciences des aliments", sensori*, sensometri*, nutrition]}
+  - {id: agri, label: Agriculture & productions, terms: [agronom*, agricul*, agricole*, elevage, semence*, varietes, "genetique vegetale", "genetique animale", phenotyp*, "essais au champ", "grandes cultures", rendement*, "mais grain", cereal*, ferme*, "exploitation agricole", viticul*]}
+  - {id: env, label: Environnement & écologie, terms: [ecolog*, environnemental*, biodiversite, climat*, "qualite de l'eau", hydrolog*, lacs, lacustre, ocean*, "milieu marin", carbone]}
+  - {id: bio_health, label: Biologie & santé, terms: [biologi*, biostat*, sante, health, clinique, clinical, medical, pharma*, genomique, microbiote, physiologi*, cortisol]}
+  - {id: sport, label: Sport & outdoor, terms: [sport*, athlet*, outdoor, escalade, climbing, trek*, rugby, football, running, fitness, "performance sportive"]}
+  - {id: luxe, label: Luxe & cosmétique, terms: [luxe, luxury, cosmeti*, parfum*, beaute, beauty, horlog*, montres, joaillerie, fashion, "haute couture"]}
+  - {id: industry, label: Industrie & maintenance, terms: [industri*, maintenance*, "maintenance predictive", capteur*, sensor*, automobile*, automotive, aeronauti*, turbofan, usine*, "ligne de production", manufactur*]}
+  - {id: energy, label: Énergie, terms: [energie, energy, electricite, nucleaire, renouvelable*, hydrogene, batterie*]}
+  - {id: finance, label: Finance & assurance, terms: [finance, "services financiers", "marches financiers", banque, bancaire, assureur*, "compagnie d'assurance", actuari*, "risque de credit", fraude, fraud, trading]}
+  - {id: marketing, label: Marketing & retail, terms: [marketing, retail, "e-commerce", ecommerce, ventes, crm, pricing, consommateur*]}
+  - {id: consulting, label: Conseil, terms: [conseil, consulting, consultant*]}
+  - {id: research, label: Recherche, terms: [research, laboratoire, "unite de recherche", "projet de recherche", "stage de recherche", "these de doctorat", publication*, inrae, cnrs, inserm]}
+
+# Métiers : comparés entre l'intitulé de l'offre et l'en-tête / le profil du CV
+roles:
+  - {id: ds, label: Data scientist / ML, terms: ["data scien*", "machine learning", "ml engineer", "ingenieur ia", "ai engineer", "intelligence artificielle", "modelisation predictive", "deep learning"]}
+  - {id: da, label: Data analyst / BI, terms: ["data analy*", "business intelligence", bi, "analyste de donnees", "business analyst", reporting, "power bi"]}
+  - {id: de, label: Data engineer, terms: ["data engineer*", "ingenieur donnees", etl, pipeline*]}
+  - {id: stat, label: Statisticien / biostatisticien, terms: [statisticien*, biostatisti*, biometri*, "statistique appliquee", "analyse de donnees experimentales", "modelisation statistique"]}
+  - {id: rnd, label: R&D / recherche, terms: [rnd, research, innovation, experimentation*, "stage de recherche"]}
+  - {id: consult, label: Consultant data, terms: ["consultant data", consultant*]}
+
+languages:
+  - {id: de, label: allemand, offer: ["allemand courant", "fluent german", "german fluent", "fluent in german", deutsch], cv: [allemand, german, deutsch]}
+  - {id: es, label: espagnol, offer: ["espagnol courant", "fluent spanish", "spanish speaker"], cv: [espagnol, spanish]}
+  - {id: it, label: italien, offer: ["italien courant", "fluent italian", "fluent in italian"], cv: [italien, italian]}
+  - {id: nl, label: néerlandais, offer: ["fluent dutch", neerlandais, "dutch speaking"], cv: [neerlandais, dutch]}
+  - {id: zh, label: mandarin / japonais, offer: [mandarin, japonais, japanese], cv: [mandarin, chinois, japonais, japanese]}

@@ -39,7 +39,7 @@ def _capped(found: set, per_match: int, cap: int) -> int:
 
 
 class Scorer:
-    def __init__(self, cfg: dict, profiles_cfg: dict, today: date | None = None):
+    def __init__(self, cfg: dict, today: date | None = None):
         self.today = today or date.today()
         self.cfg = cfg
         d, p, c, k = cfg["data"], cfg["profile"], cfg["competition"], cfg["calendar"]
@@ -61,9 +61,6 @@ class Scorer:
         self.k_short, self.k_long = _rx(k["short"]), _rx(k["long_ok"])
         self.k_ctx, self.k_dur = _rx(k["start_context"]), _rx(k["duration_context"])
 
-        self.profiles = {"promo": profiles_cfg["promo"], **profiles_cfg.get("students", {})}
-        for prof in self.profiles.values():
-            prof["_kw"], prof["_strong"] = _rx(prof.get("keywords")), _rx(prof.get("strong"))
 
     # ------------------------------------------------------------ DATA
     def data_axis(self, title: str, text: str) -> tuple[int, list]:
@@ -179,19 +176,6 @@ class Scorer:
             return "B"
         return "C" if score >= g["C"] else "D"
 
-    def matches(self, o: Offer, title: str, text: str) -> dict[str, int]:
-        out = {}
-        for pid, p in self.profiles.items():
-            if pid == "promo":
-                continue
-            strong_t, strong_d = set(p["_strong"].findall(title)), set(p["_strong"].findall(text))
-            kw_t, kw_d = set(p["_kw"].findall(title)), set(p["_kw"].findall(text))
-            s = 25 if o.sector in p.get("sectors", []) else 0
-            s += min(20 * len(strong_t) + 8 * len(strong_d - strong_t), 45)
-            s += min(8 * len(kw_t) + 3 * len(kw_d - kw_t), 30)
-            out[pid] = max(0, min(100, s))
-        return out
-
     def score(self, o: Offer) -> dict | None:
         """Renvoie None si l'offre n'est pas un stage data (écartée du tableau de bord)."""
         title, text = prepare(o.title), prepare(o.description)
@@ -206,5 +190,5 @@ class Scorer:
             "score": score, "grade": self.grade(score, data, profile, cal),
             "data": data, "profile": profile, "competition": comp, "calendar": cal,
             "zone": zone(o.country, o.location), "reasons": r_data + r_prof + r_comp + r_cal,
-            "match": self.matches(o, title, text), "age_days": _days_since(o.posted_at, self.today),
+            "age_days": _days_since(o.posted_at, self.today), "_title": title, "_text": text,
         }

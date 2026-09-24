@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
 import logging
 import os
@@ -20,6 +21,7 @@ import yaml
 
 from .company_size import enrich
 from .filters import classify_sector, in_france, region
+from .fit import FitLexicon
 from .http import PoliteSession
 from .scoring import Scorer
 from .sources.aggregators import adzuna, manual
@@ -96,7 +98,8 @@ def collect(store: Store, today: date, only: str | None) -> None:
 
 
 def export(store: Store, today: date) -> None:
-    scorer = Scorer(load("scoring.yaml"), load("profiles.yaml"), today)
+    scorer = Scorer(load("scoring.yaml"), today)
+    lexicon = FitLexicon(load("fit.yaml"))
     items = []
     for row in store.active():
         o = offer_from_row(row)
@@ -105,24 +108,24 @@ def export(store: Store, today: date) -> None:
         sc = scorer.score(o)
         if sc is None:
             continue
+        fit = lexicon.offer_features(sc.pop("_title"), sc.pop("_text"), o.sector)
         items.append({
             "id": row["key"], "company": o.company, "title": o.title, "url": o.url, "location": o.location,
             "sector": o.sector, "size": o.size, "region": region(o.location), "source": o.source, "posted_at": o.posted_at[:10],
             "first_seen": row["first_seen"], "new": row["first_seen"] == today.isoformat(),
             "excerpt": o.description[:600],
             # texte de recherche du tableau de bord : annonce complète, repliée (minuscules, sans accents)
-            "text": fold(o.description)[:6000], **sc,
+            "text": fold(o.description)[:6000], "fit": fit, **sc,
         })
     order = {"A": 0, "B": 1, "C": 2, "D": 3, "X": 4}
     items.sort(key=lambda x: (order[x["grade"]], -x["score"], -x["data"]))
 
     runs = store.db.execute("SELECT source, company, found, error FROM runs WHERE day=?", (today.isoformat(),))
     runs = [dict(r) for r in runs]
-    profiles = load("profiles.yaml")
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "school": load("scoring.yaml")["school"],
-        "profiles": {k: v["label"] for k, v in profiles.get("students", {}).items()},
+        "fit_lexicon": lexicon.export(),
         "stats": {
             "offers": len(items), "new": sum(i["new"] for i in items),
             "by_sector": Counter(i["sector"] for i in items), "by_size": Counter(i["size"] or "?" for i in items),
@@ -135,7 +138,7 @@ def export(store: Store, today: date) -> None:
         "offers": items,
     }
     dump_json(ROOT / "docs" / "data" / "offers.json", payload)
-    page = (Path(__file__).parent / "dashboard.html").read_text(encoding="utf-8")
+    page = dashboard_page()
     (ROOT / "docs" / "index.html").write_text(
         '<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
@@ -151,6 +154,13 @@ def export(store: Store, today: date) -> None:
                         i["title"], i["location"], i["sector"], i["size"], i["posted_at"], i["url"],
                         " | ".join(f"{r[0]:+d} {r[1]}" for r in i["reasons"])])
     log.info("export : %d stages data (%d nouveaux) -> docs/data/offers.json", len(items), payload["stats"]["new"])
+
+
+def dashboard_page() -> str:
+    """Page du tableau de bord (fragment HTML), avec le logo intégré en data URI."""
+    logo = base64.b64encode((Path(__file__).parent / "assets" / "logo-institut-agro-rennes-angers.png").read_bytes())
+    page = (Path(__file__).parent / "dashboard.html").read_text(encoding="utf-8")
+    return page.replace("__LOGO__", "data:image/png;base64," + logo.decode())
 
 
 def main(argv=None):
