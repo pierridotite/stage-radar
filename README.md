@@ -58,9 +58,9 @@ un vrai stage data ? ». Elle combine trois axes indépendants, chacun détaill�
 
 | Note | Condition |
 |---|---|
-| **A** | score ≥ 72, **et** Data ≥ 60, **et** Profil ≥ 60 : vrai poste data où notre profil colle |
-| **B** | score ≥ 60 et Data ≥ 50 |
-| **C** | score ≥ 48 |
+| **A** | score ≥ 75, **et** Data ≥ 70, **et** Profil ≥ 65 : vrai poste data où notre profil colle |
+| **B** | score ≥ 62 et Data ≥ 55 |
+| **C** | score ≥ 50 |
 | **D** | en dessous |
 | **— hors calendrier** | début en 2026 ou stage court, quelle que soit la note |
 
