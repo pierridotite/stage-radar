@@ -20,8 +20,9 @@ from pathlib import Path
 import yaml
 
 from .company_size import enrich
-from .filters import classify_sector, in_france, region
+from .filters import classify_sector, in_france, prepare, region
 from .fit import FitLexicon
+from .llm import LLM
 from .http import PoliteSession
 from .scoring import Scorer
 from .sources.aggregators import adzuna, manual
@@ -97,18 +98,38 @@ def collect(store: Store, today: date, only: str | None) -> None:
     log.info("%d stages collectés, %d nouveaux, %d retirés", len(unique), new, gone)
 
 
-def export(store: Store, today: date) -> None:
-    scorer = Scorer(load("scoring.yaml"), today)
+def ai_fit(ai: dict, sector: str) -> dict:
+    """Caractéristiques de l'offre pour le fit CV, d'après la fiche IA (mêmes identifiants que config/fit.yaml)."""
+    from .fit import SECTOR_DOMAINS
+    domains = sorted({ai["domain"], *SECTOR_DOMAINS.get(sector, [])} - {"other"})
+    return {"skills": ai["required_skills"], "nice": ai["nice_to_have_skills"], "domains": domains,
+            "roles": [] if ai["role"] == "other" else [ai["role"]], "langs": ai["languages_required"]}
+
+
+def export(store: Store, today: date, use_llm: bool = True) -> None:
+    scoring_cfg = load("scoring.yaml")
+    scorer = Scorer(scoring_cfg, today)
     lexicon = FitLexicon(load("fit.yaml"))
+    llm_cfg = load("llm.yaml")
+    rows = [(row, offer_from_row(row)) for row in store.active()]
+    rows = [(row, o) for row, o in rows if in_france(o)]
+
+    # Analyse IA des offres plausibles (pré-filtre par les règles pour limiter le coût), avec cache en base
+    ai = {}
+    if use_llm:
+        llm = LLM(llm_cfg, load("fit.yaml"), scoring_cfg["school"])
+        threshold = llm_cfg["offers"]["prefilter_min_data"]
+        candidates = [o for _, o in rows if scorer.data_axis(prepare(o.title), prepare(o.description))[0] >= threshold]
+        ai = llm.analyze_offers(store.db, candidates)
+
     items = []
-    for row in store.active():
-        o = offer_from_row(row)
-        if not in_france(o):
-            continue
-        sc = scorer.score(o)
+    for row, o in rows:
+        a = ai.get(o.key)
+        sc = scorer.score(o, a)
         if sc is None:
             continue
-        fit = lexicon.offer_features(sc.pop("_title"), sc.pop("_text"), o.sector)
+        title, text = sc.pop("_title"), sc.pop("_text")
+        fit = ai_fit(a, o.sector) if a else lexicon.offer_features(title, text, o.sector)
         items.append({
             "id": row["key"], "company": o.company, "title": o.title, "url": o.url, "location": o.location,
             "sector": o.sector, "size": o.size, "region": region(o.location), "source": o.source, "posted_at": o.posted_at[:10],
@@ -116,6 +137,8 @@ def export(store: Store, today: date) -> None:
             "excerpt": o.description[:600],
             # texte de recherche du tableau de bord : annonce complète, repliée (minuscules, sans accents)
             "text": fold(o.description)[:6000], "fit": fit, **sc,
+            **({"ai": {"summary": a["summary"], "other_skills": a["other_skills"][:5], "degree": a["degree_target"]}}
+               if a else {}),
         })
     order = {"A": 0, "B": 1, "C": 2, "D": 3, "X": 4}
     items.sort(key=lambda x: (order[x["grade"]], -x["score"], -x["data"]))
@@ -126,12 +149,14 @@ def export(store: Store, today: date) -> None:
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "school": load("scoring.yaml")["school"],
         "fit_lexicon": lexicon.export(),
+        "cv_api_url": llm_cfg["cv"]["api_url"],
         "stats": {
             "offers": len(items), "new": sum(i["new"] for i in items),
             "by_sector": Counter(i["sector"] for i in items), "by_size": Counter(i["size"] or "?" for i in items),
             "by_region": Counter(i["region"] or "?" for i in items),
             "by_grade": Counter(i["grade"] for i in items),
             "by_calendar": Counter(i["calendar"] for i in items),
+            "ai_analyzed": sum(1 for i in items if "ai" in i),
             "companies_ok": sum(1 for r in runs if not r["error"]),
             "companies_error": [r["company"] for r in runs if r["error"]],
         },
@@ -167,6 +192,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(prog="radar")
     ap.add_argument("--only", help="n'interroger que les entreprises dont le nom contient ce texte")
     ap.add_argument("--no-fetch", action="store_true", help="re-scorer sans rien télécharger")
+    ap.add_argument("--no-llm", action="store_true", help="ne pas appeler le modèle (fiches en cache ignorées)")
     ap.add_argument("-v", "--verbose", action="store_true")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO, format="%(message)s",
@@ -178,7 +204,7 @@ def main(argv=None):
     store = Store(ROOT / "data" / "radar.db")
     if not args.no_fetch:
         collect(store, today, args.only)
-    export(store, today)
+    export(store, today, use_llm=not args.no_llm)
 
 
 if __name__ == "__main__":

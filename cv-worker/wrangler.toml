@@ -1,0 +1,25 @@
+name = "radar-stages-cv"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+
+# La clé OpenAI n'est PAS ici : elle se déclare en secret avec
+#   npx wrangler secret put OPENAI_API_KEY
+
+[vars]
+# Sites autorisés à appeler l'analyse (séparés par des virgules). Ajouter l'adresse de test locale si besoin.
+ALLOWED_ORIGINS = "https://pierridotite.github.io"
+MODEL = "gpt-5-nano"
+FALLBACK_MODEL = "gpt-4.1-nano"
+
+# 5 analyses par minute et par visiteur : protège le budget contre les abus
+[[ratelimits]]
+name = "CV_RATE_LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 5
+  period = 60
+
+[observability]
+# Journaux d'erreurs uniquement : le code n'écrit jamais le contenu des CV
+enabled = true

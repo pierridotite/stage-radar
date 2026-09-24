@@ -7,3 +7,7 @@ data/*.log
 data/*.csv
 !data/manual_offers.csv
 data/*.backup.yaml
+
+# Cloudflare Worker
+cv-worker/node_modules/
+cv-worker/.wrangler/

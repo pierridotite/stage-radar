@@ -87,6 +87,9 @@ h1 em { font-style: normal; background: linear-gradient(transparent 62%, var(--g
 .cv-skills { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 5px; }
 .pill { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--sunken); color: var(--ink-2); }
 .pill.dom { background: var(--gold-soft); }
+.cv-ai { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.cv-ai small { color: var(--ink-3); font-size: 12px; flex: 1 1 260px; }
+.typology { display: block; margin-top: 2px; }
 
 /* Barre de filtres */
 .controls { background: var(--ground); padding-block: 10px; border-bottom: 1px solid var(--line);
@@ -193,6 +196,10 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       <small>Ton CV est lu dans ton navigateur et n'est envoyé nulle part.</small>
     </div>
     <div class="cv-skills" id="cv-skills" hidden></div>
+    <div class="cv-ai" id="cv-ai" hidden>
+      <button class="chip" id="cv-ai-btn">Affiner avec l'IA</button>
+      <small>Le texte de ton CV est alors envoyé au modèle d'OpenAI via notre serveur pour en extraire ton profil ; rien n'est conservé.</small>
+    </div>
   </section>
 
   <div class="controls">
@@ -275,6 +282,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   let data = { offers: [], stats: {} };
   let lex = null;          // dictionnaire du fit (compétences, domaines, métiers, langues)
   let cv = store.get("radar.cv", null);   // profil extrait du CV : listes d'identifiants, jamais le texte du CV
+  let cvText = "";                        // texte du dernier CV lu : en mémoire seulement, oublié au rechargement
 
   // ------------------------------------------------------------------ dictionnaire (même règles qu'en Python)
   function compileTerms(terms) {
@@ -346,8 +354,13 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     const parts = [];
     let score = W.skills * cov;
     parts.push([Math.round(W.skills * cov), asked.length
-      ? `${got.length}/${asked.length} compétences demandées`
-      : "L'offre ne cite pas de compétence précise"]);
+      ? `${got.length}/${asked.length} compétences exigées`
+      : "L'offre ne cite pas de compétence exigée"]);
+    const nice = (f.nice || []).filter((s) => !asked.includes(s)), niceGot = nice.filter((s) => have.has(s));
+    if (niceGot.length) {
+      const pts = Math.round(W.nice * niceGot.length / nice.length);
+      score += pts; parts.push([pts, `Appréciées : ${niceGot.map((s) => label(lex.skills, s)).join(", ")}`]);
+    }
     const dom = f.domains.filter((d) => cv.domains[d]);
     if (dom.length) {
       const w = Math.max(...dom.map((d) => cv.domains[d]));
@@ -417,7 +430,8 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     const fitBlock = fit ? `<div><h4>Fit avec ton CV : ${fit.score} % (${fit.label.toLowerCase()})</h4>
         <p>${fit.got.length ? `<span class="plus">✓ ${esc(fit.got.join(", "))}</span>` : ""}${fit.got.length && fit.miss.length ? " · " : ""}${fit.miss.length ? `<span class="minus">✗ ${esc(fit.miss.join(", "))}</span>` : ""}</p>
         <ul>${fit.parts.slice(1).map(([pts, lbl]) => `<li>${esc(lbl)}${pts ? ` <span class="${pts > 0 ? "plus" : "minus"}">${pts > 0 ? "+" : ""}${pts}</span>` : ""}</li>`).join("")}</ul></div>` : "";
-    return `<div class="detail">${fitBlock}
+    const mission = o.ai ? `<p><b>Mission</b> : ${esc(o.ai.summary)}${o.ai.other_skills?.length ? ` <span class="muted">(aussi : ${esc(o.ai.other_skills.join(", "))})</span>` : ""}</p>` : "";
+    return `<div class="detail">${mission}${fitBlock}
       <div><h4>Note ${o.grade === "X" ? "hors calendrier" : o.grade} (score ${o.score})</h4><ul>${byAxis}</ul></div>
       ${o.excerpt ? `<p class="excerpt muted">${esc(o.excerpt.slice(0, 420))}…</p>` : ""}</div>`;
   }
@@ -450,6 +464,8 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   }
   function renderCv(message) {
     const box = $("cv"), txt = $("cv-text"), sk = $("cv-skills"), sortFit = $("sort").querySelector('option[value="fit"]');
+    // l'analyse IA n'est proposée que si le service est configuré et qu'un CV vient d'être lu dans cette session
+    $("cv-ai").hidden = !(cv && cvText && data.cv_api_url && cv.source !== "ia");
     box.classList.toggle("loaded", !!cv);
     sortFit.disabled = !cv;
     if (message) { txt.innerHTML = message; sk.hidden = true; return; }
@@ -464,7 +480,8 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     const label = (list, id) => list.find((x) => x.id === id)?.label || id;
     const doms = Object.entries(cv.domains).sort((a, b) => b[1] - a[1]).map(([d]) => label(lex.domains, d));
     $("cv-btn-label").textContent = "Changer de CV";
-    txt.innerHTML = `<b>${esc(cv.name)}</b> : ${cv.skills.length} compétences, ${doms.length} domaine${doms.length > 1 ? "s" : ""} repérés.
+    txt.innerHTML = `<b>${esc(cv.name)}</b> : ${cv.skills.length} compétences, ${doms.length} domaine${doms.length > 1 ? "s" : ""} repérés${cv.source === "ia" ? " par l'IA" : ""}.
+      ${cv.typology ? `<span class="typology">Profil : <b>${esc(cv.typology)}</b>${cv.summary ? ` · ${esc(cv.summary)}` : ""}</span>` : ""}
       <button class="linkish" id="cv-toggle">${sk.hidden ? "voir" : "masquer"}</button> · <button class="linkish" id="cv-clear">retirer le CV</button>
       <small>Seule cette liste est gardée sur cet ordinateur, pas ton CV.</small>`;
     sk.innerHTML = cv.skills.map((s) => `<span class="pill">${esc(label(lex.skills, s))}</span>`).join("") +
@@ -477,6 +494,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     try {
       const raw = await readCvText(file);
       if (!raw || raw.trim().length < 80) throw new Error("Ce fichier ne contient presque pas de texte (CV scanné en image ?). Essaie l'export PDF de ton traitement de texte.");
+      cvText = raw.slice(0, 15000);
       cv = profileFromText(file.name, raw);
       store.set("radar.cv", cv);
       state.sort = "fit"; $("sort").value = "fit";
@@ -484,6 +502,30 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     } catch (e) {
       cv = null;
       renderCv(`<b>Lecture impossible.</b> ${esc(e.message)}`);
+    }
+  }
+
+  async function refineWithAI() {
+    if (!cvText || !data.cv_api_url) return;
+    const btn = $("cv-ai-btn");
+    btn.disabled = true; btn.textContent = "Analyse en cours…";
+    try {
+      const r = await fetch(data.cv_api_url, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: cvText, lexicon: {
+          skills: lex.skills.map((s) => s.id), domains: lex.domains.map((d) => d.id),
+          roles: lex.roles.map((r) => r.id), languages: lex.languages.map((l) => l.id) } }) });
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(out.error || `erreur ${r.status}`);
+      const p = out.profile, strength = { forte: 1, moyenne: 0.66, faible: 0.33 }, ids = (list, src) => list.filter((x) => src.some((y) => y.id === x));
+      cv = { v: 1, source: "ia", name: cv.name, typology: p.typology, summary: p.summary,
+        skills: ids(p.skills, lex.skills),
+        domains: Object.fromEntries(p.domains.filter((d) => lex.domains.some((x) => x.id === d.id)).map((d) => [d.id, strength[d.strength] || 0.5])),
+        roles: ids(p.target_roles, lex.roles), langs: ids(p.languages, lex.languages) };
+      store.set("radar.cv", cv);
+      renderCv(); render();
+    } catch (e) {
+      btn.disabled = false; btn.textContent = "Réessayer l'analyse IA";
+      $("cv-ai").querySelector("small").textContent = `Analyse IA indisponible (${e.message}). Le fit reste calculé localement.`;
     }
   }
 
@@ -519,6 +561,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     const t = e.target.closest("button");
     if (!t) return;
     if (t.id === "cv-clear") { cv = null; store.set("radar.cv", null); renderCv(); render(); return; }
+    if (t.id === "cv-ai-btn") { refineWithAI(); return; }
     if (t.id === "cv-toggle") { $("cv-skills").hidden = !$("cv-skills").hidden; t.textContent = $("cv-skills").hidden ? "voir" : "masquer"; return; }
     if (t.dataset.s) toggle(state.sectors, t.dataset.s, t);
     else if (t.dataset.size) toggle(state.sizes, t.dataset.size, t);

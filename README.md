@@ -70,11 +70,36 @@ dans l'intitulé, pour qu'une actualité (« renforcée depuis septembre 2026 »
 commerce le sont. Enrichir `network_companies` avec les entreprises où la promo a déjà fait des stages est ce qui
 améliorera le plus la note.
 
+## Analyse par IA (OpenAI, modèle nano)
+
+Chaque offre plausible (pré-filtre par les règles, ~800 sur ~4 000 stages) est lue par `gpt-5-nano` (le moins cher,
+repli automatique sur `gpt-4.1-nano`) qui remplit une fiche au **schéma JSON strict** (`radar/llm.py`) : stage ou non,
+poste data ou non, métier, domaine, compétences exigées et appréciées (uniquement celles du dictionnaire
+`config/fit.yaml`), formation visée, date de début, durée, langues exigées, intensité data et accessibilité pour un·e
+élève de l'Institut Agro (chacune avec une phrase de justification), résumé de la mission.
+
+Avec cette fiche, les axes **Data** et **Profil** de la note et la **date de début** viennent du modèle ; la
+**concurrence** reste calculée par les règles (listes d'entreprises). Sans fiche (pas de clé, erreur), la notation par
+règles s'applique. Les fiches sont gardées en cache dans la base : seules les offres nouvelles ou modifiées sont
+réanalysées. Chaque exécution journalise le nombre d'appels et le coût (environ 0,0003 $ par offre : ~0,25 $ la
+première fois, quelques centimes par jour ensuite). Réglages et prix dans `config/llm.yaml`.
+
+**La clé n'est jamais dans le dépôt** : elle est lue dans la variable d'environnement `OPENAI_API_KEY`, déclarée comme
+secret GitHub (*Settings → Secrets and variables → Actions → New repository secret*, nom `OPENAI_API_KEY`).
+Mettre aussi une limite de dépense mensuelle sur le compte OpenAI.
+
+Tests (API simulée, aucun appel réel) : `python -m unittest discover tests` et `node --test cv-worker/test/worker.test.mjs`.
+
 ## Fit avec son CV
 
 Dans le tableau de bord, « Déposer mon CV » (PDF, Word ou texte) calcule un **fit** avec chaque offre et permet de
 trier par fit. **Le CV est lu dans le navigateur et n'est envoyé nulle part** : le site est statique, sans serveur.
 Seule la liste des compétences et domaines repérés est gardée sur l'ordinateur (localStorage), jamais le texte du CV.
+
+**Affiner avec l'IA** (facultatif, sur clic de l'élève) : si le petit serveur `cv-worker/` est déployé (voir
+`cv-worker/README.md`), le texte du CV lui est envoyé ; il demande au modèle la typologie du profil, les compétences,
+domaines (avec leur force) et métiers visés, dans les identifiants du dictionnaire, puis renvoie la fiche sans rien
+stocker. Le site statique ne peut pas appeler OpenAI lui-même : la clé y serait publique.
 
 Le même dictionnaire, `config/fit.yaml`, sert à lire les offres (à la collecte, `radar/fit.py`) et le CV (dans la page) :
 

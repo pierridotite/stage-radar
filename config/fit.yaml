@@ -3,11 +3,13 @@
 # et le CV déposé (navigateur, sur l'ordinateur de l'élève : le CV n'est envoyé nulle part).
 # Termes en minuscules SANS accents ; '*' final = préfixe.
 #
-# fit = compétences (55) + domaine (25) + métier visé (20) - manques bloquants - langue manquante
+# fit = compétences exigées (50) + appréciées (5) + domaine (25) + métier visé (20)
+#       - compétences bloquantes manquantes - langue manquante
 # =====================================================================
 
 weights:
-  skills: 55          # part des compétences demandées par l'offre que le CV contient
+  skills: 50          # part des compétences EXIGÉES par l'offre que le CV contient
+  nice: 5             # compétences appréciées (offres analysées par l'IA) présentes dans le CV
   skills_neutral: 0.5 # offre qui ne cite aucune compétence : couverture supposée de 50 %
   skills_smoothing: 2 # lissage : 2/2 compétences (75 %) compte moins que 7/7 (89 %), peu d'indices = moins de certitude
   domain: 25          # l'offre est dans un domaine où le CV a de l'expérience
@@ -77,16 +79,18 @@ domains:
   - {id: finance, label: Finance & assurance, terms: [finance, "services financiers", "marches financiers", banque, bancaire, assureur*, "compagnie d'assurance", actuari*, "risque de credit", fraude, fraud, trading]}
   - {id: marketing, label: Marketing & retail, terms: [marketing, retail, "e-commerce", ecommerce, ventes, crm, pricing, consommateur*]}
   - {id: consulting, label: Conseil, terms: [conseil, consulting, consultant*]}
+  - {id: tech, label: Tech & logiciel, terms: [saas, "editeur de logiciel*", "logiciel*", software, plateforme, "scale-up", scaleup]}
   - {id: research, label: Recherche, terms: [research, laboratoire, "unite de recherche", "projet de recherche", "stage de recherche", "these de doctorat", publication*, inrae, cnrs, inserm]}
 
 # Métiers : comparés entre l'intitulé de l'offre et l'en-tête / le profil du CV
 roles:
   - {id: ds, label: Data scientist / ML, terms: ["data scien*", "machine learning", "ml engineer", "ingenieur ia", "ai engineer", "intelligence artificielle", "modelisation predictive", "deep learning"]}
-  - {id: da, label: Data analyst / BI, terms: ["data analy*", "business intelligence", bi, "analyste de donnees", "business analyst", reporting, "power bi"]}
+  - {id: da, label: Data analyst / BI, terms: ["data analy*", "business intelligence", bi, "analyste de donnees", reporting, "power bi"]}
   - {id: de, label: Data engineer, terms: ["data engineer*", "ingenieur donnees", etl, pipeline*]}
   - {id: stat, label: Statisticien / biostatisticien, terms: [statisticien*, biostatisti*, biometri*, "statistique appliquee", "analyse de donnees experimentales", "modelisation statistique"]}
   - {id: rnd, label: R&D / recherche, terms: [rnd, research, innovation, experimentation*, "stage de recherche"]}
   - {id: consult, label: Consultant data, terms: ["consultant data", consultant*]}
+  - {id: biz, label: Business / finance analyst, terms: ["business analyst", "controle de gestion", "fp&a", "financial analyst", "analyste financier", "analyste business"]}
 
 languages:
   - {id: de, label: allemand, offer: ["allemand courant", "fluent german", "german fluent", "fluent in german", deutsch], cv: [allemand, german, deutsch]}
