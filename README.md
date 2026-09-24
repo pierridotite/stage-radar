@@ -113,6 +113,19 @@ Le même dictionnaire, `config/fit.yaml`, sert à lire les offres (à la collect
 
 Très bon fit ≥ 75, bon ≥ 60, moyen ≥ 45. Le détail de chaque offre liste les compétences présentes (✓) et manquantes (✗).
 
+## Networking : qui contacter ?
+
+Dans le détail de chaque offre, « Qui contacter ? » propose des recherches LinkedIn classées par priorité : anciens de
+l'Institut Agro Rennes-Angers qui font de la data dans l'entreprise, anciens de l'école, anciens d'AgroParisTech et de
+l'Institut Agro Montpellier, l'équipe qui recrute (nommée par l'analyse IA), l'équipe data, le recrutement. Elles
+s'ouvrent dans le compte LinkedIn de l'élève (outil « Anciens élèves » des pages école, filtré par entreprise) :
+**LinkedIn interdit la collecte automatique de profils, l'outil ne récupère donc aucun nom.**
+
+« Mes contacts » garde, sur l'ordinateur de l'élève, les personnes repérées ; les critères cochés (même école, autre
+école agro, même entité, même équipe, manager ou recruteur, diplômé récent, relation commune) donnent un score de
+match qui classe qui contacter en premier, et « Message » prépare une note d'invitation de moins de 300 caractères.
+Critères, points, recherches et messages : `config/network.yaml`.
+
 ## Ajouter une entreprise
 
 - **Entreprises** : lister nom, secteur, taille et page carrières dans un CSV (`name,sector,size,url`), puis

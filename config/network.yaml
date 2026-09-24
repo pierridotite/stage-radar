@@ -1,0 +1,50 @@
+# =====================================================================
+# Networking : qui contacter sur LinkedIn pour une offre ?
+#
+# LinkedIn interdit la collecte automatique de profils : l'outil ne récupère donc aucun nom. Il prépare,
+# pour chaque offre, des recherches LinkedIn classées par priorité, qui s'ouvrent dans le compte de l'élève
+# (l'outil "Anciens élèves" des pages école, filtré par entreprise). L'élève note ensuite les personnes
+# repérées dans "Mes contacts" : le score de match ci-dessous classe qui contacter en premier.
+# =====================================================================
+
+# Pages école LinkedIn (vérifiées sur les sites officiels des écoles)
+schools:
+  home: {label: "Institut Agro Rennes-Angers", slug: institut-agro-rennes-angers}
+  others:
+    - {label: "AgroParisTech", slug: agroparistech}
+    - {label: "Institut Agro Montpellier", slug: institut-agro-montpellier}
+  # anciens noms et écoles proches, pour la recherche libre
+  keywords: ["Agrocampus Ouest", "Institut Agro", "AgroParisTech", "Oniris", "ENSAT", "Bordeaux Sciences Agro",
+             "VetAgro Sup", "ISARA", "ESA Angers"]
+
+# Recherches proposées, de la plus prometteuse à la moins prometteuse
+searches:
+  - {id: alumni_data, score: 100, label: "Anciens de l'école qui font de la data chez {company}",
+     why: "Même formation et même métier : le meilleur relais pour un conseil ou une recommandation."}
+  - {id: alumni, score: 90, label: "Anciens de l'école chez {company}",
+     why: "Un ancien répond volontiers et peut transmettre ta candidature en interne."}
+  - {id: alumni_other, score: 75, label: "Anciens d'AgroParisTech et de l'Institut Agro Montpellier chez {company}",
+     why: "Même culture agro et data : bon taux de réponse."}
+  - {id: team, score: 70, label: "L'équipe qui recrute : {team}",
+     why: "Les futurs collègues connaissent le sujet et parfois le ou la manager."}
+  - {id: data_people, score: 60, label: "Data scientists et data managers chez {company}",
+     why: "Pour comprendre les attentes de l'équipe data avant l'entretien."}
+  - {id: recruiters, score: 45, label: "Recrutement et relations écoles chez {company}",
+     why: "Pour vérifier que l'offre est ouverte et signaler ta candidature."}
+
+# Score de match d'un contact noté par l'élève (plafonné à 100)
+criteria:
+  - {id: same_school, points: 35, label: "Ancien·ne de l'Institut Agro Rennes-Angers ou d'Agrocampus Ouest"}
+  - {id: agro_school, points: 20, label: "Ancien·ne d'une autre école agro (AgroParisTech, Montpellier, Oniris...)"}
+  - {id: same_entity, points: 20, label: "Travaille dans l'entité qui recrute (filiale, maison, site)"}
+  - {id: same_company, points: 10, label: "Travaille dans le groupe, autre entité"}
+  - {id: same_team, points: 20, label: "Dans l'équipe de l'offre ou un métier data proche"}
+  - {id: decision, points: 15, label: "Manager de l'offre, ou recruteur·se du poste"}
+  - {id: recent, points: 10, label: "Diplômé·e il y a moins de 10 ans"}
+  - {id: link, points: 10, label: "Relation commune ou déjà en contact"}
+
+# Messages d'approche (note d'invitation LinkedIn : 300 caractères au plus)
+messages:
+  alumni: "Bonjour {first}, je suis en dernière année data science à l'Institut Agro Rennes-Angers et je candidate au stage « {title} » chez {company}. Ancien·ne de l'école, auriez-vous 10 minutes pour me parler de l'équipe ? Merci beaucoup !"
+  team: "Bonjour {first}, élève ingénieur·e data science à l'Institut Agro Rennes-Angers, je candidate au stage « {title} » chez {company}. Votre parcours m'intéresse : auriez-vous 10 minutes pour échanger sur le poste ? Merci !"
+  recruiter: "Bonjour {first}, je candidate au stage de fin d'études « {title} » (6 mois dès février 2027). Élève ingénieur·e data science à l'Institut Agro Rennes-Angers, je serais ravi·e d'échanger sur le poste. Merci !"

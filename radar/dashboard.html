@@ -145,6 +145,24 @@ details.more-info[open] summary::before { content: "− "; }
 .detail .muted { color: var(--ink-3); }
 .plus { color: var(--pos); } .minus { color: var(--neg); }
 .excerpt { max-width: 75ch; }
+.net { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.net li { display: grid; grid-template-columns: 34px 1fr; gap: 8px; align-items: baseline; }
+.nscore { font: 600 12px/1 var(--mono); color: var(--accent); text-align: right; }
+.net a { color: var(--ink); font-weight: 600; }
+.net small { display: block; color: var(--ink-3); }
+.contacts { display: grid; gap: 6px; margin: 4px 0 8px; }
+.contact { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 8px; background: var(--sunken); border-radius: 8px; }
+.contact .cscore { font: 700 13px/1 var(--display); padding: 4px 7px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.contact .cname { font-weight: 600; color: var(--ink); flex: 1 1 140px; min-width: 0; }
+.contact select { padding: 3px 6px; font-size: 12.5px; }
+.contact-form { display: grid; gap: 6px; padding: 8px; border: 1px dashed var(--line); border-radius: 8px; }
+.contact-form .two { display: flex; flex-wrap: wrap; gap: 6px; }
+.contact-form input[type=text], .contact-form input[type=url] { flex: 1 1 180px; min-width: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.crit { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 2px 12px; font-size: 12.5px; }
+.crit label { display: flex; gap: 6px; align-items: baseline; }
+.mini { font-size: 12.5px; padding: 3px 9px; }
+.msgbox { width: 100%; min-height: 70px; font: 13px/1.4 var(--body); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.tag.net-tag { background: var(--accent-soft); color: var(--accent); }
 .empty { padding: 40px 20px; text-align: center; color: var(--ink-3); border: 1px dashed var(--line); border-radius: 10px; }
 .more { margin: 14px auto 0; display: block; }
 
@@ -283,6 +301,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   let lex = null;          // dictionnaire du fit (compétences, domaines, métiers, langues)
   let cv = store.get("radar.cv", null);   // profil extrait du CV : listes d'identifiants, jamais le texte du CV
   let cvText = "";                        // texte du dernier CV lu : en mémoire seulement, oublié au rechargement
+  let contacts = store.get("radar.contacts", {});   // {id d'offre: [contacts notés par l'élève]}, sur cet ordinateur
 
   // ------------------------------------------------------------------ dictionnaire (même règles qu'en Python)
   function compileTerms(terms) {
@@ -417,6 +436,8 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     if (o.competition === "forte") t.push('<span class="tag warn">Très demandé</span>');
     t.push(`<span class="tag">${esc(SECTORS[o.sector] || o.sector)}</span>`);
     if (SIZES[o.size]) t.push(`<span class="tag">${SIZES[o.size]}</span>`);
+    const n = (contacts[o.id] || []).length;
+    if (n) t.push(`<span class="tag net-tag">${n} contact${n > 1 ? "s" : ""}</span>`);
     return t.join("");
   }
   function detailFor(o, fit) {
@@ -431,10 +452,92 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
         <p>${fit.got.length ? `<span class="plus">✓ ${esc(fit.got.join(", "))}</span>` : ""}${fit.got.length && fit.miss.length ? " · " : ""}${fit.miss.length ? `<span class="minus">✗ ${esc(fit.miss.join(", "))}</span>` : ""}</p>
         <ul>${fit.parts.slice(1).map(([pts, lbl]) => `<li>${esc(lbl)}${pts ? ` <span class="${pts > 0 ? "plus" : "minus"}">${pts > 0 ? "+" : ""}${pts}</span>` : ""}</li>`).join("")}</ul></div>` : "";
     const mission = o.ai ? `<p><b>Mission</b> : ${esc(o.ai.summary)}${o.ai.other_skills?.length ? ` <span class="muted">(aussi : ${esc(o.ai.other_skills.join(", "))})</span>` : ""}</p>` : "";
-    return `<div class="detail">${mission}${fitBlock}
+    return `<div class="detail">${mission}${fitBlock}${networkFor(o)}
       <div><h4>Note ${o.grade === "X" ? "hors calendrier" : o.grade} (score ${o.score})</h4><ul>${byAxis}</ul></div>
       ${o.excerpt ? `<p class="excerpt muted">${esc(o.excerpt.slice(0, 420))}…</p>` : ""}</div>`;
   }
+  // ------------------------------------------------------------------ networking (recherches LinkedIn + mes contacts)
+  const LI_SCHOOL = (slug, kw) => `https://www.linkedin.com/school/${slug}/people/?keywords=${encodeURIComponent(kw)}`;
+  const LI_PEOPLE = (kw) => `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(kw)}`;
+  function orgOf(o) {
+    const [base, sub] = o.company.split(" · ");
+    const entity = o.ai?.entity || (o.size === "public" ? "" : sub || "");
+    return { base, org: entity || base, entity };
+  }
+  function searchesFor(o) {
+    const N = data.network, { org } = orgOf(o), team = o.ai?.team || "";
+    const home = N.schools.home;
+    const links = {
+      alumni_data: [[home.label, LI_SCHOOL(home.slug, `${org} data`)]],
+      alumni: [[home.label, LI_SCHOOL(home.slug, org)]],
+      alumni_other: N.schools.others.map((s) => [s.label, LI_SCHOOL(s.slug, org)]),
+      team: team ? [["LinkedIn", LI_PEOPLE(`${org} ${team}`)]] : null,
+      data_people: [["LinkedIn", LI_PEOPLE(`${org} data scientist`)]],
+      recruiters: [["LinkedIn", LI_PEOPLE(`${org} talent acquisition`)]],
+    };
+    return N.searches.filter((s) => links[s.id]).map((s) => ({ ...s, links: links[s.id],
+      label: s.label.replace("{company}", org).replace("{team}", team) }));
+  }
+  const contactScore = (c) => Math.min(100, data.network.criteria.filter((k) => c.crit.includes(k.id)).reduce((a, k) => a + k.points, 0));
+  function messageFor(o, c) {
+    const M = data.network.messages;
+    const kind = c.crit.some((k) => k === "same_school" || k === "agro_school") ? "alumni"
+      : c.crit.includes("decision") ? "recruiter" : "team";
+    const first = (c.name || "").trim().split(/\s+/)[0] || "";
+    const fill = (title) => M[kind].replace("{first}", first).replace("{company}", orgOf(o).org).replace("{title}", title);
+    let title = o.title, msg = fill(title);
+    // note d'invitation LinkedIn : 300 caractères au plus, on raccourcit l'intitulé si besoin
+    while (msg.length > 300 && title.length > 20) { title = title.slice(0, title.length - 8).trimEnd() + "…"; msg = fill(title); }
+    return msg;
+  }
+  const safeUrl = (u) => /^https:\/\/([a-z]+\.)?linkedin\.com\//i.test(u || "") ? u : "";
+  function contactsHTML(o) {
+    const list = (contacts[o.id] || []).map((c, i) => ({ ...c, i, score: contactScore(c) })).sort((a, b) => b.score - a.score);
+    const status = { todo: "À contacter", sent: "Message envoyé", replied: "A répondu" };
+    const rows = list.map((c) => `<div class="contact">
+        <span class="cscore" title="Score de match">${c.score}</span>
+        <span class="cname">${safeUrl(c.url) ? `<a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.name)}</a>` : esc(c.name)}</span>
+        <select data-status="${o.id}:${c.i}" aria-label="Statut">${Object.entries(status).map(([k, v]) =>
+          `<option value="${k}"${c.status === k ? " selected" : ""}>${v}</option>`).join("")}</select>
+        <button class="chip mini" data-msg="${o.id}:${c.i}">Message</button>
+        <button class="linkish" data-del="${o.id}:${c.i}">retirer</button>
+      </div>`).join("");
+    const crit = data.network.criteria.map((k) =>
+      `<label><input type="checkbox" name="crit" value="${k.id}"> ${esc(k.label)} <span class="muted">+${k.points}</span></label>`).join("");
+    return `<div class="contacts">${rows || '<p class="muted">Aucun contact noté pour cette offre.</p>'}</div>
+      <form class="contact-form" data-offer="${o.id}">
+        <div class="two"><input type="text" name="name" placeholder="Prénom Nom" required aria-label="Nom du contact">
+          <input type="url" name="url" placeholder="Lien du profil LinkedIn (facultatif)" aria-label="Profil LinkedIn"></div>
+        <div class="crit">${crit}</div>
+        <div><button class="chip mini" type="submit">Ajouter le contact</button></div>
+      </form>`;
+  }
+  function networkFor(o) {
+    if (!data.network) return "";
+    const rows = searchesFor(o).map((s) => `<li><span class="nscore">${s.score}</span><span>
+        ${s.links.map(([lbl, url], i) => `<a href="${url}" target="_blank" rel="noopener">${i === 0 ? esc(s.label) : esc(lbl)}</a>`).join(" · ")}
+        <small>${esc(s.why)}</small></span></li>`).join("");
+    return `<div><h4>Qui contacter ?</h4><ol class="net">${rows}</ol>
+      <p class="muted">Les recherches s'ouvrent dans ton LinkedIn. Note ci-dessous les personnes repérées : le score classe qui contacter en premier.</p></div>
+      <div class="my-contacts" data-offer="${o.id}"><h4>Mes contacts</h4>${contactsHTML(o)}</div>`;
+  }
+  function saveContacts(offerId) {
+    store.set("radar.contacts", contacts);
+    const box = document.querySelector(`.my-contacts[data-offer="${offerId}"]`);
+    const o = data.offers.find((x) => x.id === offerId);
+    if (box && o) box.innerHTML = `<h4>Mes contacts</h4>${contactsHTML(o)}`;
+    const tags = box?.closest(".offer")?.querySelector(".tags");
+    if (tags && o) tags.innerHTML = tagsFor(o);
+  }
+  function showMessage(o, c, anchor) {
+    const msg = messageFor(o, c);
+    anchor.closest(".contact").insertAdjacentHTML("afterend",
+      `<textarea class="msgbox" readonly aria-label="Message à copier">${esc(msg)}</textarea>`);
+    const box = anchor.closest(".contact").nextElementSibling;
+    Promise.resolve(navigator.clipboard?.writeText(msg)).then(() => { anchor.textContent = "Copié"; })
+      .catch(() => { box.select(); anchor.textContent = "Sélectionné"; });
+  }
+
   function offerHTML(o) {
     const fit = o._fit;
     const posted = o.posted_at ? new Date(o.posted_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : "";
@@ -562,6 +665,18 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     if (!t) return;
     if (t.id === "cv-clear") { cv = null; store.set("radar.cv", null); renderCv(); render(); return; }
     if (t.id === "cv-ai-btn") { refineWithAI(); return; }
+    if (t.dataset.del) {
+      const [id, i] = t.dataset.del.split(":");
+      contacts[id].splice(+i, 1);
+      if (!contacts[id].length) delete contacts[id];
+      saveContacts(id); return;
+    }
+    if (t.dataset.msg) {
+      const [id, i] = t.dataset.msg.split(":");
+      const o = data.offers.find((x) => x.id === id), next = t.closest(".contact").nextElementSibling;
+      if (next?.classList.contains("msgbox")) { next.remove(); t.textContent = "Message"; return; }
+      showMessage(o, contacts[id][+i], t); return;
+    }
     if (t.id === "cv-toggle") { $("cv-skills").hidden = !$("cv-skills").hidden; t.textContent = $("cv-skills").hidden ? "voir" : "masquer"; return; }
     if (t.dataset.s) toggle(state.sectors, t.dataset.s, t);
     else if (t.dataset.size) toggle(state.sizes, t.dataset.size, t);
@@ -583,6 +698,23 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     d.insertAdjacentHTML("beforeend", detailFor(o, o._fit));
     d.dataset.built = "1";
   }, true);
+  $("list").addEventListener("submit", (e) => {
+    const f = e.target.closest("form.contact-form");
+    if (!f) return;
+    e.preventDefault();
+    const id = f.dataset.offer, fd = new FormData(f);
+    const name = String(fd.get("name") || "").trim().slice(0, 80);
+    if (!name) return;
+    (contacts[id] ||= []).push({ name, url: String(fd.get("url") || "").trim().slice(0, 300), crit: fd.getAll("crit"), status: "todo" });
+    saveContacts(id);
+  });
+  $("list").addEventListener("change", (e) => {
+    const s = e.target.closest("select[data-status]");
+    if (!s) return;
+    const [id, i] = s.dataset.status.split(":");
+    contacts[id][+i].status = s.value;
+    store.set("radar.contacts", contacts);
+  });
   $("q").addEventListener("input", (e) => { state.q = e.target.value; state.shown = PAGE; render(); });
   $("sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
   $("region").addEventListener("change", (e) => { state.region = e.target.value; store.set("radar.region", state.region); state.shown = PAGE; render(); });

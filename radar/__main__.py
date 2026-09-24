@@ -151,6 +151,7 @@ def export(store: Store, today: date, use_llm: bool = True) -> None:
         "school": load("scoring.yaml")["school"],
         "fit_lexicon": lexicon.export(),
         "cv_api_url": llm_cfg["cv"]["api_url"],
+        "network": load("network.yaml"),
         "stats": {
             "offers": len(items), "new": sum(i["new"] for i in items),
             "by_sector": Counter(i["sector"] for i in items), "by_size": Counter(i["size"] or "?" for i in items),
