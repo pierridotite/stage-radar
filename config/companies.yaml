@@ -91,12 +91,9 @@ companies:
   - {name: Michelin, sector: industrie, size: grande, ats: workday, host: michelinhr.wd3.myworkdayjobs.com, site: Michelin}
   - {name: Renault Group, sector: industrie, size: grande, ats: workday, host: alliancewd.wd3.myworkdayjobs.com, site: renault-group-careers}
   - {name: Valeo, sector: industrie, size: grande, ats: workday, host: valeo.wd3.myworkdayjobs.com, site: valeo_jobs}
-  - {name: Stellantis, sector: industrie, size: grande, ats: workday, host: stellantis.wd3.myworkdayjobs.com, site: External_Career_Site_ID01}
   - {name: Forvia, sector: industrie, size: grande, ats: eightfold, flavor: v2, base: "https://jobs.faurecia.com", id: faurecia.com}
   - {name: Alstom, sector: industrie, size: grande, ats: sf_rss, url: "https://jobsearch.alstom.com/services/rss/job/?locale=fr_FR&keywords={q}"}
   - {name: Safran, sector: industrie, size: grande, ats: wttj, id: safran}
-  - {name: Schneider Electric, sector: industrie, size: grande, ats: wttj, id: schneider-electric}
-  - {name: TotalEnergies, sector: industrie, size: grande, ats: wttj, id: totalenergies}
 
   # ------------------------------------------------------------------ ajouts du 2026-09-23
   - {name: Advancy, sector: conseil, size: pme, ats: recruitee, id: advancy}
@@ -157,7 +154,6 @@ companies:
   - {name: fifty-five, sector: conseil, size: eti, ats: workable, id: fifty-five}
   - {name: ADEME, sector: data, size: eti, ats: unsupported, url: 'https://recrutement.ademe.fr/', platform: talentsoft}
   - {name: AG2R La Mondiale, sector: data, size: grande, ats: workday, host: ag2rlamondiale.wd3.myworkdayjobs.com, site: Candidats}
-  - {name: AXA, sector: data, size: grande, ats: unsupported, url: 'https://careers.axa.com/careers-home/jobs', platform: icims}
   - {name: Agicap, sector: data, size: eti, ats: lever, id: agicap}
   - {name: Aircall, sector: data, size: eti, ats: greenhouse, id: aircallioinc}
   - {name: Algolia, sector: data, size: eti, ats: greenhouse, id: algolia}
@@ -178,7 +174,6 @@ companies:
   - {name: Circana, sector: data, size: grande, ats: unsupported, url: 'https://jobs.circana.com/careers', platform: eightfold}
   - {name: Covéa, sector: data, size: grande, ats: smartrecruiters, id: COVEA1}
   - {name: Craft AI, sector: data, size: startup, ats: wttj, id: craft-ai}
-  - {name: Crédit Agricole (incl. Pacifica/CA Assurances), sector: data, size: grande, ats: unsupported, url: 'https://groupecreditagricole.jobs/fr/nos-offres-emploi/', platform: talentsoft}
   - {name: Dailymotion, sector: data, size: pme, ats: wttj, id: dailymotion}
   - {name: Dassault Systèmes, sector: data, size: grande, ats: unsupported, url: 'https://careers.3ds.com/jobs', platform: custom}
   - {name: Datadome, sector: data, size: pme, ats: greenhouse, id: ddome}
@@ -504,7 +499,6 @@ companies:
   - {name: Reden Solar, sector: industrie, size: pme, ats: teamtailor, id: redensolar}
   - {name: Renaissance Fusion, sector: industrie, size: startup, ats: teamtailor, id: renaissancefusion}
   - {name: Roquette, sector: industrie, size: grande, ats: workday, host: roquette.wd3.myworkdayjobs.com, site: External}
-  - {name: STMicroelectronics, sector: industrie, size: grande, ats: unsupported, url: 'https://stmicroelectronics.eightfold.ai/careers', platform: eightfold}
   - {name: Sagemcom, sector: industrie, size: eti, ats: talentsoft, url: 'https://sagemcom-career.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
   - {name: Sartorius, sector: industrie, size: grande, ats: workday, host: sartorius.wd3.myworkdayjobs.com, site: sartoriuscareers}
   - {name: Saur, sector: industrie, size: grande, ats: teamtailor, url: 'https://eu.jobs.saur.com/jobs.rss'}
@@ -780,3 +774,18 @@ companies:
 
   # ------------------------------------------------------------------ ajouts du 2026-09-24
   - {name: Groupe BPCE, sector: data, size: grande, ats: opendatasoft, base: bpce.opendatasoft.com, dataset: groupe-bpce-offres-emploi, where: search("stage") or search("stagiaire") or search("internship")}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-24
+  - {name: Publicis Groupe, sector: conseil, size: grande, ats: jibe, url: 'https://careers.publicisgroupe.com/api/jobs', country: France}
+  - {name: AXA, sector: data, size: grande, ats: jibe, url: 'https://careers.axa.com/api/jobs', country: France}
+  - {name: Crédit Agricole, sector: data, size: grande, ats: talentsoft, url: 'https://casa-recrute.talent-soft.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
+  - {name: Unibail-Rodamco-Westfield, sector: data, size: grande, ats: workday, host: urw.wd3.myworkdayjobs.com, site: urw_career_site}
+  - {name: Bouygues Construction, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.bouygues-construction.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: Bureau Veritas, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.bureauveritas.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: EssilorLuxottica, sector: industrie, size: grande, ats: sf_rss, url: 'https://careers.essilorluxottica.com/services/rss/job/?locale=fr_FR&keywords={q}'}
+  - {name: STMicroelectronics, sector: industrie, size: grande, ats: eightfold, id: stmicroelectronics.com, base: 'https://stmicroelectronics.eightfold.ai', flavor: v2}
+  - {name: Schneider Electric, sector: industrie, size: grande, ats: jibe, url: 'https://careers.se.com/api/jobs', country: France}
+  - {name: TotalEnergies, sector: industrie, size: grande, ats: oracle_hcm, host: fa-eocc-saasfaprod1.fa.ocs.oraclecloud.com, site: CX, job_url: 'https://fa-eocc-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/fr/sites/CX/job/{id}'}
+
+  # ------------------------------------------------------------------ ajouts du 2026-09-24
+  - {name: Stellantis (jobs.groupe-psa.com), sector: industrie, size: grande, ats: talentsoft, url: 'https://jobs.groupe-psa.com/handlers/offerRss.ashx?LCID=1036&keywords={q}'}
