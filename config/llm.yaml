@@ -22,8 +22,10 @@ offers:
 
 cv:
   max_chars: 15000
-  # URL du petit serveur Cloudflare qui analyse les CV (voir cv-worker/README.md). Vide = analyse locale par règles.
-  api_url: ""
+
+# Adresse du petit serveur Cloudflare (cv-worker/) : analyse des CV (/cv) et recherche de contacts (/contacts).
+# Vide = CV analysé localement par les règles, et seulement les recherches LinkedIn manuelles pour les contacts.
+worker_url: ""
 
 # Prix en $ par million de jetons, pour le journal de coût de chaque exécution
 prices:

@@ -163,6 +163,14 @@ details.more-info[open] summary::before { content: "− "; }
 .mini { font-size: 12.5px; padding: 3px 9px; }
 .msgbox { width: 100%; min-height: 70px; font: 13px/1.4 var(--body); padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
 .tag.net-tag { background: var(--accent-soft); color: var(--accent); }
+.found { display: grid; gap: 6px; margin: 6px 0; }
+.person { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 7px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.person .cscore { font: 700 13px/1 var(--display); padding: 5px 0; text-align: center; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+.person .who a { font-weight: 600; color: var(--ink); }
+.person .who small { display: block; color: var(--ink-2); }
+.person .why-chips { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 4px; }
+.person .why-chips span { font-size: 11.5px; padding: 1px 7px; border-radius: 999px; background: var(--gold-soft); color: var(--ink-2); }
+.person .acts { display: flex; gap: 6px; }
 .empty { padding: 40px 20px; text-align: center; color: var(--ink-3); border: 1px dashed var(--line); border-radius: 10px; }
 .more { margin: 14px auto 0; display: block; }
 
@@ -512,12 +520,70 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
         <div><button class="chip mini" type="submit">Ajouter le contact</button></div>
       </form>`;
   }
+  // ------------------------------------------------------------------ recherche automatique de contacts (serveur /contacts)
+  const FOUND_TTL = 7 * 24 * 3600 * 1000;   // résultats gardés 7 jours sur l'ordinateur : moins de recherches consommées
+  let found = store.get("radar.found", {});
+  for (const [k, v] of Object.entries(found)) if (!v.at || Date.now() - v.at > FOUND_TTL) delete found[k];
+  function critFromPerson(p) {
+    const c = [];
+    if (p.school === "home") c.push("same_school"); else if (p.school === "agro") c.push("agro_school");
+    if (p.in_entity) c.push("same_entity"); else if (p.works_at_target) c.push("same_company");
+    if (p.same_team || p.data_role) c.push("same_team");
+    if (p.decision) c.push("decision");
+    if (p.recent_grad === "oui") c.push("recent");
+    return c;
+  }
+  function foundHTML(o) {
+    const f = found[o.id];
+    if (!data.worker_url) return "";
+    if (!f) return `<button class="chip" data-find="${o.id}">Trouver des contacts automatiquement</button>
+      <p class="muted">Cherche des profils LinkedIn publics (anciens agro dans l'entreprise, équipe data, recrutement) et calcule leur score de match. Rien n'est conservé sur le serveur.</p>`;
+    if (f.error) return `<p class="minus">${esc(f.error)}</p><button class="chip mini" data-find="${o.id}">Réessayer</button>`;
+    if (f.loading) return `<p class="muted">Recherche en cours…</p>`;
+    const crit = Object.fromEntries(data.network.criteria.map((k) => [k.id, k]));
+    const people = f.people.map((p) => ({ ...p, crit: critFromPerson(p) })).map((p) => ({ ...p, score: contactScore(p) }))
+      .sort((a, b) => b.score - a.score);
+    if (!people.length) return `<p class="muted">Aucun profil public trouvé pour cette entreprise. Essaie les recherches LinkedIn ci-dessus.</p>`;
+    const mine = new Set((contacts[o.id] || []).map((c) => c.url));
+    return `<div class="found">${people.map((p, i) => `<div class="person">
+        <span class="cscore" title="Score de match">${p.score}</span>
+        <span class="who"><a href="${esc(safeUrl(p.url))}" target="_blank" rel="noopener">${esc(p.name)}</a><small>${esc(p.headline)}</small></span>
+        <span class="acts">${mine.has(p.url) ? '<span class="muted">dans mes contacts</span>'
+          : `<button class="chip mini" data-adopt="${o.id}:${f.people.indexOf(f.people.find((x) => x.url === p.url))}">Ajouter</button>`}</span>
+        <span class="why-chips">${p.crit.map((k) => `<span>${esc(crit[k].label.split(" (")[0])}</span>`).join("")}</span>
+      </div>`).join("")}</div>
+      <p class="muted">Trouvé le ${new Date(f.at).toLocaleDateString("fr-FR")} · profils publics issus d'un moteur de recherche, à vérifier sur LinkedIn.
+        <button class="linkish" data-find="${o.id}">relancer</button></p>`;
+  }
+  function renderFound(offerId) {
+    const box = document.querySelector(`.found-box[data-offer="${offerId}"]`);
+    const o = data.offers.find((x) => x.id === offerId);
+    if (box && o) box.innerHTML = foundHTML(o);
+  }
+  async function findContacts(offerId) {
+    const o = data.offers.find((x) => x.id === offerId);
+    const { base, entity } = orgOf(o);
+    found[offerId] = { loading: true }; renderFound(offerId);
+    try {
+      const r = await fetch(`${data.worker_url}/contacts`, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company: base, entity, team: o.ai?.team || "", title: o.title }) });
+      const out = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(out.error || `erreur ${r.status}`);
+      found[offerId] = { at: Date.now(), people: out.people.filter((p) => safeUrl(p.url)) };
+    } catch (e) {
+      found[offerId] = { error: `Recherche impossible : ${e.message}` };
+    }
+    if (!found[offerId].error) store.set("radar.found", found);
+    renderFound(offerId);
+  }
+
   function networkFor(o) {
     if (!data.network) return "";
     const rows = searchesFor(o).map((s) => `<li><span class="nscore">${s.score}</span><span>
         ${s.links.map(([lbl, url], i) => `<a href="${url}" target="_blank" rel="noopener">${i === 0 ? esc(s.label) : esc(lbl)}</a>`).join(" · ")}
         <small>${esc(s.why)}</small></span></li>`).join("");
-    return `<div><h4>Qui contacter ?</h4><ol class="net">${rows}</ol>
+    return `<div><h4>Qui contacter ?</h4><div class="found-box" data-offer="${o.id}">${foundHTML(o)}</div>
+      <p class="muted" style="margin-top:8px">Ou chercher toi-même :</p><ol class="net">${rows}</ol>
       <p class="muted">Les recherches s'ouvrent dans ton LinkedIn. Note ci-dessous les personnes repérées : le score classe qui contacter en premier.</p></div>
       <div class="my-contacts" data-offer="${o.id}"><h4>Mes contacts</h4>${contactsHTML(o)}</div>`;
   }
@@ -568,7 +634,7 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   function renderCv(message) {
     const box = $("cv"), txt = $("cv-text"), sk = $("cv-skills"), sortFit = $("sort").querySelector('option[value="fit"]');
     // l'analyse IA n'est proposée que si le service est configuré et qu'un CV vient d'être lu dans cette session
-    $("cv-ai").hidden = !(cv && cvText && data.cv_api_url && cv.source !== "ia");
+    $("cv-ai").hidden = !(cv && cvText && data.worker_url && cv.source !== "ia");
     box.classList.toggle("loaded", !!cv);
     sortFit.disabled = !cv;
     if (message) { txt.innerHTML = message; sk.hidden = true; return; }
@@ -609,11 +675,11 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   }
 
   async function refineWithAI() {
-    if (!cvText || !data.cv_api_url) return;
+    if (!cvText || !data.worker_url) return;
     const btn = $("cv-ai-btn");
     btn.disabled = true; btn.textContent = "Analyse en cours…";
     try {
-      const r = await fetch(data.cv_api_url, { method: "POST", headers: { "Content-Type": "application/json" },
+      const r = await fetch(`${data.worker_url}/cv`, { method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: cvText, lexicon: {
           skills: lex.skills.map((s) => s.id), domains: lex.domains.map((d) => d.id),
           roles: lex.roles.map((r) => r.id), languages: lex.languages.map((l) => l.id) } }) });
@@ -665,6 +731,12 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     if (!t) return;
     if (t.id === "cv-clear") { cv = null; store.set("radar.cv", null); renderCv(); render(); return; }
     if (t.id === "cv-ai-btn") { refineWithAI(); return; }
+    if (t.dataset.find) { findContacts(t.dataset.find); return; }
+    if (t.dataset.adopt) {
+      const [id, i] = t.dataset.adopt.split(":"), p = found[id].people[+i];
+      (contacts[id] ||= []).push({ name: p.name, url: p.url, crit: critFromPerson(p), status: "todo" });
+      saveContacts(id); renderFound(id); return;
+    }
     if (t.dataset.del) {
       const [id, i] = t.dataset.del.split(":");
       contacts[id].splice(+i, 1);

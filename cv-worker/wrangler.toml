@@ -1,9 +1,10 @@
-name = "radar-stages-cv"
+name = "radar-stages"
 main = "src/index.js"
 compatibility_date = "2026-09-01"
 
-# La clé OpenAI n'est PAS ici : elle se déclare en secret avec
+# Les clés ne sont PAS ici : elles se déclarent en secrets avec
 #   npx wrangler secret put OPENAI_API_KEY
+#   npx wrangler secret put TAVILY_API_KEY     (recherche de contacts ; gratuit : 1 000 recherches / mois)
 
 [vars]
 # Sites autorisés à appeler l'analyse (séparés par des virgules). Ajouter l'adresse de test locale si besoin.
@@ -11,9 +12,9 @@ ALLOWED_ORIGINS = "https://pierridotite.github.io"
 MODEL = "gpt-5-nano"
 FALLBACK_MODEL = "gpt-4.1-nano"
 
-# 5 analyses par minute et par visiteur : protège le budget contre les abus
+# 5 demandes par minute, par visiteur et par service : protège le budget contre les abus
 [[ratelimits]]
-name = "CV_RATE_LIMITER"
+name = "RATE_LIMITER"
 namespace_id = "1001"
 
   [ratelimits.simple]

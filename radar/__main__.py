@@ -150,7 +150,7 @@ def export(store: Store, today: date, use_llm: bool = True) -> None:
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "school": load("scoring.yaml")["school"],
         "fit_lexicon": lexicon.export(),
-        "cv_api_url": llm_cfg["cv"]["api_url"],
+        "worker_url": llm_cfg.get("worker_url", "").rstrip("/"),
         "network": load("network.yaml"),
         "stats": {
             "offers": len(items), "new": sum(i["new"] for i in items),

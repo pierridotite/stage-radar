@@ -1,34 +1,36 @@
-# Analyse des CV par IA (Cloudflare Worker)
+# Serveur du Radar Stages (Cloudflare Worker)
 
-Le tableau de bord est un site statique et public : il ne peut pas contenir de clé OpenAI. Ce petit serveur
-(gratuit chez Cloudflare pour ce volume) garde la clé en secret et fait l'analyse des CV :
+Le tableau de bord est un site statique et public : il ne peut contenir aucune clé. Ce petit serveur (gratuit chez
+Cloudflare pour ce volume) garde les clés en secret et rend deux services, **uniquement quand l'élève clique** :
 
-1. le navigateur de l'élève extrait le texte du CV (PDF, Word) et l'envoie ici, seulement si l'élève clique
-   « Affiner avec l'IA » ;
-2. le serveur demande au modèle (`gpt-5-nano`) une fiche structurée : typologie du profil, compétences, domaines,
-   métiers visés, langues ; le schéma JSON est strict et n'accepte que les identifiants de `config/fit.yaml` ;
-3. il renvoie la fiche, qui sert au calcul du fit dans la page. **Rien n'est stocké ni journalisé.**
+| Service | Ce qu'il fait | Coût |
+|---|---|---|
+| `POST /cv` (« Affiner avec l'IA ») | reçoit le texte du CV extrait dans le navigateur, demande à `gpt-5-nano` la typologie du profil, les compétences, domaines et métiers visés (schéma JSON strict, identifiants de `config/fit.yaml`) | ~0,001 $ par CV |
+| `POST /contacts` (« Trouver des contacts automatiquement ») | construit 3 recherches à partir de l'offre (anciens agro dans l'entreprise, équipe data ou équipe de l'offre, recrutement), interroge le moteur **Tavily** limité aux profils LinkedIn publics, puis `gpt-5-nano` décrit chaque personne (poste, entité, école, rôle data, recruteur) ; la page calcule le score de match avec `config/network.yaml` | 3 recherches Tavily (1 000 gratuites / mois) + ~0,001 $ |
 
-Garde-fous : seules les requêtes venant du site sont acceptées, 5 analyses par minute et par visiteur,
-texte limité à 15 000 caractères, réponse limitée. Coût : environ 0,001 $ par CV.
+**Rien n'est stocké ni journalisé** côté serveur. LinkedIn n'est pas aspiré : les profils viennent de l'index public
+d'un moteur de recherche, comme une recherche Google faite à la main. Les résultats restent 7 jours dans le navigateur
+de l'élève, pour ne pas relancer les mêmes recherches.
 
-## Mise en service (une fois, 5 minutes)
+Garde-fous : seules les requêtes venant du site sont acceptées ; 5 demandes par minute, par visiteur et par service ;
+les requêtes de recherche sont construites par le serveur (impossible de s'en servir pour chercher autre chose) ;
+entrées et réponses plafonnées.
 
-Il faut un compte Cloudflare gratuit et Node.js.
+## Mise en service (une fois, 10 minutes)
+
+1. Créer une clé Tavily gratuite, sans carte bancaire : https://app.tavily.com (plan « Researcher », 1 000 recherches / mois).
+2. Avoir un compte Cloudflare gratuit et Node.js, puis :
 
 ```bash
 cd cv-worker
 npx wrangler login                        # ouvre le navigateur pour se connecter à Cloudflare
-npx wrangler secret put OPENAI_API_KEY    # colle la clé OpenAI quand elle est demandée
-npx wrangler deploy                       # affiche l'adresse du service, en https://....workers.dev
+npx wrangler secret put OPENAI_API_KEY    # colle la clé OpenAI
+npx wrangler secret put TAVILY_API_KEY    # colle la clé Tavily
+npx wrangler deploy                       # affiche l'adresse du service : https://radar-stages.<compte>.workers.dev
 ```
 
-Puis reporter cette adresse dans `config/llm.yaml` :
+3. Reporter cette adresse dans `config/llm.yaml` (`worker_url: "https://radar-stages.<compte>.workers.dev"`) et
+   pousser : les boutons « Affiner avec l'IA » et « Trouver des contacts automatiquement » apparaissent au prochain
+   passage du workflow.
 
-```yaml
-cv:
-  api_url: "https://radar-stages-cv.<compte>.workers.dev"
-```
-
-et pousser la modification : le bouton « Affiner avec l'IA » apparaît dans le tableau de bord au prochain
-passage du workflow. Sans cette adresse, l'analyse du CV reste faite localement par les règles.
+Tests (OpenAI et Tavily simulés) : `npm test`.

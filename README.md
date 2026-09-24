@@ -121,6 +121,11 @@ l'Institut Agro Montpellier, l'équipe qui recrute (nommée par l'analyse IA), l
 s'ouvrent dans le compte LinkedIn de l'élève (outil « Anciens élèves » des pages école, filtré par entreprise) :
 **LinkedIn interdit la collecte automatique de profils, l'outil ne récupère donc aucun nom.**
 
+**Recherche automatique** (si le serveur `cv-worker/` est déployé, voir son README) : « Trouver des contacts
+automatiquement » lance 3 recherches sur le moteur Tavily (gratuit, 1 000 recherches / mois) limitées aux profils
+LinkedIn publics ; le modèle décrit chaque personne (poste, entité, école, rôle data, recruteur) et la page les classe
+par score de match. Rien n'est conservé sur le serveur ; les résultats restent 7 jours dans le navigateur de l'élève.
+
 « Mes contacts » garde, sur l'ordinateur de l'élève, les personnes repérées ; les critères cochés (même école, autre
 école agro, même entité, même équipe, manager ou recruteur, diplômé récent, relation commune) donnent un score de
 match qui classe qui contacter en premier, et « Message » prépare une note d'invitation de moins de 300 caractères.
