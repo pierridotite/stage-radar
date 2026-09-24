@@ -1,7 +1,7 @@
 # Radar Stages Agro
 
 Outil de la promo **Data science, Institut Agro Rennes-Angers** : chaque matin, il récupère les offres de stage
-de fin d'études publiées sur les sites carrières de ~360 entreprises (data, agro, luxe, sport, conseil, industrie ;
+de fin d'études publiées sur les sites carrières de ~380 entreprises (data, agro, luxe, sport, conseil, industrie ;
 startups, PME, ETI et grands groupes) et sur 8 jobboards spécialisés,
 garde les postes data **situés en France**, classe l'entreprise par taille (startup, PME, ETI, grand groupe)
 et donne à chacun une **note d'accessibilité pour notre école** (A à D). Chaque élève peut aussi déposer
@@ -25,7 +25,7 @@ Résultats :
 
 | Source | Comment | Clé |
 |---|---|---|
-| Sites carrières des entreprises (Workday, SmartRecruiters, Lever, Greenhouse, Ashby, Teamtailor, Workable, Recruitee, Personio, Breezy, DigitalRecruiters, Oracle Recruiting, SuccessFactors/Talentsoft en RSS, Eightfold, Jibe, recherche LVMH, API Capgemini) | flux publics que les pages carrières appellent elles-mêmes, liste dans `config/companies.yaml` | aucune |
+| Sites carrières des entreprises (Workday, SmartRecruiters, Lever, Greenhouse, Ashby, Teamtailor, Workable, Recruitee, Personio, Breezy, DigitalRecruiters, Oracle Recruiting, Phenom, Radancy, iCIMS, SuccessFactors/Talentsoft en RSS, Eightfold, Jibe, recherche LVMH, API Capgemini) | flux publics que les pages carrières appellent elles-mêmes, liste dans `config/companies.yaml` | aucune |
 | Jobboards de niche : PASS (stages de la fonction publique), INRAE, Apecita, iQuesta, Sport Jobs Hunter, Vitijob, Jobagri, Emploi-Environnement | flux RSS officiels, API publiques ou sitemap, statut juridique vérifié ; liste dans `config/sources.yaml` | aucune |
 | Adzuna | API officielle d'agrégation (couvre une grande partie des jobboards français) | gratuite sur developer.adzuna.com, variables `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` |
 | Ajouts manuels | `data/manual_offers.csv` : offres repérées sur LinkedIn, JobTeaser, le forum école… | aucune |
@@ -137,4 +137,25 @@ Critères, points, recherches et messages : `config/network.yaml`.
   `python -m radar.discover liste.csv`. Le détecteur lit la page, reconnaît la plateforme de recrutement et
   imprime les lignes vérifiées à coller dans `config/companies.yaml`. Vérifier ensuite avec
   `python -m radar --only <nom>`.
+
+## Automatiser chaque jour
+
+**GitHub Actions** : le workflow `.github/workflows/daily.yml` tourne chaque matin à 7h30 (heure de Paris),
+collecte, score et publie le tableau de bord sur GitHub Pages. L'historique `data/radar.db` est gardé d'un jour
+à l'autre dans le cache Actions (pas de commit quotidien). Lancer à la main : onglet *Actions → radar-quotidien →
+Run workflow*. Pour Adzuna : *Settings → Secrets and variables → Actions*, ajouter `ADZUNA_APP_ID` et `ADZUNA_APP_KEY`, et `OPENAI_API_KEY` pour l'analyse IA.
+
+**Sur un PC Windows** : Planificateur de tâches, action `python -m radar`, dossier de départ = ce dossier.
+
+## Couverture et prochaines étapes
+
+`companies.yaml` recense ~690 entreprises, dont ~380 collectées. Pour le CAC 40, la plupart des groupes sont collectés
+(parfois via leurs filiales). Restent hors d'atteinte, car leur site carrières est protégé contre les robots
+(Cloudflare, Akamai) ou sans flux public : BNP Paribas, Société Générale, Saint-Gobain, Safran, L'Oréal, Equans,
+Dassault Systèmes. Leur contournement n'est pas envisagé ; leurs offres arrivent par **Adzuna** (agrégateur officiel,
+secrets `ADZUNA_APP_ID` / `ADZUNA_APP_KEY`), qui indexe les jobboards où ces groupes publient.
+
+Plateformes encore non gérées parmi les entreprises recensées : sites maison, Avature, Taleo, Cornerstone, Flatchr,
+WeRecruit, Beetween. Les flux Talentsoft et SuccessFactors renvoient au plus 20 offres par mot-clé : la collecte
+interroge plusieurs mots-clés (stage, stagiaire, intern, internship) pour limiter les manques.
 
