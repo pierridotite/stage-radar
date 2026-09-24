@@ -20,16 +20,17 @@ from ..text import fold, strip_html
 log = logging.getLogger(__name__)
 
 
-def _adzuna_search(s, what: str, pages: int):
-    """Résultats bruts d'une recherche Adzuna France (30 derniers jours), page par page."""
+def _adzuna_search(s, search: dict, pages: int):
+    """Résultats bruts d'une recherche Adzuna France (30 derniers jours), page par page.
+    search : {"what": "mots tous requis"} ou {"what_phrase": "expression exacte", "what_or": "un de ces mots"}."""
     app_id, app_key = os.getenv("ADZUNA_APP_ID"), os.getenv("ADZUNA_APP_KEY")
     for page in range(1, pages + 1):
         r = s.get(f"https://api.adzuna.com/v1/api/jobs/fr/search/{page}", params={
-            "app_id": app_id, "app_key": app_key, "what": what, "results_per_page": 50,
+            "app_id": app_id, "app_key": app_key, **search, "results_per_page": 50,
             "max_days_old": 30, "content-type": "application/json",
         })
         if r.status_code != 200:
-            log.warning("Adzuna %r page %s : HTTP %s", what, page, r.status_code)
+            log.warning("Adzuna %r page %s : HTTP %s", search, page, r.status_code)
             return
         results = r.json().get("results", [])
         yield from results
@@ -50,16 +51,19 @@ def _adzuna_offer(p: dict) -> Offer | None:
 
 def adzuna(queries: list[str], companies: list[dict], s, pages: int = 2) -> list[Offer]:
     """queries : recherches par mots-clés. companies : grands groupes dont le site carrière bloque les robots ;
-    on cherche "stage <nom>" et on ne garde que les annonces publiées par l'entreprise elle-même."""
+    on cherche le nom exact avec un mot de stage et on ne garde que les annonces publiées par l'entreprise
+    elle-même."""
     if not (os.getenv("ADZUNA_APP_ID") and os.getenv("ADZUNA_APP_KEY")):
         log.info("Adzuna ignoré : définir ADZUNA_APP_ID et ADZUNA_APP_KEY (gratuit sur developer.adzuna.com)")
         return []
-    offers = [o for q in queries for p in _adzuna_search(s, q, pages) if (o := _adzuna_offer(p))]
+    offers = [o for q in queries for p in _adzuna_search(s, {"what": q}, pages) if (o := _adzuna_offer(p))]
     for c in companies:
         # l'éditeur doit COMMENCER par le nom ("Safran Aircraft Engines" oui, "Cabinet X pour Safran" non)
         own = re.compile(r"(groupe |l['’] ?)?(" + "|".join(re.escape(fold(m)) for m in c["match"]) + r")(?![a-z0-9])")
         kept, own_other, others = 0, 0, Counter()
-        for p in _adzuna_search(s, f"stage {c['name']}", pages):
+        # nom exact de l'entreprise ET un des mots du stage ("stage Société Générale" exigeait les 3 mots partout)
+        search = {"what_phrase": c.get("phrase", c["name"]), "what_or": "stage stagiaire internship intern"}
+        for p in _adzuna_search(s, search, pages):
             publisher = fold((p.get("company") or {}).get("display_name", ""))
             if not own.match(publisher):
                 others[publisher or "?"] += 1

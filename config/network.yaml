@@ -1,13 +1,22 @@
 # =====================================================================
 # Recherche automatique de contacts (bouton « Trouver des contacts » d'une offre).
-# Le serveur (cv-worker/, route /contacts) cherche des profils LinkedIn publics via le moteur Tavily et lit,
-# sans IA, le nom, le poste, l'école et l'entreprise dans chaque résultat. La page les classe avec ce barème.
-# LinkedIn n'est pas aspiré : ce sont les résultats publics d'un moteur de recherche.
+# Le serveur (cv-worker/, route /contacts) cherche des profils LinkedIn publics via le moteur Tavily, en entonnoir :
+#   1. même poste que l'offre, dans la même ville        2. même poste en France (si trop peu de résultats)
+#   3. managers de l'équipe                               4. recrutement / talent acquisition
+# Il lit sans IA le nom, le poste actuel, le lieu et l'école de chaque résultat, et ne garde que les personnes qui
+# travaillent AUJOURD'HUI dans l'entreprise. La page les classe avec ce barème, du critère le plus utile pour une
+# demande de recommandation sur cette offre au moins utile. LinkedIn n'est pas aspiré : ce sont les résultats
+# publics d'un moteur de recherche.
 # =====================================================================
 criteria:
-  - {id: same_school, points: 40, label: "Ancien·ne de l'Institut Agro Rennes-Angers / Agrocampus Ouest"}
-  - {id: agro_school, points: 25, label: "Ancien·ne d'une école agro"}
-  - {id: same_entity, points: 20, label: "Dans l'entité qui recrute"}
-  - {id: same_company, points: 15, label: "Dans l'entreprise"}
-  - {id: data_role, points: 20, label: "Métier data"}
-  - {id: decision, points: 15, label: "Recrute ou manage l'équipe"}
+  - {id: same_team, points: 30, label: "Même équipe ou entité que l'offre"}
+  - {id: same_role, points: 25, label: "Même métier que l'offre"}
+  - {id: manager, points: 20, label: "Manage l'équipe"}
+  - {id: recruiter, points: 15, label: "Recrute (RH, talent acquisition)"}
+  - {id: same_city, points: 15, label: "Même ville que l'offre"}
+  - {id: same_region, points: 10, label: "Même région que l'offre"}
+  - {id: in_france, points: 5, label: "En France"}
+  - {id: data_role, points: 8, label: "Métier data"}          # seulement si le métier n'est pas déjà le même
+  - {id: same_school, points: 10, label: "Ancien·ne de l'Institut Agro Rennes-Angers"}
+  - {id: agro_school, points: 5, label: "Ancien·ne d'une école agro"}
+  - {id: abroad, points: -20, label: "À l'étranger"}

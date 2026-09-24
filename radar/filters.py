@@ -101,7 +101,7 @@ REGIONS = {
 }
 _REGION_RX = {r: compile_terms(words) for r, (_, words) in REGIONS.items()}
 _DEPT_REGION = {d: r for r, (depts, _) in REGIONS.items() for d in depts}
-FOREIGN_WORDS = compile_terms([
+FOREIGN_TERMS = [
     "belgi*", "brussels", "bruxelles", "germany", "allemagne", "deutschland", "munich", "berlin", "hamburg",
     "switzerland", "suisse", "geneva", "geneve", "lausanne", "zurich", "italy", "italie", "milan", "spain", "espagne",
     "madrid", "barcelona", "netherlands", "pays-bas", "amsterdam", "luxembourg", "portugal", "lisbon*", "ireland",
@@ -111,10 +111,16 @@ FOREIGN_WORDS = compile_terms([
     "montreal", "toronto", "quebec", "china", "chine", "shanghai", "singapore", "singapour", "hong kong", "japan",
     "japon", "tokyo", "india", "inde", "bangalore", "bengaluru", "mumbai", "brazil", "bresil", "mexico", "dubai",
     "australia", "australie", "new zealand", "korea", "seoul", "south africa", "morocco", "maroc", "tunisia",
-    "tunisie", "casablanca", "tunis", "emea", "apac", "latam"])
+    "tunisie", "casablanca", "tunis", "emea", "apac", "latam", "salzburg", "osterreich", "autriche"]
+FOREIGN_WORDS = compile_terms(FOREIGN_TERMS)
 FRANCE_WORDS = compile_terms(["france", "french", "francais*", "hexagone"])
 FR_STOPWORDS = compile_terms(["de", "la", "les", "et", "des", "vous", "pour", "une", "nous", "dans", "est", "au"])
 EN_STOPWORDS = compile_terms(["the", "and", "you", "of", "to", "with", "we", "our", "is", "for", "in", "will"])
+
+
+def geo_export() -> dict:
+    """Listes de lieux pour la page (classer le lieu d'un contact par rapport à celui de l'offre)."""
+    return {"regions": {r: words for r, (_, words) in REGIONS.items()}, "foreign": FOREIGN_TERMS}
 
 
 def region(location: str) -> str:

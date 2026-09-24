@@ -17,7 +17,8 @@ adzuna_queries:
   - stage maintenance predictive
 
 # Grands groupes dont le site carrière bloque les robots (protection anti-bot) ou n'a pas d'API publique :
-# on cherche "stage <name>" sur Adzuna et on garde les annonces dont l'éditeur commence par un des termes de match.
+# on cherche le nom exact (phrase, sinon name) avec stage / stagiaire / intern sur Adzuna, et on garde les annonces
+# dont l'éditeur commence par un des termes de match.
 # Budget : 13 requêtes + 7 groupes, 1 à 2 pages chacun = ~40 appels/jour (offre gratuite : 250/jour, 2 500/mois).
 adzuna_companies:
   - {name: Safran, match: [safran], sector: industrie, size: grande}

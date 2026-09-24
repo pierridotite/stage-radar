@@ -106,21 +106,34 @@ Très bon fit ≥ 75, bon ≥ 60, moyen ≥ 45. Le détail de chaque offre liste
 
 ## Trouver des contacts
 
-Dans le détail d'une offre, **« Trouver des contacts »** interroge le serveur `cv-worker/` : 3 recherches sur le moteur
-Tavily (gratuit, 1 000 recherches / mois) limitées aux profils LinkedIn publics (anciens agro dans l'entreprise,
-équipe data ou entité qui recrute, recrutement). Le nom, le poste, l'entreprise et l'école sont lus **sans IA** dans les
-résultats ; la page classe les personnes par score :
+Sur chaque offre, **« Trouver des contacts »** cherche les personnes à qui demander une recommandation pour CE poste.
+Le serveur `cv-worker/` interroge le moteur Tavily (gratuit, 1 000 recherches / mois), limité aux profils LinkedIn
+publics, **en entonnoir** :
+
+1. même poste que l'offre (intitulé sans « stage », « H/F », durée...), dans la ville de l'offre ;
+2. même poste en France, si l'étape 1 trouve moins de 6 personnes de l'entreprise ;
+3. managers de l'équipe (mots de l'intitulé qui décrivent l'équipe, ex. « hors domicile ») ;
+4. recrutement / talent acquisition, dans la ville de l'offre.
+
+Chaque profil est lu **sans IA** : poste actuel (titre et 1re expérience), entreprise, lieu, école. **Seules les
+personnes qui travaillent aujourd'hui dans l'entreprise sont gardées** (« Ex Nestlé », une entreprise citée seulement
+dans « Autres profils consultés » ou un homonyme sont écartés). Les équipes dites autrement en anglais sont
+reconnues (« On Premise » = hors domicile, « Off Premise » = grande distribution...). La page les classe ensuite, du
+plus utile au moins utile pour cette offre :
 
 | Critère | Points |
 |---|---|
-| Ancien·ne de l'Institut Agro Rennes-Angers / Agrocampus Ouest | 40 |
-| Ancien·ne d'une autre école agro | 25 |
-| Dans l'entité qui recrute (sinon dans l'entreprise : 15) | 20 |
-| Métier data | 20 |
-| Recrute ou manage l'équipe | 15 |
+| Même équipe ou entité que l'offre | 30 |
+| Même métier que l'offre (data analyst, data scientist, data engineer, statisticien) | 25 (autre métier data : 8) |
+| Manage l'équipe | 20 |
+| Recrute (RH, talent acquisition) | 15 |
+| Même ville que l'offre / même région / ailleurs en France | 15 / 10 / 5 |
+| Ancien·ne de l'Institut Agro Rennes-Angers / d'une autre école agro | 10 / 5 |
+| À l'étranger | −20 |
 
-LinkedIn n'est pas aspiré : ce sont les résultats publics d'un moteur de recherche. Rien n'est conservé sur le serveur ;
-les résultats restent 7 jours dans le navigateur de l'élève. Barème : `config/network.yaml`.
+Barème : `config/network.yaml`. LinkedIn n'est pas aspiré : ce sont les résultats publics d'un moteur de recherche.
+Les résultats d'une offre sont gardés 7 jours (cache partagé du serveur et navigateur de l'élève) : deux élèves sur la
+même offre ne consomment qu'une recherche, soit 3 ou 4 requêtes Tavily par offre.
 
 Tests (OpenAI, Tavily et Adzuna simulés, aucun appel réel) : `python -m unittest discover tests` et
 `node --test cv-worker/test/worker.test.mjs`.

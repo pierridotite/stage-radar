@@ -6,11 +6,11 @@ Cloudflare pour ce volume) garde les clés en secret et rend deux services, **un
 | Service | Ce qu'il fait | Coût |
 |---|---|---|
 | `POST /cv` (au dépôt du CV) | reçoit le texte du CV extrait dans le navigateur et demande à `gpt-5-nano` les filtres du profil : typologie, compétences, métiers, secteurs, régions, langues (identifiants fournis par la page, schéma JSON strict) et jusqu'à 12 thèmes précis avec synonymes | ~0,001 $ par CV |
-| `POST /contacts` (« Trouver des contacts ») | construit 3 recherches à partir de l'offre (anciens agro dans l'entreprise, équipe data ou entité, recrutement), interroge le moteur **Tavily** limité aux profils LinkedIn publics et lit **sans IA** le nom, le poste, l'entreprise et l'école de chaque résultat ; la page calcule le score avec `config/network.yaml` | 3 recherches Tavily (1 000 gratuites / mois), pas d'OpenAI |
+| `POST /contacts` (« Trouver des contacts ») | recherche en entonnoir sur le moteur **Tavily**, limitée aux profils LinkedIn publics (`linkedin.com/in`) : même poste dans la ville de l'offre, puis en France, managers de l'équipe, recrutement ; lit **sans IA** le poste actuel, l'entreprise, le lieu et l'école, ne garde que les personnes de l'entreprise ; résultats gardés 7 jours par offre (Cache API) ; la page calcule le score avec `config/network.yaml` | 3 ou 4 recherches Tavily par offre (1 000 gratuites / mois), pas d'OpenAI |
 
 Le score de fit et la note des offres sont calculés sans IA ; ce serveur n'est appelé que pour ces deux services.
 
-**Rien n'est stocké ni journalisé** côté serveur. LinkedIn n'est pas aspiré : les profils viennent de l'index public
+**Aucun CV n'est stocké et rien n'est journalisé** côté serveur ; seuls les résultats publics de recherche de contacts sont gardés 7 jours en cache. LinkedIn n'est pas aspiré : les profils viennent de l'index public
 d'un moteur de recherche, comme une recherche Google faite à la main. Les résultats restent 7 jours dans le navigateur
 de l'élève, pour ne pas relancer les mêmes recherches.
 

@@ -23,11 +23,20 @@ function mock({ missingModel, results } = {}) {
     if (String(url).includes("tavily")) {
       calls.tavily.push(body);
       return new Response(JSON.stringify({ results: results ?? [
-        { url: "https://fr.linkedin.com/in/camille-m?trk=x", title: "Camille Martin - Data Scientist - Danone | LinkedIn",
-          content: "Expérience : Danone · Formation : Agrocampus Ouest" },
-        { url: "https://fr.linkedin.com/in/alex-r", title: "Alex Roux – Talent Acquisition Partner – Danone | LinkedIn", content: "Danone" },
-        { url: "https://fr.linkedin.com/in/sam-x", title: "Sam X - Consultant - Autre société | LinkedIn", content: "rien à voir" },
-        { url: "https://www.linkedin.com/company/danone", title: "Danone | LinkedIn", content: "page entreprise" },
+        // formats réels des extraits : en-tête « # Nom Poste Lieu, FR  N connections », puis sections
+        { url: "https://fr.linkedin.com/in/camille-m?trk=x", title: "Camille Martin - Data Analyst On Premise - Red Bull | LinkedIn",
+          content: "# Camille Martin Data Analyst On Premise chez Red Bull Paris, Île-de-France, France, FR   500 connections, 900 followers  ## About N/A  ## Experience ### Red Bull   Red Bull   N/A - Present  ## Education ### Agrocampus Ouest" },
+        { url: "https://fr.linkedin.com/in/alex-r/en", title: "Alex Roux – Talent Acquisition Partner – Red Bull | LinkedIn",
+          content: "Talent Acquisition Partner · Expérience : Red Bull · Lieu : Lyon" },
+        { url: "https://at.linkedin.com/in/max-h", title: "Max Huber - Head of Data - Red Bull | LinkedIn",
+          content: "# Max Huber Head of Data Red Bull Salzburg, Salzburg, Austria, AT   500 connections  ## Experience ### Head of Data   Red Bull" },
+        { url: "https://fr.linkedin.com/in/ancien", title: "Léa Petit - Consultante - Oresys | LinkedIn",
+          content: "# Léa Petit Consultante Oresys Paris, Île-de-France, France, FR   300 connections  ## Experience ### Oresys  ## Education ### Agrocampus Ouest  ## People Also Viewed - Jo Bo (Red Bull)" },
+        { url: "https://fr.linkedin.com/in/sam-x", title: "Sam X | LinkedIn", content: "## People Also Viewed - Anthony Pilet (Red Bull)" },
+        { url: "https://fr.linkedin.com/in/tom-ex", title: "Tom Ex - Ex Red Bull Data Analyst | LinkedIn",
+          content: "# Tom Ex\nEx Red Bull Data Analyst\nParis, Île-de-France, France, FR\n500 connections" },
+        { url: "https://fr.linkedin.com/in/fan", title: "Jo Fan - New York Red Bulls | LinkedIn", content: "# Jo Fan Supporter New York, United States, US   20 connections" },
+        { url: "https://www.linkedin.com/company/redbull", title: "Red Bull | LinkedIn", content: "page entreprise" },
         { url: "https://fr.linkedin.com/in/camille-m", title: "doublon", content: "" },
       ] }), { status: 200 });
     }
@@ -72,20 +81,29 @@ test("/cv : modèle de secours si le premier est indisponible", async () => {
   assert.equal(calls.openai.length, 2);
 });
 
-test("/contacts : sans aucun appel au modèle, profils lus dans les résultats", async () => {
+test("/contacts : entonnoir sans IA, seules les personnes de l'entreprise, critères liés à l'offre", async () => {
   const calls = mock();
-  const r = await worker.fetch(post("/contacts", { company: "Groupe Danone", entity: "" }), env());
+  const r = await worker.fetch(post("/contacts", { company: "Red Bull", entity: "",
+    title: "Stage Data Specialist Hors-Domicile (H/F)", city: "Paris" }), env());
   assert.equal(r.status, 200);
   const { people } = await r.json();
   assert.equal(calls.openai.length, 0, "la recherche de contacts ne doit pas utiliser l'IA");
-  assert.equal(calls.tavily.length, 3);
-  assert.ok(calls.tavily.every((b) => b.include_domains[0] === "linkedin.com"));
+  assert.ok(calls.tavily.every((b) => b.include_domains[0] === "linkedin.com/in"), "profils LinkedIn uniquement");
+  assert.match(calls.tavily[0].query, /Red Bull .*specialist hors domicile Paris/i, "1re requête : même poste, même ville");
+  assert.ok(!/stage|h\/f/i.test(calls.tavily[0].query), "contrat et durée retirés de l'intitulé");
+  assert.equal(calls.tavily.length, 4, "peu de résultats dans l'entreprise : recherche élargie au pays");
+  assert.match(calls.tavily[1].query, /France$/);
   const byName = Object.fromEntries(people.map((p) => [p.name, p]));
-  assert.deepEqual(Object.keys(byName).sort(), ["Alex Roux", "Camille Martin"]);  // hors entreprise et doublon écartés
-  assert.equal(byName["Camille Martin"].school, "home");
-  assert.equal(byName["Camille Martin"].data_role, true);
-  assert.equal(byName["Camille Martin"].url, "https://fr.linkedin.com/in/camille-m");
-  assert.equal(byName["Alex Roux"].decision, true);
+  // ancienne de l'école ailleurs, ex-salarié, entreprise citée seulement dans « People also viewed », homonyme (Red Bulls),
+  // page entreprise et doublon écartés
+  assert.deepEqual(Object.keys(byName).sort(), ["Alex Roux", "Camille Martin", "Max Huber"]);
+  const c = byName["Camille Martin"];
+  // « On Premise » = « Hors-Domicile » : même équipe ; data analyst ~ data specialist : même métier
+  assert.deepEqual([c.same_team, c.same_role, c.school, c.location, c.country], [true, true, "home", "Paris, Île-de-France, France", "FR"]);
+  assert.deepEqual([byName["Alex Roux"].recruiter, byName["Alex Roux"].location], [true, "Lyon"]);
+  assert.equal(byName["Alex Roux"].url, "https://fr.linkedin.com/in/alex-r");
+  assert.equal(byName["Max Huber"].manager, true);
+  assert.deepEqual([byName["Max Huber"].location, byName["Max Huber"].country], ["Salzburg, Salzburg, Austria", "AT"]);
 });
 
 test("/contacts : non configuré sans clé de recherche ; route inconnue refusée ; limite de débit", async () => {
@@ -98,6 +116,6 @@ test("/contacts : non configuré sans clé de recherche ; route inconnue refusé
 
 test("/contacts : les requêtes de recherche sont nettoyées (pas d'opérateurs injectés)", async () => {
   const calls = mock();
-  await worker.fetch(post("/contacts", { company: 'Danone" OR site:evil.com' }), env());
+  await worker.fetch(post("/contacts", { company: 'Danone" OR site:evil.com', title: "Stage (data) : [x]", city: "Paris*" }), env());
   assert.ok(calls.tavily.every((b) => !/["():]/.test(b.query)));
 });

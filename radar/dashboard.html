@@ -152,6 +152,7 @@ details.more-info[open] summary::before { content: "− "; }
 .person small { display: block; color: var(--ink-2); }
 .person .why { grid-column: 2; display: flex; flex-wrap: wrap; gap: 4px; }
 .person .why span { font-size: 11.5px; padding: 1px 7px; border-radius: 999px; background: var(--gold-soft); color: var(--ink-2); }
+.person .why span.neg { background: var(--g-d-bg); color: var(--g-d); }
 .empty { padding: 40px 20px; text-align: center; color: var(--ink-3); border: 1px dashed var(--line); border-radius: 10px; }
 .more { margin: 14px auto 0; display: block; }
 
@@ -274,9 +275,10 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   const favs = new Set(store.get("radar.favs", []));
   let data = { offers: [], stats: {} };
   let lex = null;
+  let geo = { regions: {}, foreign: /$^/ };
   let cv = store.get("radar.profile", null);   // filtres tirés du CV (jamais le texte du CV)
   const found = store.get("radar.found", {});   // contacts trouvés, gardés 7 jours sur cet ordinateur
-  for (const [k, v] of Object.entries(found)) if (!v.at || Date.now() - v.at > WEEK) delete found[k];
+  for (const [k, v] of Object.entries(found)) if (!v.at || v.v !== 2 || Date.now() - v.at > WEEK) delete found[k];
 
   // ------------------------------------------------------------------ dictionnaire (mêmes règles qu'en Python)
   function compileTerms(terms, plural = false) {
@@ -474,29 +476,41 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
   }
 
   // ------------------------------------------------------------------ contacts (serveur /contacts, sans IA)
+  // lieu d'un contact par rapport à l'offre : même ville > même région > France > étranger
+  const cityOf = (loc) => fold((loc || "").split(",")[0]).replace(/\d+/g, "").trim();
+  function placeOf(p, o) {
+    const loc = fold(p.location);
+    if (p.country && p.country !== "FR") return "abroad";
+    if (!loc) return p.country === "FR" ? "in_france" : "";
+    const city = cityOf(o.location);
+    if (city.length > 2 && new RegExp(`(^|[^a-z])${reEsc(city)}([^a-z]|$)`).test(loc)) return "same_city";
+    const reg = Object.keys(geo.regions).find((r) => geo.regions[r].test(loc));
+    if (reg) return reg === o.region ? "same_region" : "in_france";
+    if (geo.foreign.test(loc)) return "abroad";
+    return /france/.test(loc) || p.country === "FR" ? "in_france" : "";
+  }
   function contactsHTML(o) {
     const f = found[o.id];
     if (!f) return "";
     if (f.loading) return `<p class="muted">Recherche de profils en cours…</p>`;
     if (f.error) return `<p class="minus">${esc(f.error)}</p><button class="chip" data-find="${esc(o.id)}">Réessayer</button>`;
     const C = Object.fromEntries((data.network?.criteria || []).map((c) => [c.id, c]));
-    const people = f.people.map((p) => {
-      const crit = [p.school === "home" ? "same_school" : p.school === "agro" ? "agro_school" : "",
-        p.in_entity ? "same_entity" : p.works_at_target ? "same_company" : "", p.data_role ? "data_role" : "",
-        p.decision ? "decision" : ""].filter((c) => c && C[c]);
-      return { ...p, crit, score: Math.min(100, crit.reduce((a, c) => a + C[c].points, 0)) };
-    }).sort((a, b) => b.score - a.score);
-    // d'abord les personnes dont le profil cite l'entreprise ; les anciens de l'école ailleurs viennent ensuite
-    const inside = people.filter((p) => p.works_at_target).slice(0, 10);
-    const alumni = people.filter((p) => !p.works_at_target).slice(0, 4);
-    if (!inside.length && !alumni.length) return `<p class="muted">Aucun profil public trouvé pour cette entreprise.</p>`;
-    const list = (ps) => `<div class="people">${ps.map((p) => `<div class="person">
+    // seules les personnes de l'entreprise arrivent ici ; classement du plus utile au moins utile pour CETTE offre
+    const people = f.people.filter((p) => p.works_at_target).map((p) => {
+      const crit = [p.same_team && "same_team", p.same_role ? "same_role" : p.data_role && "data_role",
+        p.manager && "manager", p.recruiter && "recruiter", placeOf(p, o),
+        p.school === "home" ? "same_school" : p.school === "agro" && "agro_school"].filter((c) => c && C[c]);
+      return { ...p, crit, score: Math.max(0, Math.min(100, crit.reduce((a, c) => a + C[c].points, 0))) };
+    }).sort((a, b) => b.score - a.score).slice(0, 10);
+    if (!people.length) return `<p class="muted">Aucun profil public trouvé dans cette entreprise.</p>`;
+    return `<h4>Qui contacter dans l'entreprise</h4>
+      <p class="muted">Classés par utilité : même équipe › même métier › manager › recrutement › même ville › même région › France.</p>
+      <div class="people">${people.map((p) => `<div class="person">
         <span class="ps" title="Score de pertinence">${p.score}</span>
-        <span><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a>${p.headline ? `<small>${esc(p.headline)}</small>` : ""}</span>
-        <span class="why">${p.crit.map((c) => `<span>${esc(C[c].label)}</span>`).join("")}</span></div>`).join("")}</div>`;
-    return (inside.length ? `<h4>Dans l'entreprise</h4>${list(inside)}` : "")
-      + (alumni.length ? `<h4 style="margin-top:8px">Anciens agro, entreprise à vérifier</h4>${list(alumni)}` : "")
-      + `<p class="muted">Profils publics trouvés par un moteur de recherche : vérifie-les sur LinkedIn avant d'écrire.</p>`;
+        <span><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.name)}</a>${p.headline || p.location
+          ? `<small>${esc([p.headline, p.location].filter(Boolean).join(" · "))}</small>` : ""}</span>
+        <span class="why">${p.crit.map((c) => `<span class="${C[c].points < 0 ? "neg" : ""}">${esc(C[c].label)}</span>`).join("")}</span></div>`).join("")}</div>
+      <p class="muted">Profils publics trouvés par un moteur de recherche : vérifie-les sur LinkedIn avant d'écrire.</p>`;
   }
   async function findContacts(id) {
     const o = data.offers.find((x) => x.id === id);
@@ -504,10 +518,12 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
     found[id] = { loading: true }; renderContacts(id);
     try {
       const r = await fetch(`${data.worker_url}/contacts`, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ company, entity: entity || "" }) });
+        // l'entité n'est envoyée que si c'est une équipe ou une filiale (pas un centre régional comme « INRAE · Bretagne »)
+        body: JSON.stringify({ company, entity: entity && !(data.regions || []).some((g) => entity.includes(g)) ? entity : "",
+          title: o.title, city: (o.location || "").split(",")[0].replace(/\d+/g, "").trim() }) });
       const out = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(r.status === 429 ? "trop de recherches d'un coup, réessaie dans une minute" : out.error || `erreur ${r.status}`);
-      found[id] = { at: Date.now(), people: (out.people || []).filter((p) => /^https:\/\/([a-z]+\.)?linkedin\.com\/in\//.test(p.url)) };
+      found[id] = { v: 2, at: Date.now(), people: (out.people || []).filter((p) => /^https:\/\/([a-z]+\.)?linkedin\.com\/in\//.test(p.url)) };
       store.set("radar.found", Object.fromEntries(Object.entries(found).filter(([, v]) => v.at)));
     } catch (e) { found[id] = { error: `Recherche impossible : ${e.message}` }; }
     renderContacts(id);
@@ -643,6 +659,8 @@ aside h2 { font: 600 12px/1 var(--mono); letter-spacing: .08em; text-transform: 
       data = d;
       const L = d.fit_lexicon, c = (items, key = "terms") => items.map((i) => ({ ...i, rx: compileTerms(i[key]) }));
       lex = { ...L, skills: c(L.skills), domains: c(L.domains), roles: c(L.roles), languages: c(L.languages, "cv") };
+      if (d.geo) geo = { regions: Object.fromEntries(Object.entries(d.geo.regions).map(([r, w]) => [r, compileTerms(w)])),
+        foreign: compileTerms(d.geo.foreign) };
       for (const o of data.offers) haystack(o);
       if (cv && cv.v !== 2) { cv = null; store.set("radar.profile", null); }   // profil d'une ancienne version
       if (cv) { compileProfile(); state.sort = "fit"; }

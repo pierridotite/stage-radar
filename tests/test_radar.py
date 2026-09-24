@@ -82,9 +82,10 @@ class AdzunaTest(unittest.TestCase):
 
         class S:
             def get(self, url, params):
-                calls.append(params["what"])
+                key = params.get("what") or params.get("what_phrase")
+                calls.append(key)
                 r = mock.Mock(status_code=200)
-                r.json.return_value = {"results": pages.get(params["what"], [])}
+                r.json.return_value = {"results": pages.get(key, [])}
                 return r
         return S(), calls
 
@@ -101,15 +102,15 @@ class AdzunaTest(unittest.TestCase):
         self.assertEqual(calls, [])
 
     def test_groupes_cibles_seules_leurs_annonces(self):
-        s, calls = self.fake_session({"stage L'Oréal": [
+        s, calls = self.fake_session({"L'Oréal": [
             self.job("L’ORÉAL"), self.job("Cabinet Conseil (client L'Oréal)"), self.job("L'Oréal", "Directeur marketing", "CDI", "permanent")]})
         companies = [{"name": "L'Oréal", "match": ["oreal"], "sector": "luxe", "size": "grande"}]
         with mock.patch.dict(os.environ, {"ADZUNA_APP_ID": "x", "ADZUNA_APP_KEY": "y"}):
             found = adzuna([], companies, s)
-        self.assertEqual(calls, ["stage L'Oréal"])
+        self.assertEqual(calls, ["L'Oréal"])
         self.assertEqual(len(found), 1, "cabinet tiers et poste hors stage écartés")
         self.assertEqual((found[0].company, found[0].sector, found[0].size), ("L'Oréal", "luxe", "grande"))
-        s, _ = self.fake_session({"stage Safran": [self.job("Safran Aircraft Engines"), self.job("Hays pour Safran")]})
+        s, _ = self.fake_session({"Safran": [self.job("Safran Aircraft Engines"), self.job("Hays pour Safran")]})
         with mock.patch.dict(os.environ, {"ADZUNA_APP_ID": "x", "ADZUNA_APP_KEY": "y"}):
             found = adzuna([], [{"name": "Safran", "match": ["safran"], "sector": "industrie", "size": "grande"}], s)
         self.assertEqual([o.company for o in found], ["Safran"])

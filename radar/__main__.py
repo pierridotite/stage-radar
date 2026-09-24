@@ -20,7 +20,7 @@ from pathlib import Path
 import yaml
 
 from .company_size import enrich
-from .filters import REGIONS, classify_sector, in_france, region
+from .filters import REGIONS, classify_sector, geo_export, in_france, region
 from .fit import FitLexicon
 from .http import PoliteSession
 from .scoring import Scorer
@@ -132,6 +132,7 @@ def export(store: Store, today: date) -> None:
         "worker_url": (load("server.yaml").get("worker_url") or "").rstrip("/"),
         "network": load("network.yaml"),
         "regions": list(REGIONS),
+        "geo": geo_export(),
         "stats": {
             "offers": len(items), "new": sum(i["new"] for i in items),
             "by_sector": Counter(i["sector"] for i in items), "by_size": Counter(i["size"] or "?" for i in items),
