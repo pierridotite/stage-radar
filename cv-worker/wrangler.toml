@@ -1,5 +1,7 @@
 name = "radar-stages"
 main = "src/index.js"
+workers_dev = true      # adresse publique : https://radar-stages.radar-stages-institut-agro.workers.dev
+preview_urls = false    # pas d'adresses de prévisualisation supplémentaires
 compatibility_date = "2026-09-01"
 
 # Les clés ne sont PAS ici : elles se déclarent en secrets avec

@@ -25,7 +25,7 @@ cv:
 
 # Adresse du petit serveur Cloudflare (cv-worker/) : analyse des CV (/cv) et recherche de contacts (/contacts).
 # Vide = CV analysé localement par les règles, et seulement les recherches LinkedIn manuelles pour les contacts.
-worker_url: ""
+worker_url: "https://radar-stages.radar-stages-institut-agro.workers.dev"
 
 # Prix en $ par million de jetons, pour le journal de coût de chaque exécution
 prices:
